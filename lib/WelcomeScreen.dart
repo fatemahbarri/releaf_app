@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'widgets/app_background.dart';
-import 'auth/AdminLogIn.dart';
-import 'auth/UserLogIn.dart';
+import 'auth/Login.dart';
 import 'auth/SignUp.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -43,15 +42,20 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Image.network(
-                        "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/igfkqvwq_expires_30_days.png",
+
+                      /// 🔥 صورة الويلكم الجديدة
+                      Image.asset(
+                        'assets/releaf_welcome.png',
                         height: 200,
                       ),
                     ],
                   ),
                 ),
               ),
+
               const SizedBox(height: 30),
+
+              /// 🔥 زر الأدمن
               _buildButton(
                 text: "Login as Admin",
                 color: const Color(0xFF499A64),
@@ -60,12 +64,17 @@ class WelcomeScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const AdminLogIn(),
+                      builder: (context) => const LoginPage(
+                        isAdminMode: true,
+                      ),
                     ),
                   );
                 },
               ),
+
               const SizedBox(height: 20),
+
+              /// 🔥 زر اليوزر
               _buildButton(
                 text: "Login as User",
                 color: const Color(0xFF8DC149),
@@ -74,12 +83,17 @@ class WelcomeScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const UserLogIn(),
+                      builder: (context) => const LoginPage(
+                        isAdminMode: false,
+                      ),
                     ),
                   );
                 },
               ),
+
               const SizedBox(height: 20),
+
+              /// 🔥 رابط التسجيل
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -98,6 +112,7 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
+
               const SizedBox(height: 30),
             ],
           ),

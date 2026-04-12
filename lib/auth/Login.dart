@@ -1,50 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:releaf_app/WelcomeScreen.dart';
+import 'package:releaf_app/auth/SignUp.dart';
 import 'package:releaf_app/services/firebase_service.dart';
 import 'package:releaf_app/widgets/app_background.dart';
 
-class SignUp extends StatefulWidget {
-  const SignUp({super.key});
+import '../admin/AdminHomePage.dart';
+
+class LoginPage extends StatefulWidget {
+  final bool isAdminMode;
+
+  const LoginPage({
+    super.key,
+    required this.isAdminMode,
+  });
 
   @override
-  State<SignUp> createState() => _SignUpState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _SignUpState extends State<SignUp> {
-  final TextEditingController fullNameController = TextEditingController();
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
 
   final FirebaseService _firebaseService = FirebaseService();
 
   bool isLoading = false;
   bool obscurePassword = true;
-  bool obscureConfirmPassword = true;
+  String? adminName;
+
+  String get titleText {
+    return widget.isAdminMode ? 'Admin Sign In' : 'User Sign In';
+  }
+
+  String get welcomeText {
+    if (widget.isAdminMode && adminName != null && adminName!.isNotEmpty) {
+      return 'Welcome $adminName';
+    }
+    return 'Welcome Back';
+  }
 
   @override
   void dispose() {
-    fullNameController.dispose();
     emailController.dispose();
-    usernameController.dispose();
     passwordController.dispose();
-    confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Future<void> _signUp() async {
-    final fullName = fullNameController.text.trim();
-    final email = emailController.text.trim();
-    final username = usernameController.text.trim();
-    final password = passwordController.text.trim();
-    final confirmPassword = confirmPasswordController.text.trim();
+  Future<void> _checkAdminName(String email) async {
+    final trimmedEmail = email.trim().toLowerCase();
 
-    if (fullName.isEmpty ||
-        email.isEmpty ||
-        username.isEmpty ||
-        password.isEmpty ||
-        confirmPassword.isEmpty) {
+    if (!widget.isAdminMode || !trimmedEmail.endsWith('@releaf.com')) {
+      if (adminName != null) {
+        setState(() {
+          adminName = null;
+        });
+      }
+      return;
+    }
+
+    try {
+      final userData = await _firebaseService.getUserByEmail(trimmedEmail);
+
+      if (!mounted) return;
+
+      setState(() {
+        adminName = userData?['name'];
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        adminName = null;
+      });
+    }
+  }
+
+  Future<void> _signIn() async {
+    final email = emailController.text.trim().toLowerCase();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
       _showMessage('Please fill in all fields');
       return;
     }
@@ -54,35 +88,64 @@ class _SignUpState extends State<SignUp> {
       return;
     }
 
-    if (password != confirmPassword) {
-      _showMessage('Passwords do not match');
+    final bool isAdminEmail = email.endsWith('@releaf.com');
+
+    if (widget.isAdminMode && !isAdminEmail) {
+      _showMessage('This page is for admin email only');
       return;
     }
 
-    if (password.length < 6) {
-      _showMessage('Password must be at least 6 characters');
+    if (!widget.isAdminMode && isAdminEmail) {
+      _showMessage('Admin accounts must log in from Admin Login');
       return;
     }
 
     setState(() => isLoading = true);
 
     try {
-      await _firebaseService.registerUser(
-        name: fullName,
-        username: username,
+      final userData = await _firebaseService.loginUser(
         email: email,
         password: password,
       );
 
       if (!mounted) return;
 
-      _showMessage('Account created successfully');
+      final role = (userData['role'] ?? '').toString().toLowerCase();
+      final name = (userData['name'] ?? '').toString();
 
-      fullNameController.clear();
-      emailController.clear();
-      usernameController.clear();
-      passwordController.clear();
-      confirmPasswordController.clear();
+      if (widget.isAdminMode && role != 'admin') {
+        _showMessage('This account is not registered as admin');
+        return;
+      }
+
+      if (!widget.isAdminMode && role == 'admin') {
+        _showMessage('This account is admin, please use Admin Login');
+        return;
+      }
+
+      if (widget.isAdminMode) {
+        setState(() {
+          adminName = name;
+        });
+      }
+
+      if (widget.isAdminMode) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdminHomePage(
+              adminName: name,
+            ),
+          ),
+        );
+      } else {
+        // لاحقًا صفحة اليوزر
+        // مثال:
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => UserHomePage(userName: name)),
+        // );
+      }
     } catch (e) {
       if (!mounted) return;
       _showMessage(e.toString().replaceFirst('Exception: ', ''));
@@ -109,6 +172,7 @@ class _SignUpState extends State<SignUp> {
     bool obscureText = false,
     TextInputType keyboardType = TextInputType.text,
     Widget? suffixIcon,
+    void Function(String)? onChanged,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
@@ -116,6 +180,7 @@ class _SignUpState extends State<SignUp> {
         controller: controller,
         obscureText: obscureText,
         keyboardType: keyboardType,
+        onChanged: onChanged,
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: const TextStyle(
@@ -169,7 +234,12 @@ class _SignUpState extends State<SignUp> {
                   alignment: Alignment.centerLeft,
                   child: IconButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const WelcomeScreen(),
+                        ),
+                      );
                     },
                     icon: const Icon(
                       Icons.arrow_back_ios_new_rounded,
@@ -178,26 +248,35 @@ class _SignUpState extends State<SignUp> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Center(
-                  child: Image.asset(
-                    'assets/Releaf_logo.png',
-                    height: 120,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                const Text(
-                  'Create Account',
-                  style: TextStyle(
+                Text(
+                  titleText,
+                  style: const TextStyle(
                     color: Color(0xFF498056),
-                    fontSize: 32,
+                    fontSize: 30,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 20),
+                Center(
+                  child: Image.asset(
+                    'assets/Releaf_logo.png',
+                    height: 150,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  welcomeText,
+                  style: const TextStyle(
+                    color: Color(0xFF7BA285),
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
                 const Text(
-                  'Sign up to get started',
+                  'Enter your credentials to continue',
                   style: TextStyle(
-                    color: Color(0xFF6E6E6E),
+                    color: Color(0xFF675F5A),
                     fontSize: 15,
                     fontWeight: FontWeight.w500,
                   ),
@@ -213,17 +292,12 @@ class _SignUpState extends State<SignUp> {
                   child: Column(
                     children: [
                       _buildTextField(
-                        controller: fullNameController,
-                        hintText: 'Full Name',
-                      ),
-                      _buildTextField(
                         controller: emailController,
                         hintText: 'Email Address',
                         keyboardType: TextInputType.emailAddress,
-                      ),
-                      _buildTextField(
-                        controller: usernameController,
-                        hintText: 'Username',
+                        onChanged: (value) {
+                          _checkAdminName(value);
+                        },
                       ),
                       _buildTextField(
                         controller: passwordController,
@@ -243,30 +317,12 @@ class _SignUpState extends State<SignUp> {
                           },
                         ),
                       ),
-                      _buildTextField(
-                        controller: confirmPasswordController,
-                        hintText: 'Confirm Password',
-                        obscureText: obscureConfirmPassword,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            obscureConfirmPassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            color: Colors.grey[600],
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              obscureConfirmPassword = !obscureConfirmPassword;
-                            });
-                          },
-                        ),
-                      ),
                       const SizedBox(height: 10),
                       SizedBox(
                         width: double.infinity,
                         height: 52,
                         child: ElevatedButton(
-                          onPressed: isLoading ? null : _signUp,
+                          onPressed: isLoading ? null : _signIn,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF499A64),
                             foregroundColor: Colors.white,
@@ -285,7 +341,7 @@ class _SignUpState extends State<SignUp> {
                                   ),
                                 )
                               : const Text(
-                                  'Sign up',
+                                  'Login',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -299,10 +355,15 @@ class _SignUpState extends State<SignUp> {
                 const SizedBox(height: 18),
                 GestureDetector(
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SignUp(),
+                      ),
+                    );
                   },
                   child: const Text(
-                    'Already have an account? Log in',
+                    "Don’t have an account? Sign up",
                     style: TextStyle(
                       color: Color(0xFF4676AE),
                       fontSize: 14,

@@ -46,8 +46,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
         final matchesSearch =
             query.isEmpty || name.contains(query) || email.contains(query);
 
-        final matchesFilter =
-            selectedFilter == 'All Users' ||
+        final matchesFilter = selectedFilter == 'All Users' ||
             status == selectedFilter.toLowerCase();
 
         return matchesSearch && matchesFilter;
@@ -118,7 +117,8 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                               Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const AdminHomePage(),
+                                  builder: (context) =>
+                                      AdminHomePage(adminName: 'Admin'),
                                 ),
                               );
                             },

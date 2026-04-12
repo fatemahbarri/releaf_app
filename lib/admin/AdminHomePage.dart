@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import '../widgets/app_background.dart'; // 🔥 إضافة الخلفية
 import 'AdminBar.dart';
 
 class AdminHomePage extends StatefulWidget {
-  const AdminHomePage({super.key});
+  final String adminName;
+
+  const AdminHomePage({
+    super.key,
+    required this.adminName,
+  });
 
   @override
   State<AdminHomePage> createState() => _AdminHomePageState();
@@ -12,100 +18,96 @@ class _AdminHomePageState extends State<AdminHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3FFE2),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 20, 18, 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(left: 8),
-                child: Icon(
-                  Icons.notifications_none_rounded,
-                  size: 42,
-                  color: Color(0xFF4D9B63),
-                ),
-              ),
-              const SizedBox(height: 55),
-              const Center(
-                child: Text(
-                  'Welcome, Admin',
-                  style: TextStyle(
-                    fontSize: 34,
-                    fontWeight: FontWeight.w700,
-                    color: Color.fromARGB(255, 0, 0, 0),
+      body: AppBackground(
+        // 🔥 هنا لفّينا الصفحة كلها بالخلفية
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(18, 20, 18, 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(left: 8),
+                  child: Icon(
+                    Icons.notifications_none_rounded,
+                    size: 42,
+                    color: Color(0xFF4D9B63),
                   ),
                 ),
-              ),
-              const SizedBox(height: 70),
-              const Padding(
-                padding: EdgeInsets.only(left: 12),
-                child: Text(
-                  'Dashboard',
-                  style: TextStyle(
-                    fontSize: 31,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF675F5A),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 35),
-              Expanded(
-                child: Column(
-                  children: [
-                    Row(
-                      children: const [
-                        Expanded(
-                          child: _DashboardCard(
-                            title: 'Total Users',
-                            value: '200',
-                          ),
-                        ),
-                        SizedBox(width: 24),
-                        Expanded(
-                          child: _DashboardCard(
-                            title: 'Active Users',
-                            value: '115',
-                          ),
-                        ),
-                      ],
+                const SizedBox(height: 55),
+                Center(
+                  child: Text(
+                    'Welcome, ${widget.adminName}', // 🔥 الاسم الديناميكي
+                    style: const TextStyle(
+                      fontSize: 34,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black,
                     ),
-                    const SizedBox(height: 28),
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: _DashboardCard(
-                            title: 'Total Bins',
-                            value: '50',
-                          ),
-                        ),
-                        const SizedBox(width: 24),
-                        Expanded(
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(28),
-                            onTap: () {
-                              // Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //     builder: (context) => ReportedIssuesPage(),
-                              //   ),
-                              // );
-                            },
-                            child: const _DashboardCard(
-                              title: 'Reported\nIssues',
-                              value: '4',
-                              valueColor: Color(0xFFC70000),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(height: 70),
+                const Padding(
+                  padding: EdgeInsets.only(left: 12),
+                  child: Text(
+                    'Dashboard',
+                    style: TextStyle(
+                      fontSize: 31,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF675F5A),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 35),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Row(
+                        children: const [
+                          Expanded(
+                            child: _DashboardCard(
+                              title: 'Total Users',
+                              value: '200',
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                  ],
+                          SizedBox(width: 24),
+                          Expanded(
+                            child: _DashboardCard(
+                              title: 'Active Users',
+                              value: '115',
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 28),
+                      Row(
+                        children: [
+                          const Expanded(
+                            child: _DashboardCard(
+                              title: 'Total Bins',
+                              value: '50',
+                            ),
+                          ),
+                          const SizedBox(width: 24),
+                          Expanded(
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(28),
+                              onTap: () {},
+                              child: const _DashboardCard(
+                                title: 'Reported\nIssues',
+                                value: '4',
+                                valueColor: Color(0xFFC70000),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

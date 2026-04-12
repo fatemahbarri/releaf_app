@@ -69,7 +69,7 @@ class AdminBar extends StatelessWidget {
 
         switch (index) {
           case 0:
-            page = const AdminHomePage();
+            page = AdminHomePage(adminName: 'Admin');
             break;
           case 1:
             page = const AdminUserManagment();
@@ -81,7 +81,7 @@ class AdminBar extends StatelessWidget {
             page = const AdminProfileEdit();
             break;
           default:
-            page = const AdminHomePage();
+            page = AdminHomePage(adminName: 'Admin');
         }
 
         Navigator.pushReplacement(
@@ -98,9 +98,8 @@ class AdminBar extends StatelessWidget {
               width: 70,
               height: 34,
               decoration: BoxDecoration(
-                color: isSelected
-                    ? const Color(0xFFAFCDA8)
-                    : Colors.transparent,
+                color:
+                    isSelected ? const Color(0xFFAFCDA8) : Colors.transparent,
                 borderRadius: BorderRadius.circular(22),
               ),
               child: Icon(
