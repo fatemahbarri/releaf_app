@@ -10,10 +10,38 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scale;
+
   @override
   void initState() {
     super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    );
+
+    _scale = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 0.85,
+          end: 1.05,
+        ).chain(CurveTween(curve: Curves.easeOutBack)),
+        weight: 60,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.05,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 40,
+      ),
+    ]).animate(_controller);
+
+    _controller.forward();
 
     Timer(const Duration(seconds: 3), () {
       if (!mounted) return;
@@ -26,54 +54,49 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: AppBackground(
         child: SafeArea(
           child: Stack(
             children: [
+              // الموجة السفلية
               Align(
                 alignment: Alignment.bottomCenter,
-                child: Container(
-                  height: 320,
+                child: SizedBox(
+                  height: 280,
                   width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF8DC149),
-                    borderRadius: BorderRadius.vertical(
-                      top: Radius.circular(140),
+                  child: ClipPath(
+                    clipper: BottomWaveClipper(),
+                    child: Container(
+                      color: const Color(0xFFB7D98A),
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0x40000000),
-                        blurRadius: 4,
-                        offset: Offset(0, 4),
-                      ),
-                    ],
                   ),
                 ),
               ),
+
+              // اللوقو فقط
               Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: 220,
-                      height: 220,
-                      child: Image.network(
-                        "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/ndwwana1_expires_30_days.png",
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'ReLeaf',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
+                child: AnimatedBuilder(
+                  animation: _scale,
+                  builder: (context, child) {
+                    return Transform.scale(
+                      scale: _scale.value,
+                      child: child,
+                    );
+                  },
+                  child: Image.asset(
+                    'assets/Releaf_logo.png',
+                    width: 180,
+                    height: 180,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ],
@@ -82,4 +105,43 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
+}
+
+class BottomWaveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+
+    path.lineTo(0, size.height * 0.28);
+
+    path.quadraticBezierTo(
+      size.width * 0.15,
+      size.height * 0.02,
+      size.width * 0.38,
+      size.height * 0.18,
+    );
+
+    path.quadraticBezierTo(
+      size.width * 0.58,
+      size.height * 0.34,
+      size.width * 0.78,
+      size.height * 0.20,
+    );
+
+    path.quadraticBezierTo(
+      size.width * 0.90,
+      size.height * 0.12,
+      size.width,
+      size.height * 0.24,
+    );
+
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
