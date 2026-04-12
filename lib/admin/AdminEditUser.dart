@@ -41,7 +41,7 @@ class AdminEditUserState extends State<AdminEditUser> {
 															width: double.infinity,
 															child: Column(
 																children: [
-																	Container(
+																	SizedBox(
 																		width: 162,
 																		height: 162,
 																		child: Image.network(
@@ -126,7 +126,7 @@ class AdminEditUserState extends State<AdminEditUser> {
 																			fontWeight: FontWeight.bold,
 																		),
 																	),
-																	Container(
+																	SizedBox(
 																		width: 25,
 																		height: 25,
 																		child: Image.network(
@@ -168,7 +168,7 @@ class AdminEditUserState extends State<AdminEditUser> {
 																			fontWeight: FontWeight.bold,
 																		),
 																	),
-																	Container(
+																	SizedBox(
 																		width: 25,
 																		height: 25,
 																		child: Image.network(
@@ -210,7 +210,7 @@ class AdminEditUserState extends State<AdminEditUser> {
 																			fontWeight: FontWeight.bold,
 																		),
 																	),
-																	Container(
+																	SizedBox(
 																		width: 25,
 																		height: 25,
 																		child: Image.network(
@@ -252,7 +252,7 @@ class AdminEditUserState extends State<AdminEditUser> {
 																			fontWeight: FontWeight.bold,
 																		),
 																	),
-																	Container(
+																	SizedBox(
 																		width: 25,
 																		height: 25,
 																		child: Image.network(

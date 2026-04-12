@@ -39,7 +39,7 @@ class AdminProfileState extends State<AdminProfile> {
 																				mainAxisAlignment: MainAxisAlignment.spaceBetween,
 																				crossAxisAlignment: CrossAxisAlignment.start,
 																				children: [
-																					Container(
+																					SizedBox(
 																						width: 47,
 																						height: 41,
 																						child: Image.network(
@@ -56,7 +56,7 @@ class AdminProfileState extends State<AdminProfile> {
 																							fit: BoxFit.fill,
 																						)
 																					),
-																					Container(
+																					SizedBox(
 																						width: 47,
 																						height: 41,
 																						child: SizedBox(),
@@ -176,7 +176,7 @@ class AdminProfileState extends State<AdminProfile> {
 																							),
 																						),
 																					),
-																					Container(
+																					SizedBox(
 																						width: 25,
 																						height: 25,
 																						child: Image.network(

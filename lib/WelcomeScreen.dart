@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'widgets/app_background.dart';
+import 'auth/AdminLogIn.dart';
+import 'auth/UserLogIn.dart';
+import 'auth/SignUp.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -11,7 +14,6 @@ class WelcomeScreen extends StatelessWidget {
         child: SafeArea(
           child: Column(
             children: [
-              // الجزء العلوي الأخضر
               Expanded(
                 child: Container(
                   width: double.infinity,
@@ -41,7 +43,6 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 20),
-
                       Image.network(
                         "https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/igfkqvwq_expires_30_days.png",
                         height: 200,
@@ -50,42 +51,53 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 30),
-
-              // زر Admin
               _buildButton(
                 text: "Login as Admin",
                 color: const Color(0xFF499A64),
                 textColor: Colors.white,
                 onTap: () {
-                  print("Admin");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AdminLogIn(),
+                    ),
+                  );
                 },
               ),
-
               const SizedBox(height: 20),
-
-              // زر User
               _buildButton(
                 text: "Login as User",
                 color: const Color(0xFF8DC149),
                 textColor: Colors.black,
                 onTap: () {
-                  print("User");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const UserLogIn(),
+                    ),
+                  );
                 },
               ),
-
               const SizedBox(height: 20),
-
-              const Text(
-                "Don’t have an account? Sign up",
-                style: TextStyle(
-                  color: Color(0xFF4676AE),
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SignUp(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  "Don’t have an account? Sign up",
+                  style: TextStyle(
+                    color: Color(0xFF4676AE),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-
               const SizedBox(height: 30),
             ],
           ),

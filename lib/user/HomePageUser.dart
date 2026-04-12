@@ -49,7 +49,7 @@ class HomePageUserState extends State<HomePageUser> {
 														width: double.infinity,
 														child: Column(
 															children: [
-																Container(
+																SizedBox(
 																	width: 293,
 																	child: Text(
 																		"Recycle today for a cleaner tomorrow!",
@@ -215,7 +215,7 @@ class HomePageUserState extends State<HomePageUser> {
 																child: Column(
 																	crossAxisAlignment: CrossAxisAlignment.start,
 																	children: [
-																		Container(
+																		SizedBox(
 																			width: 40,
 																			height: 40,
 																			child: Image.network(

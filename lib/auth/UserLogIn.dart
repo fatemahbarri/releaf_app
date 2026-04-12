@@ -34,7 +34,7 @@ class UserLogInState extends State<UserLogIn> {
 																mainAxisAlignment: MainAxisAlignment.spaceBetween,
 																crossAxisAlignment: CrossAxisAlignment.start,
 																children: [
-																	Container(
+																	SizedBox(
 																		width: 47,
 																		height: 41,
 																		child: Image.network(
@@ -53,7 +53,7 @@ class UserLogInState extends State<UserLogIn> {
 																			),
 																		),
 																	),
-																	Container(
+																	SizedBox(
 																		width: 47,
 																		height: 41,
 																		child: SizedBox(),
@@ -68,7 +68,7 @@ class UserLogInState extends State<UserLogIn> {
 															width: double.infinity,
 															child: Column(
 																children: [
-																	Container(
+																	SizedBox(
 																		width: 178,
 																		height: 163,
 																		child: Image.network(

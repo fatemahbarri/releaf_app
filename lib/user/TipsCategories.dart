@@ -75,7 +75,7 @@ class TipsCategoriesState extends State<TipsCategories> {
 																		),
 																	),
 																),
-																Container(
+																SizedBox(
 																	width: 47,
 																	height: 41,
 																	child: SizedBox(),

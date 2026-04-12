@@ -76,7 +76,7 @@ class AdminBinManagment3State extends State<AdminBinManagment3> {
 																			),
 																		),
 																	),
-																	Container(
+																	SizedBox(
 																		width: 47,
 																		height: 41,
 																		child: SizedBox(),
@@ -134,7 +134,7 @@ class AdminBinManagment3State extends State<AdminBinManagment3> {
 																			),
 																		),
 																	),
-																	Container(
+																	SizedBox(
 																		width: 24,
 																		height: 24,
 																		child: Image.network(
@@ -239,7 +239,7 @@ class AdminBinManagment3State extends State<AdminBinManagment3> {
 																										child: Column(
 																											crossAxisAlignment: CrossAxisAlignment.start,
 																											children: [
-																												Container(
+																												SizedBox(
 																													width: 25,
 																													height: 25,
 																													child: Image.network(
@@ -290,7 +290,7 @@ class AdminBinManagment3State extends State<AdminBinManagment3> {
 																						crossAxisAlignment: CrossAxisAlignment.start,
 																						children: [
 																							IntrinsicHeight(
-																								child: Container(
+																								child: SizedBox(
 																									width: double.infinity,
 																									child: Stack(
 																										clipBehavior: Clip.none,
@@ -354,7 +354,7 @@ class AdminBinManagment3State extends State<AdminBinManagment3> {
 																																									child: Column(
 																																										crossAxisAlignment: CrossAxisAlignment.start,
 																																										children: [
-																																											Container(
+																																											SizedBox(
 																																												width: 25,
 																																												height: 25,
 																																												child: Image.network(
@@ -485,7 +485,7 @@ class AdminBinManagment3State extends State<AdminBinManagment3> {
 																																									child: Column(
 																																										crossAxisAlignment: CrossAxisAlignment.start,
 																																										children: [
-																																											Container(
+																																											SizedBox(
 																																												width: 25,
 																																												height: 25,
 																																												child: Image.network(
@@ -576,7 +576,7 @@ class AdminBinManagment3State extends State<AdminBinManagment3> {
 																																													),
 																																												),
 																																											),
-																																											Container(
+																																											SizedBox(
 																																												width: 166,
 																																												child: Text(
 																																													"Seaside Road, Al Khobar Corniche Extension",
@@ -612,7 +612,7 @@ class AdminBinManagment3State extends State<AdminBinManagment3> {
 																																										child: Column(
 																																											crossAxisAlignment: CrossAxisAlignment.start,
 																																											children: [
-																																												Container(
+																																												SizedBox(
 																																													width: 25,
 																																													height: 25,
 																																													child: Image.network(
@@ -699,12 +699,12 @@ class AdminBinManagment3State extends State<AdminBinManagment3> {
 																		),
 																	),
 																	IntrinsicHeight(
-																		child: Container(
+																		child: SizedBox(
 																			width: double.infinity,
 																			child: Column(
 																				crossAxisAlignment: CrossAxisAlignment.end,
 																				children: [
-																					Container(
+																					SizedBox(
 																						width: 30,
 																						height: 31,
 																						child: Image.network(

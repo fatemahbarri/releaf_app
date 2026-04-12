@@ -54,7 +54,7 @@ class AdminLogInState extends State<AdminLogIn> {
 																				),
 																			),
 																		),
-																		Container(
+																		SizedBox(
 																			width: 47,
 																			height: 41,
 																			child: SizedBox(),
@@ -70,7 +70,7 @@ class AdminLogInState extends State<AdminLogIn> {
 															width: double.infinity,
 															child: Column(
 																children: [
-																	Container(
+																	SizedBox(
 																		width: 178,
 																		height: 163,
 																		child: Image.network(

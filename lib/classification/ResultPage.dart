@@ -80,7 +80,7 @@ class ResultPageState extends State<ResultPage> {
 																					),
 																				),
 																			),
-																			Container(
+																			SizedBox(
 																				width: 47,
 																				height: 41,
 																				child: SizedBox(),

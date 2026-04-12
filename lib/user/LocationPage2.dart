@@ -75,7 +75,7 @@ class LocationPage2State extends State<LocationPage2> {
 																		),
 																	),
 																),
-																Container(
+																SizedBox(
 																	width: 47,
 																	height: 41,
 																	child: SizedBox(),
@@ -133,7 +133,7 @@ class LocationPage2State extends State<LocationPage2> {
 																		),
 																	),
 																),
-																Container(
+																SizedBox(
 																	width: 24,
 																	height: 24,
 																	child: Image.network(

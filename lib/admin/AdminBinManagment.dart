@@ -32,7 +32,7 @@ class AdminBinManagmentState extends State<AdminBinManagment> {
 																margin: const EdgeInsets.only( bottom: 7, left: 12),
 																child: Row(
 																	children: [
-																		Container(
+																		SizedBox(
 																			width: 47,
 																			height: 41,
 																			child: Image.network(
@@ -121,7 +121,7 @@ class AdminBinManagmentState extends State<AdminBinManagment> {
 																			),
 																		),
 																	),
-																	Container(
+																	SizedBox(
 																		width: 24,
 																		height: 24,
 																		child: Image.network(

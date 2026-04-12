@@ -33,7 +33,7 @@ class CameraState extends State<Camera> {
 															child: Row(
 																mainAxisAlignment: MainAxisAlignment.spaceBetween,
 																children: [
-																	Container(
+																	SizedBox(
 																		width: 47,
 																		height: 41,
 																		child: Image.network(
@@ -49,7 +49,7 @@ class CameraState extends State<Camera> {
 																			fontWeight: FontWeight.bold,
 																		),
 																	),
-																	Container(
+																	SizedBox(
 																		width: 47,
 																		height: 41,
 																		child: SizedBox(),
@@ -112,7 +112,7 @@ class CameraState extends State<Camera> {
 																												fit: BoxFit.fill,
 																											)
 																										),
-																										Container(
+																										SizedBox(
 																											width: 56,
 																											height: 32,
 																											child: Image.network(

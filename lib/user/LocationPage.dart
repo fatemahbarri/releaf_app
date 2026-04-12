@@ -83,7 +83,7 @@ class LocationPageState extends State<LocationPage> {
 																		),
 																	),
 																),
-																Container(
+																SizedBox(
 																	width: 24,
 																	height: 24,
 																	child: Image.network(

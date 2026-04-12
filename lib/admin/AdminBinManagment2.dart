@@ -129,7 +129,7 @@ class AdminBinManagment2State extends State<AdminBinManagment2> {
 																			),
 																		),
 																	),
-																	Container(
+																	SizedBox(
 																		width: 24,
 																		height: 24,
 																		child: Image.network(
@@ -234,7 +234,7 @@ class AdminBinManagment2State extends State<AdminBinManagment2> {
 																										child: Column(
 																											crossAxisAlignment: CrossAxisAlignment.start,
 																											children: [
-																												Container(
+																												SizedBox(
 																													width: 25,
 																													height: 25,
 																													child: Image.network(
@@ -353,7 +353,7 @@ class AdminBinManagment2State extends State<AdminBinManagment2> {
 																										child: Column(
 																											crossAxisAlignment: CrossAxisAlignment.start,
 																											children: [
-																												Container(
+																												SizedBox(
 																													width: 25,
 																													height: 25,
 																													child: Image.network(
@@ -467,7 +467,7 @@ class AdminBinManagment2State extends State<AdminBinManagment2> {
 																										child: Column(
 																											crossAxisAlignment: CrossAxisAlignment.start,
 																											children: [
-																												Container(
+																												SizedBox(
 																													width: 25,
 																													height: 25,
 																													child: Image.network(
@@ -549,7 +549,7 @@ class AdminBinManagment2State extends State<AdminBinManagment2> {
 																													),
 																												),
 																											),
-																											Container(
+																											SizedBox(
 																												width: 166,
 																												child: Text(
 																													"Seaside Road, Al Khobar Corniche Extension",
@@ -585,7 +585,7 @@ class AdminBinManagment2State extends State<AdminBinManagment2> {
 																										child: Column(
 																											crossAxisAlignment: CrossAxisAlignment.start,
 																											children: [
-																												Container(
+																												SizedBox(
 																													width: 25,
 																													height: 25,
 																													child: Image.network(

@@ -33,7 +33,7 @@ class UploadPhotoState extends State<UploadPhoto> {
 															child: Row(
 																mainAxisAlignment: MainAxisAlignment.spaceBetween,
 																children: [
-																	Container(
+																	SizedBox(
 																		width: 47,
 																		height: 41,
 																		child: Image.network(
@@ -49,7 +49,7 @@ class UploadPhotoState extends State<UploadPhoto> {
 																			fontWeight: FontWeight.bold,
 																		),
 																	),
-																	Container(
+																	SizedBox(
 																		width: 47,
 																		height: 41,
 																		child: SizedBox(),
@@ -59,7 +59,7 @@ class UploadPhotoState extends State<UploadPhoto> {
 														),
 													),
 													IntrinsicHeight(
-														child: Container(
+														child: SizedBox(
 															width: double.infinity,
 															child: Column(
 																crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +86,7 @@ class UploadPhotoState extends State<UploadPhoto> {
 																			child: Column(
 																				crossAxisAlignment: CrossAxisAlignment.start,
 																				children: [
-																					Container(
+																					SizedBox(
 																						height: 689,
 																						width: double.infinity,
 																						child: Image.network(
@@ -130,7 +130,7 @@ class UploadPhotoState extends State<UploadPhoto> {
 																												fit: BoxFit.fill,
 																											)
 																										),
-																										Container(
+																										SizedBox(
 																											width: 56,
 																											height: 32,
 																											child: Image.network(

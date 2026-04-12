@@ -80,7 +80,7 @@ class LearnMoreState extends State<LearnMore> {
 																					),
 																				),
 																			),
-																			Container(
+																			SizedBox(
 																				width: 47,
 																				height: 41,
 																				child: SizedBox(),
@@ -112,7 +112,7 @@ class LearnMoreState extends State<LearnMore> {
 																	child: Column(
 																		crossAxisAlignment: CrossAxisAlignment.start,
 																		children: [
-																			Container(
+																			SizedBox(
 																				width: double.infinity,
 																				child: Text(
 																					"Always rinse plastic containers before recycling to remove any food or liquid. Check the recycling symbol on the item because not all types of plastic are accepted in every area. \nMake sure bottles are empty \nand caps are tightly secured. Avoid placing plastic bags or \nsoft plastics in regular recycling bins because they can get tangled in machines. Try to reduce \nsingle-use plastics whenever possible.",

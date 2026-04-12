@@ -53,7 +53,7 @@ class SignUpState extends State<SignUp> {
 																			)
 																		),
 																	),
-																	Container(
+																	SizedBox(
 																		width: 47,
 																		height: 41,
 																		child: SizedBox(),
@@ -329,7 +329,7 @@ class SignUpState extends State<SignUp> {
 														),
 													),
 													IntrinsicHeight(
-														child: Container(
+														child: SizedBox(
 															width: double.infinity,
 															child: Column(
 																children: [

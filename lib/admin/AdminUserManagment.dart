@@ -31,7 +31,7 @@ class AdminUserManagmentState extends State<AdminUserManagment> {
 															margin: const EdgeInsets.only( bottom: 7, left: 12),
 															child: Row(
 																children: [
-																	Container(
+																	SizedBox(
 																		width: 47,
 																		height: 41,
 																		child: Image.network(
@@ -120,7 +120,7 @@ class AdminUserManagmentState extends State<AdminUserManagment> {
 																		),
 																	),
 																),
-																Container(
+																SizedBox(
 																	width: 24,
 																	height: 24,
 																	child: Image.network(
@@ -229,7 +229,7 @@ class AdminUserManagmentState extends State<AdminUserManagment> {
 																		),
 																	),
 																),
-																Container(
+																SizedBox(
 																	width: 30,
 																	height: 31,
 																	child: Image.network(
@@ -347,7 +347,7 @@ class AdminUserManagmentState extends State<AdminUserManagment> {
 																		),
 																	),
 																),
-																Container(
+																SizedBox(
 																	width: 30,
 																	height: 31,
 																	child: Image.network(
@@ -465,7 +465,7 @@ class AdminUserManagmentState extends State<AdminUserManagment> {
 																		),
 																	),
 																),
-																Container(
+																SizedBox(
 																	width: 30,
 																	height: 31,
 																	child: Image.network(
@@ -580,7 +580,7 @@ class AdminUserManagmentState extends State<AdminUserManagment> {
 																		),
 																	),
 																),
-																Container(
+																SizedBox(
 																	width: 30,
 																	height: 31,
 																	child: Image.network(

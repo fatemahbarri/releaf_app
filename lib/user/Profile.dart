@@ -38,7 +38,7 @@ class ProfileState extends State<Profile> {
 																		mainAxisAlignment: MainAxisAlignment.spaceBetween,
 																		crossAxisAlignment: CrossAxisAlignment.start,
 																		children: [
-																			Container(
+																			SizedBox(
 																				width: 47,
 																				height: 41,
 																				child: Image.network(
@@ -55,7 +55,7 @@ class ProfileState extends State<Profile> {
 																					fit: BoxFit.fill,
 																				)
 																			),
-																			Container(
+																			SizedBox(
 																				width: 47,
 																				height: 41,
 																				child: SizedBox(),

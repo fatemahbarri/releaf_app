@@ -258,7 +258,7 @@ class AddBinState extends State<AddBin> {
 																				),
 																			),
 																		),
-																		Container(
+																		SizedBox(
 																			width: 25,
 																			height: 25,
 																			child: Image.network(
@@ -277,7 +277,7 @@ class AddBinState extends State<AddBin> {
 															width: double.infinity,
 															child: Column(
 																children: [
-																	Container(
+																	SizedBox(
 																		width: 247,
 																		height: 167,
 																		child: Image.network(
