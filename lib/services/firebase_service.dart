@@ -7,7 +7,6 @@ class FirebaseService {
 
   Future<void> registerUser({
     required String name,
-    required String username,
     required String email,
     required String password,
   }) async {
@@ -25,7 +24,6 @@ class FirebaseService {
 
       await _firestore.collection('users').doc(user.uid).set({
         'name': name,
-        'username': username,
         'email': email,
         'role': email.toLowerCase().endsWith('@releaf.com') ? 'admin' : 'user',
         'accountStatus': 'active',

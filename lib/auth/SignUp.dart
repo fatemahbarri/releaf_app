@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:releaf_app/services/firebase_service.dart';
 import 'package:releaf_app/widgets/app_background.dart';
+import 'package:releaf_app/widgets/auth_card.dart';
+import 'package:releaf_app/widgets/custom_button.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -9,10 +11,33 @@ class SignUp extends StatefulWidget {
   State<SignUp> createState() => _SignUpState();
 }
 
+class BottomWaveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    var path = Path();
+
+    path.lineTo(0, size.height - 60);
+
+    path.quadraticBezierTo(
+      size.width / 2,
+      size.height,
+      size.width,
+      size.height - 60,
+    );
+
+    path.lineTo(size.width, 0);
+    path.close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
 class _SignUpState extends State<SignUp> {
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
@@ -27,7 +52,6 @@ class _SignUpState extends State<SignUp> {
   void dispose() {
     fullNameController.dispose();
     emailController.dispose();
-    usernameController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.dispose();
@@ -36,13 +60,11 @@ class _SignUpState extends State<SignUp> {
   Future<void> _signUp() async {
     final fullName = fullNameController.text.trim();
     final email = emailController.text.trim();
-    final username = usernameController.text.trim();
     final password = passwordController.text.trim();
     final confirmPassword = confirmPasswordController.text.trim();
 
     if (fullName.isEmpty ||
         email.isEmpty ||
-        username.isEmpty ||
         password.isEmpty ||
         confirmPassword.isEmpty) {
       _showMessage('Please fill in all fields');
@@ -69,7 +91,6 @@ class _SignUpState extends State<SignUp> {
     try {
       await _firebaseService.registerUser(
         name: fullName,
-        username: username,
         email: email,
         password: password,
       );
@@ -80,7 +101,6 @@ class _SignUpState extends State<SignUp> {
 
       fullNameController.clear();
       emailController.clear();
-      usernameController.clear();
       passwordController.clear();
       confirmPasswordController.clear();
     } catch (e) {
@@ -109,6 +129,7 @@ class _SignUpState extends State<SignUp> {
     bool obscureText = false,
     TextInputType keyboardType = TextInputType.text,
     Widget? suffixIcon,
+    Widget? prefixIcon,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
@@ -118,13 +139,9 @@ class _SignUpState extends State<SignUp> {
         keyboardType: keyboardType,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(
-            color: Color(0xFF8A8A8A),
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
-          ),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: const Color(0xFFFAFAFA),
+          prefixIcon: prefixIcon,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 16,
@@ -132,24 +149,23 @@ class _SignUpState extends State<SignUp> {
           suffixIcon: suffixIcon,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFD6D6D6)),
+            borderSide: const BorderSide(
+              color: Color(0xFFE0E0E0),
+            ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFD6D6D6)),
+            borderSide: const BorderSide(
+              color: Color(0xFFE0E0E0),
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(
-              color: Color(0xFF498056),
-              width: 1.4,
+              color: Color(0xFF499A64),
+              width: 1.5,
             ),
           ),
-        ),
-        style: const TextStyle(
-          color: Colors.black87,
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -158,162 +174,147 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: AppBackground(
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            child: Column(
-              children: [
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Color(0xFF4A4A4A),
-                    ),
-                  ),
+      body: Stack(
+        children: [
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SizedBox(
+              height: 280,
+              width: double.infinity,
+              child: ClipPath(
+                clipper: BottomWaveClipper(),
+                child: Container(
+                  color: const Color(0xFFB7D98A),
                 ),
-                const SizedBox(height: 8),
-                Center(
-                  child: Image.asset(
-                    'assets/Releaf_logo.png',
-                    height: 120,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                const Text(
-                  'Create Account',
-                  style: TextStyle(
-                    color: Color(0xFF498056),
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Sign up to get started',
-                  style: TextStyle(
-                    color: Color(0xFF6E6E6E),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 28),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF7FBEF),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    children: [
-                      _buildTextField(
-                        controller: fullNameController,
-                        hintText: 'Full Name',
-                      ),
-                      _buildTextField(
-                        controller: emailController,
-                        hintText: 'Email Address',
-                        keyboardType: TextInputType.emailAddress,
-                      ),
-                      _buildTextField(
-                        controller: usernameController,
-                        hintText: 'Username',
-                      ),
-                      _buildTextField(
-                        controller: passwordController,
-                        hintText: 'Password',
-                        obscureText: obscurePassword,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            obscurePassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            color: Colors.grey[600],
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              obscurePassword = !obscurePassword;
-                            });
-                          },
-                        ),
-                      ),
-                      _buildTextField(
-                        controller: confirmPasswordController,
-                        hintText: 'Confirm Password',
-                        obscureText: obscureConfirmPassword,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            obscureConfirmPassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            color: Colors.grey[600],
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              obscureConfirmPassword = !obscureConfirmPassword;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton(
-                          onPressed: isLoading ? null : _signUp,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF499A64),
-                            foregroundColor: Colors.white,
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                          child: isLoading
-                              ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2.4,
-                                  ),
-                                )
-                              : const Text(
-                                  'Sign up',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 18),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text(
-                    'Already have an account? Log in',
-                    style: TextStyle(
-                      color: Color(0xFF4676AE),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+          AppBackground(
+            child: SafeArea(
+              child: SingleChildScrollView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Image.asset(
+                      'assets/Releaf_logo.png',
+                      height: 120,
+                    ),
+                    const SizedBox(height: 14),
+                    const Text(
+                      'Create Account',
+                      style: TextStyle(
+                        color: Color(0xFF498056),
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text('Sign up to get started'),
+                    const SizedBox(height: 28),
+                    AuthCard(
+                      child: Column(
+                        children: [
+                          _buildTextField(
+                            controller: fullNameController,
+                            hintText: 'Full Name',
+                            prefixIcon: const Icon(
+                              Icons.person_outline,
+                              color: Color(0xFF499A64),
+                            ),
+                          ),
+                          _buildTextField(
+                            controller: emailController,
+                            hintText: 'Email Address',
+                            keyboardType: TextInputType.emailAddress,
+                            prefixIcon: const Icon(
+                              Icons.email_outlined,
+                              color: Color(0xFF499A64),
+                            ),
+                          ),
+                          _buildTextField(
+                            controller: passwordController,
+                            hintText: 'Password',
+                            obscureText: obscurePassword,
+                            prefixIcon: const Icon(
+                              Icons.lock_outline,
+                              color: Color(0xFF499A64),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                obscurePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  obscurePassword = !obscurePassword;
+                                });
+                              },
+                            ),
+                          ),
+                          _buildTextField(
+                            controller: confirmPasswordController,
+                            hintText: 'Confirm Password',
+                            obscureText: obscureConfirmPassword,
+                            prefixIcon: const Icon(
+                              Icons.lock_outline,
+                              color: Color(0xFF499A64),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                obscureConfirmPassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  obscureConfirmPassword =
+                                      !obscureConfirmPassword;
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          CustomButton(
+                            text: 'Sign up',
+                            isLoading: isLoading,
+                            onTap: _signUp,
+                          ),
+                          const SizedBox(height: 12),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text(
+                              'Already have an account? Log in',
+                              style: TextStyle(
+                                color: Color(0xFF4676AE),
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

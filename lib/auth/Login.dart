@@ -3,6 +3,8 @@ import 'package:releaf_app/WelcomeScreen.dart';
 import 'package:releaf_app/auth/SignUp.dart';
 import 'package:releaf_app/services/firebase_service.dart';
 import 'package:releaf_app/widgets/app_background.dart';
+import 'package:releaf_app/widgets/auth_card.dart';
+import 'package:releaf_app/widgets/custom_button.dart';
 
 import '../admin/AdminHomePage.dart';
 
@@ -16,6 +18,30 @@ class LoginPage extends StatefulWidget {
 
   @override
   State<LoginPage> createState() => _LoginPageState();
+}
+
+class BottomWaveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    var path = Path();
+
+    path.lineTo(0, size.height - 60);
+
+    path.quadraticBezierTo(
+      size.width / 2,
+      size.height,
+      size.width,
+      size.height - 60,
+    );
+
+    path.lineTo(size.width, 0);
+    path.close();
+
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -50,27 +76,17 @@ class _LoginPageState extends State<LoginPage> {
     final trimmedEmail = email.trim().toLowerCase();
 
     if (!widget.isAdminMode || !trimmedEmail.endsWith('@releaf.com')) {
-      if (adminName != null) {
-        setState(() {
-          adminName = null;
-        });
-      }
+      setState(() => adminName = null);
       return;
     }
 
     try {
       final userData = await _firebaseService.getUserByEmail(trimmedEmail);
-
       if (!mounted) return;
-
-      setState(() {
-        adminName = userData?['name'];
-      });
+      setState(() => adminName = userData?['name']);
     } catch (_) {
       if (!mounted) return;
-      setState(() {
-        adminName = null;
-      });
+      setState(() => adminName = null);
     }
   }
 
@@ -124,27 +140,12 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       if (widget.isAdminMode) {
-        setState(() {
-          adminName = name;
-        });
-      }
-
-      if (widget.isAdminMode) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => AdminHomePage(
-              adminName: name,
-            ),
+            builder: (context) => AdminHomePage(adminName: name),
           ),
         );
-      } else {
-        // لاحقًا صفحة اليوزر
-        // مثال:
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => UserHomePage(userName: name)),
-        // );
       }
     } catch (e) {
       if (!mounted) return;
@@ -172,6 +173,7 @@ class _LoginPageState extends State<LoginPage> {
     bool obscureText = false,
     TextInputType keyboardType = TextInputType.text,
     Widget? suffixIcon,
+    Widget? prefixIcon,
     void Function(String)? onChanged,
   }) {
     return Padding(
@@ -185,11 +187,10 @@ class _LoginPageState extends State<LoginPage> {
           hintText: hintText,
           hintStyle: const TextStyle(
             color: Color(0xFF8A8A8A),
-            fontSize: 15,
-            fontWeight: FontWeight.w500,
           ),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: const Color(0xFFFAFAFA),
+          prefixIcon: prefixIcon,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 16,
@@ -197,24 +198,25 @@ class _LoginPageState extends State<LoginPage> {
           suffixIcon: suffixIcon,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFD6D6D6)),
+            borderSide: const BorderSide(
+              color: Color(0xFFE0E0E0),
+              width: 1,
+            ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFFD6D6D6)),
+            borderSide: const BorderSide(
+              color: Color(0xFFE0E0E0),
+              width: 1,
+            ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(
-              color: Color(0xFF498056),
-              width: 1.4,
+              color: Color(0xFF499A64),
+              width: 1.5,
             ),
           ),
-        ),
-        style: const TextStyle(
-          color: Colors.black87,
-          fontSize: 15,
-          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -223,158 +225,140 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: AppBackground(
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            child: Column(
-              children: [
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const WelcomeScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Color(0xFF4A4A4A),
-                    ),
-                  ),
+      body: Stack(
+        children: [
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SizedBox(
+              height: 280,
+              width: double.infinity,
+              child: ClipPath(
+                clipper: BottomWaveClipper(),
+                child: Container(
+                  color: const Color(0xFFB7D98A),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  titleText,
-                  style: const TextStyle(
-                    color: Color(0xFF498056),
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  child: Image.asset(
-                    'assets/Releaf_logo.png',
-                    height: 150,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  welcomeText,
-                  style: const TextStyle(
-                    color: Color(0xFF7BA285),
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Enter your credentials to continue',
-                  style: TextStyle(
-                    color: Color(0xFF675F5A),
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 28),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF7FBEF),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    children: [
-                      _buildTextField(
-                        controller: emailController,
-                        hintText: 'Email Address',
-                        keyboardType: TextInputType.emailAddress,
-                        onChanged: (value) {
-                          _checkAdminName(value);
-                        },
-                      ),
-                      _buildTextField(
-                        controller: passwordController,
-                        hintText: 'Password',
-                        obscureText: obscurePassword,
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            obscurePassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            color: Colors.grey[600],
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              obscurePassword = !obscurePassword;
-                            });
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton(
-                          onPressed: isLoading ? null : _signIn,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF499A64),
-                            foregroundColor: Colors.white,
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
-                          child: isLoading
-                              ? const SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2.4,
-                                  ),
-                                )
-                              : const Text(
-                                  'Login',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 18),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SignUp(),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    "Don’t have an account? Sign up",
-                    style: TextStyle(
-                      color: Color(0xFF4676AE),
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
+          AppBackground(
+            child: SafeArea(
+              child: SingleChildScrollView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                child: Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const WelcomeScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      titleText,
+                      style: const TextStyle(
+                        color: Color(0xFF498056),
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Image.asset(
+                      'assets/Releaf_logo.png',
+                      height: 130,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      welcomeText,
+                      style: const TextStyle(
+                        color: Color(0xFF7BA285),
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Enter your credentials to continue',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    AuthCard(
+                      child: Column(
+                        children: [
+                          _buildTextField(
+                            controller: emailController,
+                            hintText: 'Email Address',
+                            keyboardType: TextInputType.emailAddress,
+                            prefixIcon: const Icon(
+                              Icons.email_outlined,
+                              color: Color(0xFF499A64),
+                            ),
+                            onChanged: (v) => _checkAdminName(v),
+                          ),
+                          _buildTextField(
+                            controller: passwordController,
+                            hintText: 'Password',
+                            obscureText: obscurePassword,
+                            prefixIcon: const Icon(
+                              Icons.lock_outline,
+                              color: Color(0xFF499A64),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                obscurePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  obscurePassword = !obscurePassword;
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          CustomButton(
+                            text: 'Login',
+                            isLoading: isLoading,
+                            onTap: _signIn,
+                          ),
+                          if (!widget.isAdminMode) ...[
+                            const SizedBox(height: 12),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const SignUp(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                "Don’t have an account? Sign up",
+                                style: TextStyle(
+                                  color: Color(0xFF4676AE),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
