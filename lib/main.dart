@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'SplashScreen.dart';
-
+import 'admin/AdminBinManagment.dart';
 void main() {
   runApp(const ReLeafApp());
 }
@@ -13,7 +12,7 @@ class ReLeafApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ReLeaf',
-      home: const SplashScreen(),
+      home: const AdminBinManagment(),
     );
   }
 }

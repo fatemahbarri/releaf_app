@@ -1,447 +1,400 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:geocoding/geocoding.dart';
+
 class AddBin extends StatefulWidget {
-	const AddBin({super.key});
-	@override
-	AddBinState createState() => AddBinState();
+  final String category;
+  final Map<String, String>? initialData;
+
+  const AddBin({
+    super.key,
+    required this.category,
+    this.initialData,
+  });
+
+  @override
+  State<AddBin> createState() => _AddBinState();
 }
-class AddBinState extends State<AddBin> {
-	@override
-	Widget build(BuildContext context) {
-		return Scaffold(
-			body: SafeArea(
-				child: Container(
-					constraints: const BoxConstraints.expand(),
-					color: Color(0xFFFFFFFF),
-					child: Column(
-						crossAxisAlignment: CrossAxisAlignment.start,
-						children: [
-							Expanded(
-								child: IntrinsicHeight(
-									child: Container(
-										color: Color(0xFFF3FFE2),
-										width: double.infinity,
-										height: double.infinity,
-										child: SingleChildScrollView(
-											padding: const EdgeInsets.only( top: 42),
-											child: Column(
-												crossAxisAlignment: CrossAxisAlignment.start,
-												children: [
-													IntrinsicHeight(
-														child: Container(
-															margin: const EdgeInsets.only( bottom: 65, left: 8, right: 29),
-															width: double.infinity,
-															child: Row(
-																children: [
-																	Container(
-																		margin: const EdgeInsets.only( right: 26),
-																		width: 47,
-																		height: 41,
-																		child: Image.network(
-																			"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/eZXFHBRH4B/8isibtnh_expires_30_days.png",
-																			fit: BoxFit.fill,
-																		)
-																	),
-																	Expanded(
-																		child: InkWell(
-																			onTap: () { print('Pressed'); },
-																			child: IntrinsicHeight(
-																				child: Container(
-																					decoration: BoxDecoration(
-																						borderRadius: BorderRadius.circular(27),
-																						color: Color(0x667BA285),
-																						boxShadow: [
-																							BoxShadow(
-																								color: Color(0x40000000),
-																								blurRadius: 4,
-																								offset: Offset(0, 4),
-																							),
-																						],
-																					),
-																					padding: const EdgeInsets.symmetric(vertical: 12),
-																					margin: const EdgeInsets.symmetric(vertical: 27),
-																					width: double.infinity,
-																					child: Column(
-																						children: [
-																							Text(
-																								"Add Bin",
-																								style: TextStyle(
-																									color: Color(0xFFFFFFFF),
-																									fontSize: 28,
-																									fontWeight: FontWeight.bold,
-																								),
-																							),
-																						]
-																					),
-																				),
-																			),
-																		),
-																	),
-																]
-															),
-														),
-													),
-													IntrinsicHeight(
-														child: Container(
-															decoration: BoxDecoration(
-																border: Border.all(
-																	color: Color(0xFFC4C4C4),
-																	width: 1,
-																),
-																color: Color(0xFFFFFFFF),
-																boxShadow: [
-																	BoxShadow(
-																		color: Color(0x40000000),
-																		blurRadius: 4,
-																		offset: Offset(0, 4),
-																	),
-																],
-															),
-															padding: const EdgeInsets.only( top: 11, bottom: 11, left: 22),
-															margin: const EdgeInsets.only( bottom: 14, left: 47, right: 47),
-															width: double.infinity,
-															child: Column(
-																crossAxisAlignment: CrossAxisAlignment.start,
-																children: [
-																	Text(
-																		"Bin Name",
-																		style: TextStyle(
-																			color: Color(0xFF000000),
-																			fontSize: 20,
-																			fontWeight: FontWeight.bold,
-																		),
-																	),
-																]
-															),
-														),
-													),
-													IntrinsicHeight(
-														child: Container(
-															decoration: BoxDecoration(
-																border: Border.all(
-																	color: Color(0xFFC4C4C4),
-																	width: 1,
-																),
-																color: Color(0xFFFFFFFF),
-																boxShadow: [
-																	BoxShadow(
-																		color: Color(0x40000000),
-																		blurRadius: 4,
-																		offset: Offset(0, 4),
-																	),
-																],
-															),
-															padding: const EdgeInsets.only( top: 11, bottom: 11, left: 22),
-															margin: const EdgeInsets.only( bottom: 11, left: 47, right: 47),
-															width: double.infinity,
-															child: Column(
-																crossAxisAlignment: CrossAxisAlignment.start,
-																children: [
-																	Text(
-																		"City",
-																		style: TextStyle(
-																			color: Color(0xFF000000),
-																			fontSize: 20,
-																			fontWeight: FontWeight.bold,
-																		),
-																	),
-																]
-															),
-														),
-													),
-													IntrinsicHeight(
-														child: Container(
-															margin: const EdgeInsets.only( bottom: 14, left: 46, right: 46),
-															width: double.infinity,
-															child: Column(
-																crossAxisAlignment: CrossAxisAlignment.start,
-																children: [
-																	Text(
-																		"Paper",
-																		style: TextStyle(
-																			color: Color(0xFFFFFFFF),
-																			fontSize: 20,
-																			fontWeight: FontWeight.bold,
-																		),
-																	),
-																	IntrinsicHeight(
-																		child: Container(
-																			decoration: BoxDecoration(
-																				border: Border.all(
-																					color: Color(0xFFC4C4C4),
-																					width: 1,
-																				),
-																				color: Color(0xFFFFFFFF),
-																				boxShadow: [
-																					BoxShadow(
-																						color: Color(0x40000000),
-																						blurRadius: 4,
-																						offset: Offset(0, 4),
-																					),
-																				],
-																			),
-																			padding: const EdgeInsets.only( top: 11, bottom: 11, left: 22),
-																			width: double.infinity,
-																			child: Column(
-																				crossAxisAlignment: CrossAxisAlignment.start,
-																				children: [
-																					Text(
-																						"Area",
-																						style: TextStyle(
-																							color: Color(0xFF000000),
-																							fontSize: 20,
-																							fontWeight: FontWeight.bold,
-																						),
-																					),
-																				]
-																			),
-																		),
-																	),
-																]
-															),
-														),
-													),
-													IntrinsicHeight(
-														child: Container(
-															padding: const EdgeInsets.only( top: 11, bottom: 11, left: 22),
-															margin: const EdgeInsets.only( bottom: 12, left: 47, right: 47),
-															width: double.infinity,
-															decoration: BoxDecoration(
-																image: DecorationImage(
-																	image: NetworkImage("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/eZXFHBRH4B/pr5mfat6_expires_30_days.png"),
-																	fit: BoxFit.fill
-																),
-															),
-															child: Column(
-																crossAxisAlignment: CrossAxisAlignment.start,
-																children: [
-																	Text(
-																		"Bin type",
-																		style: TextStyle(
-																			color: Color(0xFF000000),
-																			fontSize: 20,
-																			fontWeight: FontWeight.bold,
-																		),
-																	),
-																]
-															),
-														),
-													),
-													IntrinsicWidth(
-														child: IntrinsicHeight(
-															child: Container(
-																decoration: BoxDecoration(
-																	border: Border.all(
-																		color: Color(0xFFC4C4C4),
-																		width: 1,
-																	),
-																	color: Color(0xFFFFFFFF),
-																	boxShadow: [
-																		BoxShadow(
-																			color: Color(0x40000000),
-																			blurRadius: 4,
-																			offset: Offset(0, 4),
-																		),
-																	],
-																),
-																padding: const EdgeInsets.only( top: 12, bottom: 12, left: 22, right: 22),
-																margin: const EdgeInsets.only( bottom: 16, left: 49),
-																child: Row(
-																	children: [
-																		Container(
-																			margin: const EdgeInsets.only( right: 116),
-																			child: Text(
-																				"Select Address",
-																				style: TextStyle(
-																					color: Color(0xFF000000),
-																					fontSize: 20,
-																					fontWeight: FontWeight.bold,
-																				),
-																			),
-																		),
-																		SizedBox(
-																			width: 25,
-																			height: 25,
-																			child: Image.network(
-																				"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/eZXFHBRH4B/v7cyi843_expires_30_days.png",
-																				fit: BoxFit.fill,
-																			)
-																		),
-																	]
-																),
-															),
-														),
-													),
-													IntrinsicHeight(
-														child: Container(
-															margin: const EdgeInsets.only( bottom: 34),
-															width: double.infinity,
-															child: Column(
-																children: [
-																	SizedBox(
-																		width: 247,
-																		height: 167,
-																		child: Image.network(
-																			"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/eZXFHBRH4B/be32aurn_expires_30_days.png",
-																			fit: BoxFit.fill,
-																		)
-																	),
-																]
-															),
-														),
-													),
-													IntrinsicHeight(
-														child: Container(
-															margin: const EdgeInsets.only( bottom: 12),
-															width: double.infinity,
-															child: Column(
-																children: [
-																	InkWell(
-																		onTap: () { print('Pressed'); },
-																		child: IntrinsicWidth(
-																			child: IntrinsicHeight(
-																				child: Container(
-																					decoration: BoxDecoration(
-																						borderRadius: BorderRadius.circular(142),
-																						color: Color(0xFF8DC149),
-																						boxShadow: [
-																							BoxShadow(
-																								color: Color(0x40000000),
-																								blurRadius: 4,
-																								offset: Offset(0, 4),
-																							),
-																						],
-																					),
-																					padding: const EdgeInsets.only( top: 16, bottom: 16, left: 59, right: 59),
-																					child: Column(
-																						crossAxisAlignment: CrossAxisAlignment.start,
-																						children: [
-																							Text(
-																								"Save",
-																								style: TextStyle(
-																									color: Color(0xFF5B5656),
-																									fontSize: 22,
-																									fontWeight: FontWeight.bold,
-																								),
-																							),
-																						]
-																					),
-																				),
-																			),
-																		),
-																	),
-																]
-															),
-														),
-													),
-													IntrinsicHeight(
-														child: Container(
-															color: Color(0xFFCDE9C7),
-															width: double.infinity,
-															child: Row(
-																children: [
-																	IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				margin: const EdgeInsets.only( left: 14, right: 47),
-																				child: Column(
-																					crossAxisAlignment: CrossAxisAlignment.start,
-																					children: [
-																						Container(
-																							margin: const EdgeInsets.only( bottom: 4),
-																							width: 56,
-																							height: 32,
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/eZXFHBRH4B/e9gjqfaw_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						),
-																						Container(
-																							margin: const EdgeInsets.only( left: 12),
-																							child: Text(
-																								"Home",
-																								style: TextStyle(
-																									color: Color(0xFF49454F),
-																									fontSize: 12,
-																								),
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																	IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				margin: const EdgeInsets.only( right: 23),
-																				child: Column(
-																					crossAxisAlignment: CrossAxisAlignment.start,
-																					children: [
-																						Container(
-																							margin: const EdgeInsets.only( bottom: 4),
-																							width: 56,
-																							height: 32,
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/eZXFHBRH4B/wm44cgdm_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						),
-																						Container(
-																							margin: const EdgeInsets.only( left: 12),
-																							child: Text(
-																								"Users",
-																								style: TextStyle(
-																									color: Color(0xFF49454F),
-																									fontSize: 12,
-																								),
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																	IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																				child: Column(
-																					children: [
-																						Container(
-																							margin: const EdgeInsets.only( bottom: 4),
-																							width: 56,
-																							height: 32,
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/eZXFHBRH4B/emjzd9ki_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						),
-																						Text(
-																							"Bins",
-																							style: TextStyle(
-																								color: Color(0xFF625B71),
-																								fontSize: 12,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																]
-															),
-														),
-													),
-												],
-											)
-										),
-									),
-								),
-							),
-						],
-					),
-				),
-			),
-		);
-	}
+
+class _AddBinState extends State<AddBin> {
+  late final TextEditingController _binNameController;
+  late final TextEditingController _cityController;
+  late final TextEditingController _areaController;
+  late final TextEditingController _addressController;
+
+  final MapController _mapController = MapController();
+
+  LatLng _selectedLocation = const LatLng(26.385046, 50.189002);
+  bool _isSearchingAddress = false;
+
+  bool get _isEditMode => widget.initialData != null;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _binNameController = TextEditingController(
+      text: widget.initialData?['name'] ?? '',
+    );
+    _cityController = TextEditingController(
+      text: widget.initialData?['city'] ?? '',
+    );
+    _areaController = TextEditingController(
+      text: widget.initialData?['area'] ?? '',
+    );
+    _addressController = TextEditingController(
+      text: widget.initialData?['address'] ?? '',
+    );
+
+    final lat = double.tryParse(widget.initialData?['latitude'] ?? '');
+    final lng = double.tryParse(widget.initialData?['longitude'] ?? '');
+
+    if (lat != null && lng != null) {
+      _selectedLocation = LatLng(lat, lng);
+    }
+  }
+
+  Future<void> _searchAddress() async {
+    final query = _addressController.text.trim();
+    if (query.isEmpty) return;
+
+    setState(() {
+      _isSearchingAddress = true;
+    });
+
+    try {
+      final results = await locationFromAddress(query);
+      if (results.isEmpty) return;
+
+      final place = results.first;
+      final newLocation = LatLng(place.latitude, place.longitude);
+
+      setState(() {
+        _selectedLocation = newLocation;
+      });
+
+      _mapController.move(newLocation, 16);
+    } finally {
+      setState(() {
+        _isSearchingAddress = false;
+      });
+    }
+  }
+
+  void _saveBin() {
+    final binName = _binNameController.text.trim();
+    final city = _cityController.text.trim();
+    final area = _areaController.text.trim();
+    final address = _addressController.text.trim();
+
+    if (binName.isEmpty || city.isEmpty || area.isEmpty || address.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields')),
+      );
+      return;
+    }
+
+    Navigator.pop(context, {
+      'category': widget.category,
+      'name': binName,
+      'city': city,
+      'area': area,
+      'address': address,
+      'latitude': _selectedLocation.latitude.toString(),
+      'longitude': _selectedLocation.longitude.toString(),
+    });
+  }
+
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String hint,
+    Widget? suffixIcon,
+    VoidCallback? onTap,
+    bool readOnly = false,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 18),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8F8F8),
+        border: Border.all(color: const Color(0xFFC4C4C4)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x22000000),
+            blurRadius: 6,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        readOnly: readOnly,
+        onTap: onTap,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87,
+        ),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF969696),
+          ),
+          border: InputBorder.none,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
+          suffixIcon: suffixIcon,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomNavItem({
+    required IconData icon,
+    required String label,
+    required bool selected,
+  }) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              decoration: BoxDecoration(
+                color: selected ? const Color(0xFFA8C89B) : Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(
+                icon,
+                color: const Color(0xFF2B2B2B),
+                size: 28,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: selected
+                    ? const Color(0xFF5A4A73)
+                    : const Color(0xFF2B2B2B),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _binNameController.dispose();
+    _cityController.dispose();
+    _areaController.dispose();
+    _addressController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF3FFE2),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 22, 24, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(
+                            Icons.arrow_back_ios_new,
+                            color: Color(0xFF675F5A),
+                            size: 28,
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFC7DBBD),
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color(0x22000000),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              _isEditMode ? 'Edit Bin' : 'Add Bin',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                      ],
+                    ),
+                    const SizedBox(height: 50),
+                    _buildInputField(
+                      controller: _binNameController,
+                      hint: 'Bin Name',
+                    ),
+                    _buildInputField(
+                      controller: _cityController,
+                      hint: 'City',
+                    ),
+                    _buildInputField(
+                      controller: _areaController,
+                      hint: 'Area',
+                    ),
+                    _buildInputField(
+                      controller: TextEditingController(text: widget.category),
+                      hint: 'Bin type',
+                      readOnly: true,
+                    ),
+                    _buildInputField(
+                      controller: _addressController,
+                      hint: 'Select Address',
+                      suffixIcon: IconButton(
+                        onPressed: _isSearchingAddress ? null : _searchAddress,
+                        icon: _isSearchingAddress
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(
+                                Icons.location_on_outlined,
+                                color: Color(0xFFBDBDBD),
+                                size: 30,
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Center(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(28),
+                        child: SizedBox(
+                          width: 320,
+                          height: 200,
+                          child: FlutterMap(
+                            mapController: _mapController,
+                            options: MapOptions(
+                              initialCenter: _selectedLocation,
+                              initialZoom: 15,
+                              onTap: (tapPosition, point) {
+                                setState(() {
+                                  _selectedLocation = point;
+                                  _addressController.text =
+                                      '${point.latitude.toStringAsFixed(6)}, ${point.longitude.toStringAsFixed(6)}';
+                                });
+                              },
+                            ),
+                            children: [
+                              TileLayer(
+                                urlTemplate:
+                                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                userAgentPackageName: 'com.example.releaf_app',
+                                tileProvider: NetworkTileProvider(),
+                              ),
+                              MarkerLayer(
+                                markers: [
+                                  Marker(
+                                    point: _selectedLocation,
+                                    width: 50,
+                                    height: 50,
+                                    child: const Icon(
+                                      Icons.location_on,
+                                      color: Colors.redAccent,
+                                      size: 40,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 34),
+                    Center(
+                      child: SizedBox(
+                        width: 220,
+                        height: 62,
+                        child: ElevatedButton(
+                          onPressed: _saveBin,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFB8D67D),
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: Text(
+                            _isEditMode ? 'Save Changes' : 'Save',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF5B5554),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              color: const Color(0xFFCDE9C7),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              child: Row(
+                children: [
+                  _buildBottomNavItem(
+                    icon: Icons.home_outlined,
+                    label: 'Home',
+                    selected: false,
+                  ),
+                  _buildBottomNavItem(
+                    icon: Icons.groups_outlined,
+                    label: 'Users',
+                    selected: false,
+                  ),
+                  _buildBottomNavItem(
+                    icon: Icons.location_on_outlined,
+                    label: 'Bins',
+                    selected: true,
+                  ),
+                  _buildBottomNavItem(
+                    icon: Icons.settings_outlined,
+                    label: 'Profile',
+                    selected: false,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
