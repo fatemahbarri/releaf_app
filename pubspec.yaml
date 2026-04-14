@@ -1,20 +1,31 @@
 name: releaf_app
 description: "A new Flutter project."
+<<<<<<< HEAD
 publish_to: 'none'
+=======
+publish_to: "none"
+>>>>>>> 6f86ec77353f629cb07cc961dd574a81b42babf0
 
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.8.1
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+<<<<<<< HEAD
   flutter_map: ^7.0.2
   latlong2: ^0.9.1
   geolocator: ^12.0.0
   geocoding: ^3.0.0
+=======
+  firebase_core: ^2.30.0
+  firebase_auth: ^4.17.0
+  cloud_firestore: ^4.15.0
+  flutter_custom_clippers: ^2.1.0
+>>>>>>> 6f86ec77353f629cb07cc961dd574a81b42babf0
 
 dev_dependencies:
   flutter_test:
@@ -22,4 +33,11 @@ dev_dependencies:
   flutter_lints: ^5.0.0
 
 flutter:
+<<<<<<< HEAD
   uses-material-design: true
+=======
+  uses-material-design: true
+
+  assets:
+    - assets/
+>>>>>>> 6f86ec77353f629cb07cc961dd574a81b42babf0

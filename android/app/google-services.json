@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "712538360785",
+    "project_id": "releaf-ec515",
+    "storage_bucket": "releaf-ec515.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:712538360785:android:f4d58185ebfeee518b6ef0",
+        "android_client_info": {
+          "package_name": "com.example.releaf_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaCLWsvNMbGKBSOuc7jSNxeBmx2gSDNxA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

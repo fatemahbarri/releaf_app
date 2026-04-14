@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:releaf_app/WelcomeScreen.dart';
+import 'package:releaf_app/auth/SignUp.dart';
 import 'package:releaf_app/services/firebase_service.dart';
 import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/widgets/auth_card.dart';
 import 'package:releaf_app/widgets/custom_button.dart';
 
-class SignUp extends StatefulWidget {
-  const SignUp({super.key});
+import '../admin/AdminHomePage.dart';
+
+class LoginPage extends StatefulWidget {
+  final bool isAdminMode;
+
+  const LoginPage({
+    super.key,
+    required this.isAdminMode,
+  });
 
   @override
-  State<SignUp> createState() => _SignUpState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class BottomWaveClipper extends CustomClipper<Path> {
@@ -35,38 +44,57 @@ class BottomWaveClipper extends CustomClipper<Path> {
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
 
-class _SignUpState extends State<SignUp> {
-  final TextEditingController fullNameController = TextEditingController();
+class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
 
   final FirebaseService _firebaseService = FirebaseService();
 
   bool isLoading = false;
   bool obscurePassword = true;
-  bool obscureConfirmPassword = true;
+  String? adminName;
+
+  String get titleText {
+    return widget.isAdminMode ? 'Admin Sign In' : 'User Sign In';
+  }
+
+  String get welcomeText {
+    if (widget.isAdminMode && adminName != null && adminName!.isNotEmpty) {
+      return 'Welcome $adminName';
+    }
+    return 'Welcome Back';
+  }
 
   @override
   void dispose() {
-    fullNameController.dispose();
     emailController.dispose();
     passwordController.dispose();
-    confirmPasswordController.dispose();
     super.dispose();
   }
 
-  Future<void> _signUp() async {
-    final fullName = fullNameController.text.trim();
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-    final confirmPassword = confirmPasswordController.text.trim();
+  Future<void> _checkAdminName(String email) async {
+    final trimmedEmail = email.trim().toLowerCase();
 
-    if (fullName.isEmpty ||
-        email.isEmpty ||
-        password.isEmpty ||
-        confirmPassword.isEmpty) {
+    if (!widget.isAdminMode || !trimmedEmail.endsWith('@releaf.com')) {
+      setState(() => adminName = null);
+      return;
+    }
+
+    try {
+      final userData = await _firebaseService.getUserByEmail(trimmedEmail);
+      if (!mounted) return;
+      setState(() => adminName = userData?['name']);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => adminName = null);
+    }
+  }
+
+  Future<void> _signIn() async {
+    final email = emailController.text.trim().toLowerCase();
+    final password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
       _showMessage('Please fill in all fields');
       return;
     }
@@ -76,33 +104,49 @@ class _SignUpState extends State<SignUp> {
       return;
     }
 
-    if (password != confirmPassword) {
-      _showMessage('Passwords do not match');
+    final bool isAdminEmail = email.endsWith('@releaf.com');
+
+    if (widget.isAdminMode && !isAdminEmail) {
+      _showMessage('This page is for admin email only');
       return;
     }
 
-    if (password.length < 6) {
-      _showMessage('Password must be at least 6 characters');
+    if (!widget.isAdminMode && isAdminEmail) {
+      _showMessage('Admin accounts must log in from Admin Login');
       return;
     }
 
     setState(() => isLoading = true);
 
     try {
-      await _firebaseService.registerUser(
-        name: fullName,
+      final userData = await _firebaseService.loginUser(
         email: email,
         password: password,
       );
 
       if (!mounted) return;
 
-      _showMessage('Account created successfully');
+      final role = (userData['role'] ?? '').toString().toLowerCase();
+      final name = (userData['name'] ?? '').toString();
 
-      fullNameController.clear();
-      emailController.clear();
-      passwordController.clear();
-      confirmPasswordController.clear();
+      if (widget.isAdminMode && role != 'admin') {
+        _showMessage('This account is not registered as admin');
+        return;
+      }
+
+      if (!widget.isAdminMode && role == 'admin') {
+        _showMessage('This account is admin, please use Admin Login');
+        return;
+      }
+
+      if (widget.isAdminMode) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AdminHomePage(adminName: name),
+          ),
+        );
+      }
     } catch (e) {
       if (!mounted) return;
       _showMessage(e.toString().replaceFirst('Exception: ', ''));
@@ -130,6 +174,7 @@ class _SignUpState extends State<SignUp> {
     TextInputType keyboardType = TextInputType.text,
     Widget? suffixIcon,
     Widget? prefixIcon,
+    void Function(String)? onChanged,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
@@ -137,8 +182,12 @@ class _SignUpState extends State<SignUp> {
         controller: controller,
         obscureText: obscureText,
         keyboardType: keyboardType,
+        onChanged: onChanged,
         decoration: InputDecoration(
           hintText: hintText,
+          hintStyle: const TextStyle(
+            color: Color(0xFF8A8A8A),
+          ),
           filled: true,
           fillColor: const Color(0xFFFAFAFA),
           prefixIcon: prefixIcon,
@@ -151,12 +200,14 @@ class _SignUpState extends State<SignUp> {
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(
               color: Color(0xFFE0E0E0),
+              width: 1,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(
               color: Color(0xFFE0E0E0),
+              width: 1,
             ),
           ),
           focusedBorder: OutlineInputBorder(
@@ -193,47 +244,55 @@ class _SignUpState extends State<SignUp> {
             child: SafeArea(
               child: SingleChildScrollView(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 child: Column(
                   children: [
-                    const SizedBox(height: 8),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: IconButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const WelcomeScreen(),
+                            ),
+                          );
                         },
                         icon: const Icon(Icons.arrow_back_ios_new_rounded),
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
+                    Text(
+                      titleText,
+                      style: const TextStyle(
+                        color: Color(0xFF498056),
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     Image.asset(
                       'assets/Releaf_logo.png',
-                      height: 120,
+                      height: 130,
                     ),
-                    const SizedBox(height: 14),
-                    const Text(
-                      'Create Account',
-                      style: TextStyle(
-                        color: Color(0xFF498056),
-                        fontSize: 32,
+                    const SizedBox(height: 20),
+                    Text(
+                      welcomeText,
+                      style: const TextStyle(
+                        color: Color(0xFF7BA285),
+                        fontSize: 26,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text('Sign up to get started'),
-                    const SizedBox(height: 28),
+                    const Text(
+                      'Enter your credentials to continue',
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
                     AuthCard(
                       child: Column(
                         children: [
-                          _buildTextField(
-                            controller: fullNameController,
-                            hintText: 'Full Name',
-                            prefixIcon: const Icon(
-                              Icons.person_outline,
-                              color: Color(0xFF499A64),
-                            ),
-                          ),
                           _buildTextField(
                             controller: emailController,
                             hintText: 'Email Address',
@@ -242,6 +301,7 @@ class _SignUpState extends State<SignUp> {
                               Icons.email_outlined,
                               color: Color(0xFF499A64),
                             ),
+                            onChanged: (v) => _checkAdminName(v),
                           ),
                           _buildTextField(
                             controller: passwordController,
@@ -264,48 +324,32 @@ class _SignUpState extends State<SignUp> {
                               },
                             ),
                           ),
-                          _buildTextField(
-                            controller: confirmPasswordController,
-                            hintText: 'Confirm Password',
-                            obscureText: obscureConfirmPassword,
-                            prefixIcon: const Icon(
-                              Icons.lock_outline,
-                              color: Color(0xFF499A64),
-                            ),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                obscureConfirmPassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  obscureConfirmPassword =
-                                      !obscureConfirmPassword;
-                                });
-                              },
-                            ),
-                          ),
                           const SizedBox(height: 10),
                           CustomButton(
-                            text: 'Sign up',
+                            text: 'Login',
                             isLoading: isLoading,
-                            onTap: _signUp,
+                            onTap: _signIn,
                           ),
-                          const SizedBox(height: 12),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: const Text(
-                              'Already have an account? Log in',
-                              style: TextStyle(
-                                color: Color(0xFF4676AE),
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                          if (!widget.isAdminMode) ...[
+                            const SizedBox(height: 12),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const SignUp(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                "Don’t have an account? Sign up",
+                                style: TextStyle(
+                                  color: Color(0xFF4676AE),
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),
