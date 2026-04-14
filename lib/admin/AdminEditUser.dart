@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'AdminBar.dart';
 import 'AdminUserManagment.dart';
 
 class AdminEditUser extends StatefulWidget {
-  final Map<String, String>? user;
+  final Map<String, dynamic>? user;
 
   const AdminEditUser({super.key, this.user});
 
@@ -12,37 +13,62 @@ class AdminEditUser extends StatefulWidget {
 }
 
 class _AdminEditUserState extends State<AdminEditUser> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   late TextEditingController firstNameController;
   late TextEditingController lastNameController;
   late TextEditingController usernameController;
   late TextEditingController emailController;
   late String status;
 
+  bool isSaving = false;
+  bool isBlocking = false;
+
   @override
   void initState() {
     super.initState();
 
     // بيانات مؤقتة إذا ما انرسلت بيانات من الصفحة السابقة
-    final currentUser =
-        widget.user ??
+    final currentUser = widget.user ??
         {
           'name': 'Sara Abdullah',
           'email': 'sara@gmail.com',
           'status': 'Active',
+          'username': 'sara',
         };
 
-    final fullName = currentUser['name'] ?? '';
+    final fullName = currentUser['name']?.toString() ?? '';
     final nameParts = fullName.split(' ');
 
     final firstName = nameParts.isNotEmpty ? nameParts.first : '';
     final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
 
-    final email = currentUser['email'] ?? '';
-    status = currentUser['status'] ?? 'Active';
+    final email = currentUser['email']?.toString() ?? '';
+
+    final rawStatus = (currentUser['status'] ?? '').toString().toLowerCase();
+    final rawAccountStatus =
+        (currentUser['accountStatus'] ?? '').toString().toLowerCase();
+
+    final currentStatusValue =
+        rawAccountStatus.isNotEmpty ? rawAccountStatus : rawStatus;
+
+    if (currentStatusValue == 'active') {
+      status = 'Active';
+    } else if (currentStatusValue == 'blocked') {
+      status = 'Blocked';
+    } else {
+      status = 'Inactive';
+    }
 
     firstNameController = TextEditingController(text: firstName);
     lastNameController = TextEditingController(text: lastName);
-    usernameController = TextEditingController(text: firstName.toLowerCase());
+    usernameController = TextEditingController(
+      text: currentUser['username']?.toString().isNotEmpty == true
+          ? currentUser['username'].toString()
+          : (email.contains('@')
+              ? email.split('@').first
+              : firstName.toLowerCase()),
+    );
     emailController = TextEditingController(text: email);
   }
 
@@ -55,36 +81,225 @@ class _AdminEditUserState extends State<AdminEditUser> {
     super.dispose();
   }
 
+  Future<void> saveUserChanges() async {
+    final docId = widget.user?['docId']?.toString();
+
+    if (docId == null || docId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User ID not found')),
+      );
+      return;
+    }
+
+    final firstName = firstNameController.text.trim();
+    final lastName = lastNameController.text.trim();
+    final username = usernameController.text.trim();
+    final email = emailController.text.trim();
+    final fullName = '$firstName $lastName'.trim();
+
+    if (firstName.isEmpty || email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('First name and email are required')),
+      );
+      return;
+    }
+
+    setState(() {
+      isSaving = true;
+    });
+
+    try {
+      await _firestore.collection('users').doc(docId).update({
+        'name': fullName,
+        'email': email,
+        'username': username,
+      });
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User updated successfully')),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AdminUserManagment(),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update user: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isSaving = false;
+        });
+      }
+    }
+  }
+
+  Future<void> blockUser() async {
+    final docId = widget.user?['docId']?.toString();
+
+    if (docId == null || docId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User ID not found')),
+      );
+      return;
+    }
+
+    setState(() {
+      isBlocking = true;
+    });
+
+    try {
+      await _firestore.collection('users').doc(docId).update({
+        'accountStatus': 'blocked',
+      });
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User has been blocked')),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const AdminUserManagment(),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to block user: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isBlocking = false;
+        });
+      }
+    }
+  }
+
+  Future<void> showBlockDialog() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Block user'),
+          content: const Text(
+            'Are you sure you want to block this user?',
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD00000),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                'Block',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      await blockUser();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final fullName = '${firstNameController.text} ${lastNameController.text}'
-        .trim();
+    final fullName =
+        '${firstNameController.text} ${lastNameController.text}'.trim();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3FFE2),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.only(top: 30, bottom: 20),
+          padding: const EdgeInsets.only(top: 24, bottom: 20),
           child: Column(
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 12),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AdminUserManagment(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: SizedBox(
+                  height: 32,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const AdminUserManagment(),
+                            ),
+                          );
+                        },
+                        child: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: Colors.black,
+                          size: 24,
                         ),
-                      );
-                    },
-                    child: const Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: Color(0xFF4D9B63),
-                      size: 28,
-                    ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x22000000),
+                              blurRadius: 6,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: isBlocking ? null : showBlockDialog,
+                          icon: isBlocking
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2.2),
+                                )
+                              : const Icon(
+                                  Icons.delete_outline_rounded,
+                                  color: Color(0xFFD00000),
+                                  size: 22,
+                                ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -96,7 +311,7 @@ class _AdminEditUserState extends State<AdminEditUser> {
               ),
               const SizedBox(height: 16),
               Text(
-                fullName,
+                fullName.isEmpty ? 'User Profile' : fullName,
                 style: const TextStyle(
                   color: Colors.black,
                   fontSize: 24,
@@ -112,7 +327,9 @@ class _AdminEditUserState extends State<AdminEditUser> {
                 decoration: BoxDecoration(
                   color: status == 'Active'
                       ? const Color(0xFF7ACD0E)
-                      : const Color(0xFFE47D0F),
+                      : status == 'Blocked'
+                          ? const Color(0xFFD00000)
+                          : const Color(0xFFE47D0F),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -132,18 +349,25 @@ class _AdminEditUserState extends State<AdminEditUser> {
                 width: double.infinity,
               ),
               const SizedBox(height: 24),
-              _buildField(firstNameController),
-              _buildField(lastNameController),
-              _buildField(usernameController),
-              _buildField(emailController),
+              _buildField(
+                controller: firstNameController,
+                hintText: 'First name',
+              ),
+              _buildField(
+                controller: lastNameController,
+                hintText: 'Second name',
+              ),
+              _buildField(
+                controller: usernameController,
+                hintText: 'Username',
+              ),
+              _buildField(
+                controller: emailController,
+                hintText: 'Email',
+              ),
               const SizedBox(height: 28),
               ElevatedButton(
-                onPressed: () {
-                  // مؤقتًا فقط
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Saved locally for now')),
-                  );
-                },
+                onPressed: isSaving ? null : saveUserChanges,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF8DC149),
                   padding: const EdgeInsets.symmetric(
@@ -154,14 +378,20 @@ class _AdminEditUserState extends State<AdminEditUser> {
                     borderRadius: BorderRadius.circular(40),
                   ),
                 ),
-                child: const Text(
-                  'Save',
-                  style: TextStyle(
-                    color: Color(0xFF5B5656),
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: isSaving
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(strokeWidth: 3),
+                      )
+                    : const Text(
+                        'Save',
+                        style: TextStyle(
+                          color: Color(0xFF5B5656),
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ],
           ),
@@ -171,7 +401,10 @@ class _AdminEditUserState extends State<AdminEditUser> {
     );
   }
 
-  Widget _buildField(TextEditingController controller) {
+  Widget _buildField({
+    required TextEditingController controller,
+    required String hintText,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14, left: 43, right: 43),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -188,12 +421,23 @@ class _AdminEditUserState extends State<AdminEditUser> {
       ),
       child: TextField(
         controller: controller,
+        onChanged: (_) {
+          setState(() {});
+        },
         style: const TextStyle(
           color: Colors.black,
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
-        decoration: const InputDecoration(border: InputBorder.none),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: const TextStyle(
+            color: Color(0xFF9E9E9E),
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+          ),
+          border: InputBorder.none,
+        ),
       ),
     );
   }

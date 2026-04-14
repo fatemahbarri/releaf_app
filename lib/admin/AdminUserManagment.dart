@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'AdminBar.dart';
 import 'AdminHomePage.dart';
 import 'AdminEditUser.dart';
@@ -12,20 +13,19 @@ class AdminUserManagment extends StatefulWidget {
 
 class _AdminUserManagmentState extends State<AdminUserManagment> {
   final TextEditingController searchController = TextEditingController();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  final List<Map<String, String>> allUsers = [
-    {'name': 'Sara Abdullah', 'email': 'sara@gmail.com', 'status': 'Active'},
-    {'name': 'Mona Ali', 'email': 'mona@gmail.com', 'status': 'Inactive'},
-    {'name': 'Nora Saad', 'email': 'nora@gmail.com', 'status': 'Active'},
-  ];
-
-  List<Map<String, String>> filteredUsers = [];
+  List<Map<String, dynamic>> allUsers = [];
+  List<Map<String, dynamic>> filteredUsers = [];
   String selectedFilter = 'All Users';
+
+  bool isLoading = true;
+  String? errorMessage;
 
   @override
   void initState() {
     super.initState();
-    applyFilters();
+    fetchUsers();
   }
 
   @override
@@ -34,14 +34,60 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
     super.dispose();
   }
 
+  Future<void> fetchUsers() async {
+    try {
+      final snapshot = await _firestore.collection('users').get();
+
+      final users = snapshot.docs.map((doc) {
+        final data = doc.data();
+        final accountStatus =
+            (data['accountStatus'] ?? 'inactive').toString().toLowerCase();
+
+        String statusText;
+        if (accountStatus == 'active') {
+          statusText = 'Active';
+        } else if (accountStatus == 'blocked') {
+          statusText = 'Blocked';
+        } else {
+          statusText = 'Inactive';
+        }
+
+        return {
+          'docId': doc.id,
+          'name': (data['name'] ?? '').toString(),
+          'email': (data['email'] ?? '').toString(),
+          'status': statusText,
+          'accountStatus': accountStatus,
+          'username': (data['username'] ?? '').toString(),
+        };
+      }).toList();
+
+      if (!mounted) return;
+
+      setState(() {
+        allUsers = users;
+        isLoading = false;
+      });
+
+      applyFilters();
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        errorMessage = 'Failed to fetch users: $e';
+        isLoading = false;
+      });
+    }
+  }
+
   void applyFilters() {
     final query = searchController.text.toLowerCase().trim();
 
     setState(() {
       filteredUsers = allUsers.where((user) {
-        final name = (user['name'] ?? '').toLowerCase();
-        final email = (user['email'] ?? '').toLowerCase();
-        final status = (user['status'] ?? '').toLowerCase();
+        final name = (user['name'] ?? '').toString().toLowerCase();
+        final email = (user['email'] ?? '').toString().toLowerCase();
+        final status = (user['status'] ?? '').toString().toLowerCase();
 
         final matchesSearch =
             query.isEmpty || name.contains(query) || email.contains(query);
@@ -84,12 +130,22 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
         PopupMenuItem(value: 'All Users', child: Text('All Users')),
         PopupMenuItem(value: 'Active', child: Text('Active')),
         PopupMenuItem(value: 'Inactive', child: Text('Inactive')),
+        PopupMenuItem(value: 'Blocked', child: Text('Blocked')),
       ],
     );
 
     if (selected != null) {
       updateFilter(selected);
     }
+  }
+
+  Future<void> refreshUsers() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    await fetchUsers();
   }
 
   @override
@@ -222,25 +278,50 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
               ),
             ),
             Expanded(
-              child: filteredUsers.isEmpty
+              child: isLoading
                   ? const Center(
-                      child: Text(
-                        'No users found',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF666666),
-                        ),
-                      ),
+                      child: CircularProgressIndicator(),
                     )
-                  : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 12),
-                      itemCount: filteredUsers.length,
-                      itemBuilder: (context, index) {
-                        final user = filteredUsers[index];
-                        return _buildUserCard(user);
-                      },
-                    ),
+                  : errorMessage != null
+                      ? Center(
+                          child: Text(
+                            errorMessage!,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.red,
+                            ),
+                          ),
+                        )
+                      : RefreshIndicator(
+                          onRefresh: refreshUsers,
+                          child: filteredUsers.isEmpty
+                              ? ListView(
+                                  children: const [
+                                    SizedBox(height: 180),
+                                    Center(
+                                      child: Text(
+                                        'No users found',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF666666),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : ListView.builder(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(24, 8, 24, 12),
+                                  itemCount: filteredUsers.length,
+                                  itemBuilder: (context, index) {
+                                    final user = filteredUsers[index];
+                                    return _buildUserCard(user);
+                                  },
+                                ),
+                        ),
             ),
           ],
         ),
@@ -249,7 +330,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
     );
   }
 
-  Widget _buildUserCard(Map<String, String> user) {
+  Widget _buildUserCard(Map<String, dynamic> user) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: SizedBox(
@@ -314,13 +395,15 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
             ),
             const SizedBox(width: 12),
             InkWell(
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+                await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => AdminEditUser(user: user),
                   ),
                 );
+
+                await fetchUsers();
               },
               child: const SizedBox(
                 width: 24,
@@ -346,8 +429,10 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
       backgroundColor = const Color(0xFF7ACD0E);
     } else if (status == 'Inactive') {
       backgroundColor = const Color(0xFFE47D0F);
-    } else {
+    } else if (status == 'Blocked') {
       backgroundColor = const Color(0xFFD00000);
+    } else {
+      backgroundColor = const Color(0xFF9E9E9E);
     }
 
     return Container(

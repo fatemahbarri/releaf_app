@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../widgets/app_background.dart'; // 🔥 إضافة الخلفية
 import 'AdminBar.dart';
 
@@ -15,6 +16,54 @@ class AdminHomePage extends StatefulWidget {
 }
 
 class _AdminHomePageState extends State<AdminHomePage> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  int totalUsers = 0;
+  int activeUsers = 0;
+  int totalBins = 0;
+  int reportedIssues = 0;
+
+  bool isLoading = true;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDashboardStats();
+  }
+
+  Future<void> fetchDashboardStats() async {
+    try {
+      final totalUsersSnapshot = await _firestore.collection('users').get();
+
+      final activeUsersSnapshot = await _firestore
+          .collection('users')
+          .where('accountStatus', isEqualTo: 'active')
+          .get();
+
+      final totalBinsSnapshot = await _firestore.collection('bins').get();
+
+      final reportedIssuesSnapshot = await _firestore.collection('reports').get();
+
+      if (!mounted) return;
+
+      setState(() {
+        totalUsers = totalUsersSnapshot.docs.length;
+        activeUsers = activeUsersSnapshot.docs.length;
+        totalBins = totalBinsSnapshot.docs.length;
+        reportedIssues = reportedIssuesSnapshot.docs.length;
+        isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        errorMessage = e.toString();
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,91 +72,107 @@ class _AdminHomePageState extends State<AdminHomePage> {
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(18, 20, 18, 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(left: 8),
-                  child: Icon(
-                    Icons.notifications_none_rounded,
-                    size: 42,
-                    color: Color(0xFF4D9B63),
-                  ),
-                ),
-                const SizedBox(height: 55),
-                Center(
-                  child: Text(
-                    'Welcome, ${widget.adminName}', // 🔥 الاسم الديناميكي
-                    style: const TextStyle(
-                      fontSize: 34,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 70),
-                const Padding(
-                  padding: EdgeInsets.only(left: 12),
-                  child: Text(
-                    'Dashboard',
-                    style: TextStyle(
-                      fontSize: 31,
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF675F5A),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 35),
-                Expanded(
-                  child: Column(
-                    children: [
-                      Row(
-                        children: const [
-                          Expanded(
-                            child: _DashboardCard(
-                              title: 'Total Users',
-                              value: '200',
-                            ),
+            child: isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : errorMessage != null
+                    ? Center(
+                        child: Text(
+                          errorMessage!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.red,
+                            fontWeight: FontWeight.w500,
                           ),
-                          SizedBox(width: 24),
-                          Expanded(
-                            child: _DashboardCard(
-                              title: 'Active Users',
-                              value: '115',
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 28),
-                      Row(
+                        ),
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Expanded(
-                            child: _DashboardCard(
-                              title: 'Total Bins',
-                              value: '50',
+                          const Padding(
+                            padding: EdgeInsets.only(left: 8),
+                            child: Icon(
+                              Icons.notifications_none_rounded,
+                              size: 42,
+                              color: Color(0xFF4D9B63),
                             ),
                           ),
-                          const SizedBox(width: 24),
-                          Expanded(
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(28),
-                              onTap: () {},
-                              child: const _DashboardCard(
-                                title: 'Reported\nIssues',
-                                value: '4',
-                                valueColor: Color(0xFFC70000),
+                          const SizedBox(height: 55),
+                          Center(
+                            child: Text(
+                              'Welcome, ${widget.adminName}', // 🔥 الاسم الديناميكي
+                              style: const TextStyle(
+                                fontSize: 34,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          const SizedBox(height: 70),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 12),
+                            child: Text(
+                              'Dashboard',
+                              style: TextStyle(
+                                fontSize: 31,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF675F5A),
                               ),
                             ),
                           ),
+                          const SizedBox(height: 35),
+                          Expanded(
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: _DashboardCard(
+                                        title: 'Total Users',
+                                        value: totalUsers.toString(),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 24),
+                                    Expanded(
+                                      child: _DashboardCard(
+                                        title: 'Active Users',
+                                        value: activeUsers.toString(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 28),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: _DashboardCard(
+                                        title: 'Total Bins',
+                                        value: totalBins.toString(),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 24),
+                                    Expanded(
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(28),
+                                        onTap: () {},
+                                        child: _DashboardCard(
+                                          title: 'Reported\nIssues',
+                                          value: reportedIssues.toString(),
+                                          valueColor: const Color(0xFFC70000),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const Spacer(),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
-                      const Spacer(),
-                    ],
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),
