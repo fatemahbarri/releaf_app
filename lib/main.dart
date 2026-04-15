@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
-import 'admin/AdminBinManagment.dart';
-void main() {
-=======
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'SplashScreen.dart';
+
+import 'classification/tflite_helper.dart';
+
+import 'classification/image_classifier_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,7 +14,8 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
->>>>>>> 6f86ec77353f629cb07cc961dd574a81b42babf0
+  await TFLiteHelper.init();
+
   runApp(const ReLeafApp());
 }
 
@@ -26,7 +27,7 @@ class ReLeafApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ReLeaf',
-      home: const AdminBinManagment(),
+      home: const SplashScreen(),
     );
   }
 }
