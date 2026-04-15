@@ -4,7 +4,6 @@ import 'firebase_options.dart';
 import 'SplashScreen.dart';
 
 import 'classification/tflite_helper.dart';
-
 import 'classification/image_classifier_screen.dart';
 
 void main() async {
