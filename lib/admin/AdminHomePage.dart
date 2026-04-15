@@ -1,8 +1,11 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../widgets/app_background.dart';
 import 'AdminBar.dart';
+import 'AdminUserManagment.dart';
+import 'AdminBinManagment.dart';
 
 class AdminHomePage extends StatefulWidget {
   final String adminName;
@@ -18,6 +21,7 @@ class AdminHomePage extends StatefulWidget {
 
 class _AdminHomePageState extends State<AdminHomePage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   int totalUsers = 0;
   int activeUsers = 0;
@@ -25,18 +29,23 @@ class _AdminHomePageState extends State<AdminHomePage> {
   int reportedIssues = 0;
   int newNotifications = 0;
 
+  String displayedAdminName = 'Admin';
+
   bool isLoading = true;
   String? errorMessage;
 
   @override
   void initState() {
     super.initState();
+    displayedAdminName = widget.adminName;
     fetchDashboardStats();
   }
 
   Future<void> fetchDashboardStats() async {
     try {
-      final results = await Future.wait([
+      final currentUser = _auth.currentUser;
+
+      final futures = <Future>[
         _firestore.collection('users').get(),
         _firestore
             .collection('users')
@@ -48,7 +57,16 @@ class _AdminHomePageState extends State<AdminHomePage> {
             .collection('reports')
             .where('isRead', isEqualTo: false)
             .get(),
-      ]);
+      ];
+
+      DocumentSnapshot? currentAdminDoc;
+
+      if (currentUser != null) {
+        currentAdminDoc =
+            await _firestore.collection('users').doc(currentUser.uid).get();
+      }
+
+      final results = await Future.wait(futures);
 
       if (!mounted) return;
 
@@ -58,7 +76,19 @@ class _AdminHomePageState extends State<AdminHomePage> {
       final reportedIssuesSnapshot = results[3] as QuerySnapshot;
       final newNotificationsSnapshot = results[4] as QuerySnapshot;
 
+      String resolvedAdminName = widget.adminName;
+
+      if (currentAdminDoc != null && currentAdminDoc.exists) {
+        final adminData = currentAdminDoc.data() as Map<String, dynamic>?;
+        final firestoreName = adminData?['name']?.toString().trim();
+
+        if (firestoreName != null && firestoreName.isNotEmpty) {
+          resolvedAdminName = firestoreName;
+        }
+      }
+
       setState(() {
+        displayedAdminName = resolvedAdminName;
         totalUsers = totalUsersSnapshot.docs.length;
         activeUsers = activeUsersSnapshot.docs.length;
         totalBins = totalBinsSnapshot.docs.length;
@@ -78,6 +108,24 @@ class _AdminHomePageState extends State<AdminHomePage> {
   int get inactiveUsers {
     final value = totalUsers - activeUsers;
     return value < 0 ? 0 : value;
+  }
+
+  void _goToUserManagement(String filter) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AdminUserManagment(initialFilter: filter),
+      ),
+    );
+  }
+
+  void _goToBinManagement() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AdminBinManagment(),
+      ),
+    );
   }
 
   @override
@@ -111,7 +159,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                             const SizedBox(height: 28),
                             Center(
                               child: Text(
-                                'Welcome Back, ${widget.adminName} !',
+                                'Welcome Back, $displayedAdminName !',
                                 style: const TextStyle(
                                   fontSize: 30,
                                   fontWeight: FontWeight.w800,
@@ -153,22 +201,29 @@ class _AdminHomePageState extends State<AdminHomePage> {
                             Row(
                               children: [
                                 Expanded(
-                                  child: _DashboardCard(
-                                    title: 'Total Users',
-                                    value: totalUsers.toString(),
-                                    icon: Icons.people_alt_rounded,
-                                    startColor: const Color(0xFF22B573),
-                                    endColor: const Color(0xFF11995D),
+                                  child: GestureDetector(
+                                    onTap: () =>
+                                        _goToUserManagement('All Users'),
+                                    child: _DashboardCard(
+                                      title: 'Total Users',
+                                      value: totalUsers.toString(),
+                                      icon: Icons.people_alt_rounded,
+                                      startColor: const Color(0xFF22B573),
+                                      endColor: const Color(0xFF11995D),
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
-                                  child: _DashboardCard(
-                                    title: 'Active Users',
-                                    value: activeUsers.toString(),
-                                    icon: Icons.person_add_alt_1_rounded,
-                                    startColor: const Color(0xFF3BB273),
-                                    endColor: const Color(0xFF238B53),
+                                  child: GestureDetector(
+                                    onTap: () => _goToUserManagement('Active'),
+                                    child: _DashboardCard(
+                                      title: 'Active Users',
+                                      value: activeUsers.toString(),
+                                      icon: Icons.person_add_alt_1_rounded,
+                                      startColor: const Color(0xFF3BB273),
+                                      endColor: const Color(0xFF238B53),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -177,12 +232,15 @@ class _AdminHomePageState extends State<AdminHomePage> {
                             Row(
                               children: [
                                 Expanded(
-                                  child: _DashboardCard(
-                                    title: 'Total Bins',
-                                    value: totalBins.toString(),
-                                    icon: Icons.delete_outline_rounded,
-                                    startColor: const Color(0xFF4DA8DA),
-                                    endColor: const Color(0xFF2E86C1),
+                                  child: GestureDetector(
+                                    onTap: _goToBinManagement,
+                                    child: _DashboardCard(
+                                      title: 'Total Bins',
+                                      value: totalBins.toString(),
+                                      icon: Icons.delete_outline_rounded,
+                                      startColor: const Color(0xFF4DA8DA),
+                                      endColor: const Color(0xFF2E86C1),
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 16),

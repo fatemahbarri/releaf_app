@@ -5,7 +5,12 @@ import 'AdminHomePage.dart';
 import 'AdminEditUser.dart';
 
 class AdminUserManagment extends StatefulWidget {
-  const AdminUserManagment({super.key});
+  final String initialFilter;
+
+  const AdminUserManagment({
+    super.key,
+    this.initialFilter = 'All Users',
+  });
 
   @override
   State<AdminUserManagment> createState() => _AdminUserManagmentState();
@@ -17,7 +22,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
 
   List<Map<String, dynamic>> allUsers = [];
   List<Map<String, dynamic>> filteredUsers = [];
-  String selectedFilter = 'All Users';
+  late String selectedFilter;
 
   bool isLoading = true;
   String? errorMessage;
@@ -25,6 +30,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
   @override
   void initState() {
     super.initState();
+    selectedFilter = widget.initialFilter;
     fetchUsers();
   }
 
@@ -92,7 +98,8 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
         final matchesSearch =
             query.isEmpty || name.contains(query) || email.contains(query);
 
-        final matchesFilter = selectedFilter == 'All Users' ||
+        final matchesFilter =
+            selectedFilter == 'All Users' ||
             status == selectedFilter.toLowerCase();
 
         return matchesSearch && matchesFilter;
@@ -105,7 +112,9 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
   }
 
   void updateFilter(String filter) {
-    selectedFilter = filter;
+    setState(() {
+      selectedFilter = filter;
+    });
     applyFilters();
   }
 
@@ -174,7 +183,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      AdminHomePage(adminName: 'Admin'),
+                                      const AdminHomePage(adminName: 'Admin'),
                                 ),
                               );
                             },
