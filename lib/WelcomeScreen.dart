@@ -22,7 +22,7 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Color.fromARGB(64, 0, 0, 0),
+                        color: Color(0x40000000),
                         blurRadius: 4,
                         offset: Offset(0, 4),
                       ),
@@ -41,8 +41,10 @@ class WelcomeScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 20),
+
+                      // الصورة
                       Image.asset(
-                        'assets/releaf_welcome.png',
+                        'assets/images/releaf_welcome.png',
                         height: 200,
                       ),
                     ],
@@ -52,7 +54,7 @@ class WelcomeScreen extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              ///  زر الأدمن
+              // زر الأدمن
               _buildButton(
                 text: "Login as Admin",
                 color: const Color(0xFF499A64),
@@ -61,9 +63,7 @@ class WelcomeScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const LoginPage(
-                        isAdminMode: true,
-                      ),
+                      builder: (context) => const LoginPage(isAdminMode: true),
                     ),
                   );
                 },
@@ -71,18 +71,16 @@ class WelcomeScreen extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              ///  زر اليوزر
+              // زر اليوزر
               _buildButton(
                 text: "Login as User",
                 color: const Color(0xFF8DC149),
-                textColor: const Color.fromARGB(255, 20, 90, 80),
+                textColor: const Color.fromARGB(255, 22, 56, 47),
                 onTap: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const LoginPage(
-                        isAdminMode: false,
-                      ),
+                      builder: (context) => const LoginPage(isAdminMode: false),
                     ),
                   );
                 },
@@ -105,8 +103,8 @@ class WelcomeScreen extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 250, 
-        height: 50, 
+        width: 250,
+        height: 50,
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: color,

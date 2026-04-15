@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'AddBin.dart';
+import '../services/firebase_service.dart';
 
 class AdminBinManagment2 extends StatefulWidget {
   final String category;
@@ -15,111 +16,81 @@ class AdminBinManagment2 extends StatefulWidget {
 
 class _AdminBinManagment2State extends State<AdminBinManagment2> {
   final TextEditingController _searchController = TextEditingController();
+  final FirebaseService _firebaseService = FirebaseService();
 
-  final List<Map<String, String>> _bins = [
-    {
-      'category': 'Plastic',
-      'name': 'Khobar Recycling Center',
-      'address': 'Prince Faisal Bin Fahd Road, Al Khobar',
-    },
-    {
-      'category': 'Plastic',
-      'name': 'Eastern Eco Drop-Off',
-      'address': 'King Fahd Street, Al Thuqbah District',
-    },
-    {
-      'category': 'Plastic',
-      'name': 'Corniche Waste Sorting',
-      'address': 'Khobar Corniche Road, Al Bahar Area',
-    },
-    {
-      'category': 'Plastic',
-      'name': 'Bayfront Recycle Center',
-      'address': 'Seaside Road, Al Khobar Corniche Extension',
-    },
-    {
-      'category': 'Glass',
-      'name': 'Glass Station',
-      'address': 'Corniche Road, Al Khobar',
-    },
-    {
-      'category': 'Glass',
-      'name': 'Bottle Collection Point',
-      'address': 'Prince Turki Street, Al Khobar',
-    },
-    {
-      'category': 'Paper',
-      'name': 'Paper Hub',
-      'address': 'King Abdulaziz Road, Al Khobar',
-    },
-    {
-      'category': 'Paper',
-      'name': 'Paper Collection Center',
-      'address': 'King Saud Street, Al Khobar',
-    },
-    {
-      'category': 'Metal',
-      'name': 'Metal Sorting Station',
-      'address': 'Industrial Area, Al Khobar',
-    },
-    {
-      'category': 'Metal',
-      'name': 'Scrap Metal Point',
-      'address': 'Airport Road, Al Khobar',
-    },
-    {
-      'category': 'Cardboard',
-      'name': 'Cardboard Recovery Center',
-      'address': 'Prince Nayef Road, Al Khobar',
-    },
-    {
-      'category': 'Cardboard',
-      'name': 'Box Collection Point',
-      'address': 'Corniche Extension, Al Khobar',
-    },
-    {
-      'category': 'Trash',
-      'name': 'General Waste Station',
-      'address': 'Service Road, Al Khobar',
-    },
-    {
-      'category': 'Trash',
-      'name': 'Non-Recyclables Bin Point',
-      'address': 'City Center District, Al Khobar',
-    },
-  ];
+  List<Map<String, dynamic>> _bins = [];
+  bool _isLoading = true;
 
-  List<Map<String, String>> get filtered {
+  @override
+  void initState() {
+    super.initState();
+    _loadBins();
+  }
+
+  Future<void> _loadBins() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final bins = await _firebaseService.getBinsByType(widget.category);
+      if (!mounted) return;
+
+      setState(() {
+        _bins = bins;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  List<Map<String, dynamic>> get filtered {
     final query = _searchController.text.trim().toLowerCase();
 
     return _bins.where((b) {
-      final sameCategory = b['category'] == widget.category;
-      final matchesSearch =
-          query.isEmpty ||
-          (b['name'] ?? '').toLowerCase().contains(query) ||
-          (b['address'] ?? '').toLowerCase().contains(query);
+      final matchesSearch = query.isEmpty ||
+          (b['binName'] ?? '').toString().toLowerCase().contains(query) ||
+          (b['city'] ?? '').toString().toLowerCase().contains(query) ||
+          (b['Region'] ?? '').toString().toLowerCase().contains(query) ||
+          (b['Description'] ?? '').toString().toLowerCase().contains(query);
 
-      return sameCategory && matchesSearch;
+      return matchesSearch;
     }).toList();
   }
 
-  void _delete(Map<String, String> bin) {
+  Future<void> _delete(Map<String, dynamic> bin) async {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Delete Bin'),
-        content: Text('Delete "${bin['name']}"?'),
+        content: Text('Delete "${bin['binName']}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
-              setState(() {
-                _bins.remove(bin);
-              });
+            onPressed: () async {
               Navigator.pop(context);
+
+              try {
+                await _firebaseService.deleteBin(bin['id'].toString());
+                await _loadBins();
+              } catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(e.toString())),
+                );
+              }
             },
             child: const Text('Delete'),
           ),
@@ -136,41 +107,31 @@ class _AdminBinManagment2State extends State<AdminBinManagment2> {
       ),
     );
 
-    if (result != null && result is Map<String, dynamic>) {
-      setState(() {
-        _bins.add({
-          'category': (result['category'] ?? widget.category).toString(),
-          'name': (result['name'] ?? '').toString(),
-          'address': (result['address'] ?? '').toString(),
-        });
-      });
+    if (result == true) {
+      await _loadBins();
     }
   }
 
-Future<void> _edit(Map<String, String> bin) async {
-  final result = await Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (_) => AddBin(
-        category: widget.category,
-        initialData: bin,
+  Future<void> _edit(Map<String, dynamic> bin) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AddBin(
+          category: widget.category,
+          initialData: bin,
+        ),
       ),
-    ),
-  );
+    );
 
-  if (result != null && result is Map<String, dynamic>) {
-    setState(() {
-      bin['name'] = (result['name'] ?? '').toString();
-      bin['address'] = (result['address'] ?? '').toString();
-      bin['city'] = (result['city'] ?? '').toString();
-      bin['area'] = (result['area'] ?? '').toString();
-      bin['latitude'] = (result['latitude'] ?? '').toString();
-      bin['longitude'] = (result['longitude'] ?? '').toString();
-    });
+    if (result == true) {
+      await _loadBins();
+    }
   }
-}
 
-  Widget _buildBinCard(Map<String, String> bin) {
+  Widget _buildBinCard(Map<String, dynamic> bin) {
+    final subtitle =
+        '${bin['city'] ?? ''}${(bin['Region'] ?? '').toString().isNotEmpty ? ' - ${bin['Region']}' : ''}';
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -199,7 +160,7 @@ Future<void> _edit(Map<String, String> bin) async {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          bin['name'] ?? '',
+                          bin['binName']?.toString() ?? '',
                           style: const TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w700,
@@ -208,10 +169,18 @@ Future<void> _edit(Map<String, String> bin) async {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          bin['address'] ?? '',
+                          subtitle,
                           style: const TextStyle(
                             fontSize: 13,
                             color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          bin['Description']?.toString() ?? '',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.black54,
                           ),
                         ),
                       ],
@@ -298,6 +267,12 @@ Future<void> _edit(Map<String, String> bin) async {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -395,21 +370,15 @@ Future<void> _edit(Map<String, String> bin) async {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    if (widget.category == 'Plastic')
-                      const Padding(
-                        padding: EdgeInsets.only(left: 14, bottom: 10),
-                        child: Text(
-                          'Paper',
-                          style: TextStyle(
-                            color: Color(0x66FFFFFF),
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                    const SizedBox(height: 16),
+                    if (_isLoading)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 40),
+                          child: CircularProgressIndicator(),
                         ),
-                      ),
-                    const SizedBox(height: 4),
-                    if (list.isEmpty)
+                      )
+                    else if (list.isEmpty)
                       const Padding(
                         padding: EdgeInsets.only(top: 40),
                         child: Center(

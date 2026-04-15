@@ -272,7 +272,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 16),
                     Image.asset(
-                      'assets/Releaf_logo.png',
+                      'assets/images/Releaf_logo.png',
                       height: 130,
                     ),
                     const SizedBox(height: 20),

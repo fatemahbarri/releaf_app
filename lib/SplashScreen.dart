@@ -19,11 +19,13 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
+    // Animation controller
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
     );
 
+    // Scale animation
     _scale = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween<double>(
@@ -43,6 +45,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
+    // Navigate to Welcome screen after 3 seconds
     Timer(const Duration(seconds: 3), () {
       if (!mounted) return;
 
@@ -66,7 +69,7 @@ class _SplashScreenState extends State<SplashScreen>
         child: SafeArea(
           child: Stack(
             children: [
-              // الموجة السفلية
+              // Bottom wave background
               Align(
                 alignment: Alignment.bottomCenter,
                 child: SizedBox(
@@ -81,7 +84,7 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               ),
 
-              // اللوقو فقط
+              // Logo with animation
               Center(
                 child: AnimatedBuilder(
                   animation: _scale,
@@ -92,7 +95,7 @@ class _SplashScreenState extends State<SplashScreen>
                     );
                   },
                   child: Image.asset(
-                    'assets/Releaf_logo.png',
+                    'assets/images/Releaf_logo.png',
                     width: 180,
                     height: 180,
                     fit: BoxFit.contain,
@@ -107,6 +110,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
+// Custom clipper for bottom wave
 class BottomWaveClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
@@ -143,5 +147,5 @@ class BottomWaveClipper extends CustomClipper<Path> {
   }
 
   @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

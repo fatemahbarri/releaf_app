@@ -89,22 +89,24 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
   void applyFilters() {
     final query = searchController.text.toLowerCase().trim();
 
-    setState(() {
-      filteredUsers = allUsers.where((user) {
-        final name = (user['name'] ?? '').toString().toLowerCase();
-        final email = (user['email'] ?? '').toString().toLowerCase();
-        final status = (user['status'] ?? '').toString().toLowerCase();
+    filteredUsers = allUsers.where((user) {
+      final name = (user['name'] ?? '').toString().toLowerCase();
+      final email = (user['email'] ?? '').toString().toLowerCase().trim();
+      final status = (user['status'] ?? '').toString().toLowerCase();
 
-        final matchesSearch =
-            query.isEmpty || name.contains(query) || email.contains(query);
+      // Exclude admin emails
+      if (email.endsWith('@releaf.com')) {
+        return false;
+      }
 
-        final matchesFilter =
-            selectedFilter == 'All Users' ||
-            status == selectedFilter.toLowerCase();
+      final matchesSearch =
+          query.isEmpty || name.contains(query) || email.contains(query);
 
-        return matchesSearch && matchesFilter;
-      }).toList();
-    });
+      final matchesFilter = selectedFilter == 'All Users' ||
+          status == selectedFilter.toLowerCase();
+
+      return matchesSearch && matchesFilter;
+    }).toList();
   }
 
   void searchUsers(String value) {

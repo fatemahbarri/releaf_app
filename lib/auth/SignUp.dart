@@ -208,7 +208,7 @@ class _SignUpState extends State<SignUp> {
                     ),
                     const SizedBox(height: 8),
                     Image.asset(
-                      'assets/Releaf_logo.png',
+                      'assets/images/Releaf_logo.png',
                       height: 120,
                     ),
                     const SizedBox(height: 14),
@@ -297,12 +297,23 @@ class _SignUpState extends State<SignUp> {
                             onTap: () {
                               Navigator.pop(context);
                             },
-                            child: const Text(
-                              'Already have an account? Log in',
-                              style: TextStyle(
-                                color: Color(0xFF4676AE),
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
+                            child: RichText(
+                              text: const TextSpan(
+                                text: 'Already have an account? ',
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 70, 68, 68),
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                children: [
+                                  TextSpan(
+                                    text: 'Log in',
+                                    style: TextStyle(
+                                      color: Color.fromARGB(255, 19, 72, 115),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),

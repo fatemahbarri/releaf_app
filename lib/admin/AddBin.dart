@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
+import '../services/firebase_service.dart';
 
 class AddBin extends StatefulWidget {
   final String category;
-  final Map<String, String>? initialData;
+  final Map<String, dynamic>? initialData;
 
   const AddBin({
     super.key,
@@ -20,13 +21,15 @@ class AddBin extends StatefulWidget {
 class _AddBinState extends State<AddBin> {
   late final TextEditingController _binNameController;
   late final TextEditingController _cityController;
-  late final TextEditingController _areaController;
-  late final TextEditingController _addressController;
+  late final TextEditingController _regionController;
+  late final TextEditingController _descriptionController;
 
   final MapController _mapController = MapController();
+  final FirebaseService _firebaseService = FirebaseService();
 
   LatLng _selectedLocation = const LatLng(26.385046, 50.189002);
   bool _isSearchingAddress = false;
+  bool _isSaving = false;
 
   bool get _isEditMode => widget.initialData != null;
 
@@ -35,28 +38,31 @@ class _AddBinState extends State<AddBin> {
     super.initState();
 
     _binNameController = TextEditingController(
-      text: widget.initialData?['name'] ?? '',
+      text: widget.initialData?['binName']?.toString() ?? '',
     );
     _cityController = TextEditingController(
-      text: widget.initialData?['city'] ?? '',
+      text: widget.initialData?['city']?.toString() ?? '',
     );
-    _areaController = TextEditingController(
-      text: widget.initialData?['area'] ?? '',
+    _regionController = TextEditingController(
+      text: widget.initialData?['Region']?.toString() ?? '',
     );
-    _addressController = TextEditingController(
-      text: widget.initialData?['address'] ?? '',
+    _descriptionController = TextEditingController(
+      text: widget.initialData?['Description']?.toString() ?? '',
     );
 
-    final lat = double.tryParse(widget.initialData?['latitude'] ?? '');
-    final lng = double.tryParse(widget.initialData?['longitude'] ?? '');
+    final lat = widget.initialData?['latitude'];
+    final lng = widget.initialData?['longitude'];
 
     if (lat != null && lng != null) {
-      _selectedLocation = LatLng(lat, lng);
+      _selectedLocation = LatLng(
+        double.tryParse(lat.toString()) ?? 26.385046,
+        double.tryParse(lng.toString()) ?? 50.189002,
+      );
     }
   }
 
   Future<void> _searchAddress() async {
-    final query = _addressController.text.trim();
+    final query = _descriptionController.text.trim();
     if (query.isEmpty) return;
 
     setState(() {
@@ -82,28 +88,65 @@ class _AddBinState extends State<AddBin> {
     }
   }
 
-  void _saveBin() {
+  Future<void> _saveBin() async {
     final binName = _binNameController.text.trim();
     final city = _cityController.text.trim();
-    final area = _areaController.text.trim();
-    final address = _addressController.text.trim();
+    final region = _regionController.text.trim();
+    final description = _descriptionController.text.trim();
 
-    if (binName.isEmpty || city.isEmpty || area.isEmpty || address.isEmpty) {
+    if (binName.isEmpty ||
+        city.isEmpty ||
+        region.isEmpty ||
+        description.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all fields')),
       );
       return;
     }
 
-    Navigator.pop(context, {
-      'category': widget.category,
-      'name': binName,
-      'city': city,
-      'area': area,
-      'address': address,
-      'latitude': _selectedLocation.latitude.toString(),
-      'longitude': _selectedLocation.longitude.toString(),
+    setState(() {
+      _isSaving = true;
     });
+
+    try {
+      if (_isEditMode) {
+        await _firebaseService.updateBin(
+          id: widget.initialData!['id'].toString(),
+          binName: binName,
+          binType: widget.category,
+          description: description,
+          region: region,
+          city: city,
+          latitude: _selectedLocation.latitude,
+          longitude: _selectedLocation.longitude,
+          isActive: widget.initialData?['isActive']?.toString() ?? 'Active',
+        );
+      } else {
+        await _firebaseService.addBin(
+          binName: binName,
+          binType: widget.category,
+          description: description,
+          region: region,
+          city: city,
+          latitude: _selectedLocation.latitude,
+          longitude: _selectedLocation.longitude,
+        );
+      }
+
+      if (!mounted) return;
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
   }
 
   Widget _buildInputField({
@@ -195,8 +238,8 @@ class _AddBinState extends State<AddBin> {
   void dispose() {
     _binNameController.dispose();
     _cityController.dispose();
-    _areaController.dispose();
-    _addressController.dispose();
+    _regionController.dispose();
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -262,24 +305,25 @@ class _AddBinState extends State<AddBin> {
                       hint: 'City',
                     ),
                     _buildInputField(
-                      controller: _areaController,
-                      hint: 'Area',
+                      controller: _regionController,
+                      hint: 'Region',
                     ),
                     _buildInputField(
                       controller: TextEditingController(text: widget.category),
-                      hint: 'Bin type',
+                      hint: 'Bin Type',
                       readOnly: true,
                     ),
                     _buildInputField(
-                      controller: _addressController,
-                      hint: 'Select Address',
+                      controller: _descriptionController,
+                      hint: 'Description',
                       suffixIcon: IconButton(
                         onPressed: _isSearchingAddress ? null : _searchAddress,
                         icon: _isSearchingAddress
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               )
                             : const Icon(
                                 Icons.location_on_outlined,
@@ -303,8 +347,6 @@ class _AddBinState extends State<AddBin> {
                               onTap: (tapPosition, point) {
                                 setState(() {
                                   _selectedLocation = point;
-                                  _addressController.text =
-                                      '${point.latitude.toStringAsFixed(6)}, ${point.longitude.toStringAsFixed(6)}';
                                 });
                               },
                             ),
@@ -340,7 +382,7 @@ class _AddBinState extends State<AddBin> {
                         width: 220,
                         height: 62,
                         child: ElevatedButton(
-                          onPressed: _saveBin,
+                          onPressed: _isSaving ? null : _saveBin,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFB8D67D),
                             elevation: 4,
@@ -348,14 +390,23 @@ class _AddBinState extends State<AddBin> {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          child: Text(
-                            _isEditMode ? 'Save Changes' : 'Save',
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF5B5554),
-                            ),
-                          ),
+                          child: _isSaving
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Color(0xFF5B5554),
+                                  ),
+                                )
+                              : Text(
+                                  _isEditMode ? 'Save Changes' : 'Save',
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF5B5554),
+                                  ),
+                                ),
                         ),
                       ),
                     ),

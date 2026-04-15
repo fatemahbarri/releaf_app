@@ -89,8 +89,19 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
       setState(() {
         displayedAdminName = resolvedAdminName;
-        totalUsers = totalUsersSnapshot.docs.length;
-        activeUsers = activeUsersSnapshot.docs.length;
+// Filter out admin emails
+        final filteredTotalUsers = totalUsersSnapshot.docs.where((doc) {
+          final email = (doc['email'] ?? '').toString().toLowerCase().trim();
+          return !email.endsWith('@releaf.com');
+        }).toList();
+
+        final filteredActiveUsers = activeUsersSnapshot.docs.where((doc) {
+          final email = (doc['email'] ?? '').toString().toLowerCase().trim();
+          return !email.endsWith('@releaf.com');
+        }).toList();
+
+        totalUsers = filteredTotalUsers.length;
+        activeUsers = filteredActiveUsers.length;
         totalBins = totalBinsSnapshot.docs.length;
         reportedIssues = reportedIssuesSnapshot.docs.length;
         newNotifications = newNotificationsSnapshot.docs.length;
@@ -208,7 +219,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                       title: 'Total Users',
                                       value: totalUsers.toString(),
                                       icon: Icons.people_alt_rounded,
-                                      startColor: const Color(0xFF22B573),
+                                      startColor: const Color.fromARGB(
+                                          255, 69, 118, 96),
                                       endColor: const Color(0xFF11995D),
                                     ),
                                   ),
@@ -221,7 +233,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                       title: 'Active Users',
                                       value: activeUsers.toString(),
                                       icon: Icons.person_add_alt_1_rounded,
-                                      startColor: const Color(0xFF3BB273),
+                                      startColor: const Color.fromARGB(
+                                          255, 20, 107, 102),
                                       endColor: const Color(0xFF238B53),
                                     ),
                                   ),
@@ -238,7 +251,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                       title: 'Total Bins',
                                       value: totalBins.toString(),
                                       icon: Icons.delete_outline_rounded,
-                                      startColor: const Color(0xFF4DA8DA),
+                                      startColor: const Color.fromARGB(
+                                          255, 35, 65, 108),
                                       endColor: const Color(0xFF2E86C1),
                                     ),
                                   ),
@@ -249,7 +263,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                     title: 'Reported Issues',
                                     value: reportedIssues.toString(),
                                     icon: Icons.report_problem_outlined,
-                                    startColor: const Color(0xFFFF8A65),
+                                    startColor:
+                                        const Color.fromARGB(255, 82, 45, 34),
                                     endColor: const Color(0xFFF4511E),
                                   ),
                                 ),
