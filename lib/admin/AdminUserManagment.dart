@@ -189,7 +189,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                           child: Text(
                             'Users Management',
                             style: TextStyle(
-                              color: Color(0xFF7CA385),
+                              color: Color.fromARGB(255, 0, 0, 0),
                               fontSize: 25,
                               fontWeight: FontWeight.bold,
                             ),

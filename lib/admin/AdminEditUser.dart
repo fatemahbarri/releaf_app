@@ -28,7 +28,6 @@ class _AdminEditUserState extends State<AdminEditUser> {
   void initState() {
     super.initState();
 
-    // بيانات مؤقتة إذا ما انرسلت بيانات من الصفحة السابقة
     final currentUser = widget.user ??
         {
           'name': 'Sara Abdullah',
@@ -157,20 +156,42 @@ class _AdminEditUserState extends State<AdminEditUser> {
     });
 
     try {
-      await _firestore.collection('users').doc(docId).update({
+      final docRef = _firestore.collection('users').doc(docId);
+
+      final doc = await docRef.get();
+      final oldData = doc.data();
+      final oldStatus = (oldData?['accountStatus'] ?? 'active').toString();
+
+      await docRef.update({
         'accountStatus': 'blocked',
       });
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User has been blocked')),
-      );
+      setState(() {
+        status = 'Blocked';
+      });
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const AdminUserManagment(),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('User has been blocked'),
+          backgroundColor: const Color(0xFFD00000),
+          duration: const Duration(seconds: 4),
+          action: SnackBarAction(
+            label: 'Undo',
+            textColor: Colors.white,
+            onPressed: () async {
+              await docRef.update({
+                'accountStatus': oldStatus,
+              });
+
+              if (!mounted) return;
+
+              setState(() {
+                status = oldStatus.capitalize();
+              });
+            },
+          ),
         ),
       );
     } catch (e) {
@@ -193,7 +214,7 @@ class _AdminEditUserState extends State<AdminEditUser> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Block user'),
+          title: const Text('Block User'),
           content: const Text(
             'Are you sure you want to block this user?',
           ),
@@ -207,7 +228,7 @@ class _AdminEditUserState extends State<AdminEditUser> {
               },
               child: const Text('Cancel'),
             ),
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: () {
                 Navigator.pop(context, true);
               },
@@ -217,7 +238,12 @@ class _AdminEditUserState extends State<AdminEditUser> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
+              icon: const Icon(
+                Icons.block_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+              label: const Text(
                 'Block',
                 style: TextStyle(color: Colors.white),
               ),
@@ -247,7 +273,7 @@ class _AdminEditUserState extends State<AdminEditUser> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: SizedBox(
-                  height: 32,
+                  height: 40,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -267,35 +293,34 @@ class _AdminEditUserState extends State<AdminEditUser> {
                         ),
                       ),
                       const Spacer(),
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x22000000),
-                              blurRadius: 6,
-                              offset: Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          onPressed: isBlocking ? null : showBlockDialog,
-                          icon: isBlocking
+                      GestureDetector(
+                        onTap: isBlocking ? null : showBlockDialog,
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.70),
+                            borderRadius: BorderRadius.circular(18),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x14000000),
+                                blurRadius: 8,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: isBlocking
                               ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
+                                  width: 24,
+                                  height: 24,
                                   child: CircularProgressIndicator(
-                                      strokeWidth: 2.2),
+                                    strokeWidth: 2.5,
+                                    color: Color(0xFFD00000),
+                                  ),
                                 )
                               : const Icon(
-                                  Icons.delete_outline_rounded,
+                                  Icons.block_rounded,
+                                  size: 28,
                                   color: Color(0xFFD00000),
-                                  size: 22,
                                 ),
                         ),
                       ),
@@ -307,7 +332,11 @@ class _AdminEditUserState extends State<AdminEditUser> {
               const CircleAvatar(
                 radius: 70,
                 backgroundColor: Colors.white,
-                child: Icon(Icons.person, size: 90, color: Color(0xFF7CA385)),
+                child: Icon(
+                  Icons.person,
+                  size: 90,
+                  color: Color(0xFF7CA385),
+                ),
               ),
               const SizedBox(height: 16),
               Text(
@@ -440,5 +469,12 @@ class _AdminEditUserState extends State<AdminEditUser> {
         ),
       ),
     );
+  }
+}
+
+extension StringExtension on String {
+  String capitalize() {
+    if (isEmpty) return this;
+    return '${this[0].toUpperCase()}${substring(1)}';
   }
 }
