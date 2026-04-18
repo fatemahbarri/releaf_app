@@ -1,479 +1,470 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+import 'LocationPage2.dart';
+
 class LocationPage extends StatefulWidget {
-	const LocationPage({super.key});
-	@override
-	LocationPageState createState() => LocationPageState();
+  const LocationPage({super.key});
+
+  @override
+  State<LocationPage> createState() => _LocationPageState();
 }
-class LocationPageState extends State<LocationPage> {
-	@override
-	Widget build(BuildContext context) {
-		return Scaffold(
-			body: SafeArea(
-				child: Container(
-					constraints: const BoxConstraints.expand(),
-					color: Color(0xFFFFFFFF),
-					child: Column(
-						crossAxisAlignment: CrossAxisAlignment.start,
-						children: [
-							Expanded(
-								child: Container(
-									color: Color(0xFFF3FFE2),
-									width: double.infinity,
-									height: double.infinity,
-									child: SingleChildScrollView(
-										padding: const EdgeInsets.only( top: 50),
-										child: Column(
-											crossAxisAlignment: CrossAxisAlignment.start,
-											children: [
-												Container(
-													margin: const EdgeInsets.only( bottom: 4, left: 8),
-													width: 47,
-													height: 41,
-													child: Image.network(
-														"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/vnzpvbeg_expires_30_days.png",
-														fit: BoxFit.fill,
-													)
-												),
-												IntrinsicHeight(
-													child: Container(
-														margin: const EdgeInsets.only( bottom: 18, left: 30, right: 30),
-														width: double.infinity,
-														child: Row(
-															children: [
-																Expanded(
-																	child: IntrinsicHeight(
-																		child: Container(
-																			decoration: BoxDecoration(
-																				border: Border.all(
-																					color: Color(0xFFD9D9D9),
-																					width: 1,
-																				),
-																				borderRadius: BorderRadius.circular(9999),
-																				color: Color(0xFFFFFFFF),
-																			),
-																			padding: const EdgeInsets.only( top: 12, bottom: 12, left: 16, right: 16),
-																			margin: const EdgeInsets.only( right: 20),
-																			width: double.infinity,
-																			child: Row(
-																				mainAxisAlignment: MainAxisAlignment.spaceBetween,
-																				children: [
-																					Text(
-																						"Search Location",
-																						style: TextStyle(
-																							color: Color(0xFFB3B3B3),
-																							fontSize: 16,
-																						),
-																					),
-																					Container(
-																						decoration: BoxDecoration(
-																							borderRadius: BorderRadius.circular(9999),
-																						),
-																						width: 16,
-																						height: 16,
-																						child: ClipRRect(
-																							borderRadius: BorderRadius.circular(9999),
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/hqaa2gq1_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						)
-																					),
-																				]
-																			),
-																		),
-																	),
-																),
-																SizedBox(
-																	width: 24,
-																	height: 24,
-																	child: Image.network(
-																		"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/lcnkx1hb_expires_30_days.png",
-																		fit: BoxFit.fill,
-																	)
-																),
-															]
-														),
-													),
-												),
-												Container(
-													margin: const EdgeInsets.only( bottom: 28, left: 13, right: 13),
-													height: 225,
-													width: double.infinity,
-													child: Image.network(
-														"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/q3nankrv_expires_30_days.png",
-														fit: BoxFit.fill,
-													)
-												),
-												Container(
-													margin: const EdgeInsets.only( bottom: 27, left: 24),
-													width: 297,
-													child: Text(
-														"Find The Nearest Location Per Category",
-														style: TextStyle(
-															color: Color(0xFF5B5656),
-															fontSize: 30,
-															fontWeight: FontWeight.bold,
-														),
-													),
-												),
-												IntrinsicHeight(
-													child: Container(
-														margin: const EdgeInsets.only( bottom: 43, left: 8, right: 8),
-														width: double.infinity,
-														child: Row(
-															children: [
-																Expanded(
-																	child: InkWell(
-																		onTap: () { print('Pressed'); },
-																		child: IntrinsicHeight(
-																			child: Container(
-																				decoration: BoxDecoration(
-																					borderRadius: BorderRadius.circular(27),
-																					color: Color(0xFF499A64),
-																					boxShadow: [
-																						BoxShadow(
-																							color: Color(0x40000000),
-																							blurRadius: 4,
-																							offset: Offset(0, 4),
-																						),
-																					],
-																				),
-																				padding: const EdgeInsets.symmetric(vertical: 35),
-																				margin: const EdgeInsets.only( right: 18),
-																				width: double.infinity,
-																				child: Column(
-																					children: [
-																						Text(
-																							"Cardboard",
-																							style: TextStyle(
-																								color: Color(0xFFFFFFFF),
-																								fontSize: 20,
-																								fontWeight: FontWeight.bold,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																),
-																Expanded(
-																	child: InkWell(
-																		onTap: () { print('Pressed'); },
-																		child: IntrinsicHeight(
-																			child: Container(
-																				decoration: BoxDecoration(
-																					borderRadius: BorderRadius.circular(27),
-																					color: Color(0xFF499A64),
-																					boxShadow: [
-																						BoxShadow(
-																							color: Color(0x40000000),
-																							blurRadius: 4,
-																							offset: Offset(0, 4),
-																						),
-																					],
-																				),
-																				padding: const EdgeInsets.symmetric(vertical: 35),
-																				margin: const EdgeInsets.only( right: 16),
-																				width: double.infinity,
-																				child: Column(
-																					children: [
-																						Text(
-																							"Glass",
-																							style: TextStyle(
-																								color: Color(0xFFFFFFFF),
-																								fontSize: 20,
-																								fontWeight: FontWeight.bold,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																),
-																Expanded(
-																	child: InkWell(
-																		onTap: () { print('Pressed'); },
-																		child: IntrinsicHeight(
-																			child: Container(
-																				decoration: BoxDecoration(
-																					borderRadius: BorderRadius.circular(27),
-																					color: Color(0xFF499A64),
-																					boxShadow: [
-																						BoxShadow(
-																							color: Color(0x40000000),
-																							blurRadius: 4,
-																							offset: Offset(0, 4),
-																						),
-																					],
-																				),
-																				padding: const EdgeInsets.symmetric(vertical: 35),
-																				width: double.infinity,
-																				child: Column(
-																					children: [
-																						Text(
-																							"Metal",
-																							style: TextStyle(
-																								color: Color(0xFFFFFFFF),
-																								fontSize: 20,
-																								fontWeight: FontWeight.bold,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																),
-															]
-														),
-													),
-												),
-												IntrinsicHeight(
-													child: Container(
-														margin: const EdgeInsets.only( bottom: 58, left: 8, right: 8),
-														width: double.infinity,
-														child: Row(
-															children: [
-																Expanded(
-																	child: InkWell(
-																		onTap: () { print('Pressed'); },
-																		child: IntrinsicHeight(
-																			child: Container(
-																				decoration: BoxDecoration(
-																					borderRadius: BorderRadius.circular(27),
-																					color: Color(0xFF499A64),
-																					boxShadow: [
-																						BoxShadow(
-																							color: Color(0x40000000),
-																							blurRadius: 4,
-																							offset: Offset(0, 4),
-																						),
-																					],
-																				),
-																				padding: const EdgeInsets.symmetric(vertical: 34),
-																				margin: const EdgeInsets.only( right: 18),
-																				width: double.infinity,
-																				child: Column(
-																					children: [
-																						Text(
-																							"Paper",
-																							style: TextStyle(
-																								color: Color(0xFFFFFFFF),
-																								fontSize: 20,
-																								fontWeight: FontWeight.bold,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																),
-																Expanded(
-																	child: InkWell(
-																		onTap: () { print('Pressed'); },
-																		child: IntrinsicHeight(
-																			child: Container(
-																				decoration: BoxDecoration(
-																					borderRadius: BorderRadius.circular(27),
-																					color: Color(0xFF499A64),
-																					boxShadow: [
-																						BoxShadow(
-																							color: Color(0x40000000),
-																							blurRadius: 4,
-																							offset: Offset(0, 4),
-																						),
-																					],
-																				),
-																				padding: const EdgeInsets.symmetric(vertical: 35),
-																				margin: const EdgeInsets.only( right: 16),
-																				width: double.infinity,
-																				child: Column(
-																					children: [
-																						Text(
-																							"Plastic",
-																							style: TextStyle(
-																								color: Color(0xFFFFFFFF),
-																								fontSize: 20,
-																								fontWeight: FontWeight.bold,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																),
-																Expanded(
-																	child: InkWell(
-																		onTap: () { print('Pressed'); },
-																		child: IntrinsicHeight(
-																			child: Container(
-																				decoration: BoxDecoration(
-																					borderRadius: BorderRadius.circular(27),
-																					color: Color(0xFF499A64),
-																					boxShadow: [
-																						BoxShadow(
-																							color: Color(0x40000000),
-																							blurRadius: 4,
-																							offset: Offset(0, 4),
-																						),
-																					],
-																				),
-																				padding: const EdgeInsets.symmetric(vertical: 25),
-																				width: double.infinity,
-																				child: Column(
-																					children: [
-																						Text(
-																							"Trash\n(non-recyclables)",
-																							style: TextStyle(
-																								color: Color(0xFFFFFFFF),
-																								fontWeight: FontWeight.bold,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																),
-															]
-														),
-													),
-												),
-												IntrinsicHeight(
-													child: Container(
-														color: Color(0xFFCDE9C7),
-														width: double.infinity,
-														child: SingleChildScrollView(
-															scrollDirection: Axis.horizontal,
-															child: Row(
-																crossAxisAlignment: CrossAxisAlignment.start,
-																children: [
-																	IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																				child: Column(
-																					children: [
-																						Container(
-																							margin: const EdgeInsets.only( bottom: 4),
-																							width: 56,
-																							height: 32,
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/yth9hq8x_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						),
-																						Text(
-																							"Home",
-																							style: TextStyle(
-																								color: Color(0xFF49454F),
-																								fontSize: 12,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																	IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																				child: Column(
-																					children: [
-																						Container(
-																							margin: const EdgeInsets.only( bottom: 4),
-																							width: 56,
-																							height: 32,
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/ab8ubbjl_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						),
-																						Text(
-																							"Camera",
-																							style: TextStyle(
-																								color: Color(0xFF49454F),
-																								fontSize: 12,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																	IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																				child: Column(
-																					children: [
-																						Container(
-																							margin: const EdgeInsets.only( bottom: 4),
-																							width: 56,
-																							height: 32,
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/kf7sevim_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						),
-																						Text(
-																							"Bins",
-																							style: TextStyle(
-																								color: Color(0xFF625B71),
-																								fontSize: 12,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																	IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																				child: Column(
-																					children: [
-																						Container(
-																							margin: const EdgeInsets.only( bottom: 4),
-																							width: 56,
-																							height: 32,
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/1af9p1j1_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						),
-																						Text(
-																							"Profile",
-																							style: TextStyle(
-																								color: Color(0xFF49454F),
-																								fontSize: 12,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																],
-															)
-														),
-													),
-												),
-											],
-										)
-									),
-								),
-							),
-						],
-					),
-				),
-			),
-		);
-	}
+
+class _LocationPageState extends State<LocationPage> {
+  final TextEditingController _searchController = TextEditingController();
+  final MapController _mapController = MapController();
+
+  LatLng _currentCenter = const LatLng(26.385046, 50.189002);
+  bool _isSearching = false;
+  int _selectedBottomNavIndex = 2;
+
+  List<Marker> _markers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _getCurrentLocation();
+    });
+  }
+
+  Future<void> _getCurrentLocation() async {
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) return;
+
+    var permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) return;
+    }
+
+    if (permission == LocationPermission.deniedForever) return;
+
+    final position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.best,
+    );
+
+    final userLocation = LatLng(position.latitude, position.longitude);
+
+    setState(() {
+      _currentCenter = userLocation;
+      _markers = [
+        Marker(
+          point: userLocation,
+          width: 50,
+          height: 50,
+          child: const Icon(
+            Icons.my_location,
+            size: 36,
+            color: Colors.blue,
+          ),
+        ),
+      ];
+    });
+
+    _mapController.move(userLocation, 16);
+  }
+
+  Future<void> _searchLocation() async {
+    final query = _searchController.text.trim();
+    if (query.isEmpty) return;
+
+    setState(() {
+      _isSearching = true;
+    });
+
+    try {
+      final results = await locationFromAddress(query);
+      if (results.isEmpty) return;
+
+      final place = results.first;
+      final searchedLocation = LatLng(place.latitude, place.longitude);
+
+      setState(() {
+        _currentCenter = searchedLocation;
+        _markers = [
+          Marker(
+            point: searchedLocation,
+            width: 50,
+            height: 50,
+            child: const Icon(
+              Icons.location_on,
+              color: Colors.red,
+              size: 40,
+            ),
+          ),
+        ];
+      });
+
+      _mapController.move(searchedLocation, 16);
+    } finally {
+      setState(() {
+        _isSearching = false;
+      });
+    }
+  }
+
+  void _openCategoryPage(String category) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LocationPage2(category: category),
+      ),
+    );
+  }
+
+  void _onBottomNavTap(int index) {
+    setState(() {
+      _selectedBottomNavIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        debugPrint('Go to Home');
+        break;
+      case 1:
+        debugPrint('Go to Camera');
+        break;
+      case 2:
+        debugPrint('Already in Bins');
+        break;
+      case 3:
+        debugPrint('Go to Profile');
+        break;
+    }
+  }
+
+  Widget _buildCategoryButton(String title) {
+    final isTrash = title == 'Trash';
+
+    return Expanded(
+      child: InkWell(
+        onTap: () => _openCategoryPage(title),
+        borderRadius: BorderRadius.circular(27),
+        child: Container(
+          height: 105,
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF4E9F67),
+            borderRadius: BorderRadius.circular(27),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x33000000),
+                blurRadius: 8,
+                offset: Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: isTrash
+                  ? const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Trash',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          '(non-recyclables)',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomNavItem({
+    required IconData icon,
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                decoration: BoxDecoration(
+                  color: selected ? const Color(0xFFA8C89B) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(
+                  icon,
+                  color: const Color(0xFF2B2B2B),
+                  size: 28,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: selected
+                      ? const Color(0xFF5A4A73)
+                      : const Color(0xFF2B2B2B),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF3FFE2),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(top: 24, bottom: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              if (Navigator.canPop(context)) {
+                                Navigator.pop(context);
+                              }
+                            },
+                            icon: const Icon(
+                              Icons.arrow_back_ios_new,
+                              size: 30,
+                              color: Color(0xFF6F8F74),
+                            ),
+                          ),
+                          const Expanded(
+                            child: Text(
+                              'Bin Location',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color(0xFF7CA385),
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 48),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      height: 1,
+                      color: const Color(0xFFBDBDBD),
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(40),
+                                border: Border.all(
+                                  color: const Color(0xFFD9D9D9),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: TextField(
+                                      controller: _searchController,
+                                      onSubmitted: (_) => _searchLocation(),
+                                      decoration: const InputDecoration(
+                                        hintText: 'Search Location',
+                                        hintStyle: TextStyle(
+                                          color: Color(0xFFB3B3B3),
+                                          fontSize: 16,
+                                        ),
+                                        border: InputBorder.none,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: _isSearching ? null : _searchLocation,
+                                    icon: _isSearching
+                                        ? const SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          )
+                                        : const Icon(Icons.search),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: IconButton(
+                              onPressed: _getCurrentLocation,
+                              icon: const Icon(Icons.my_location),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(28),
+                        child: Container(
+                          height: 250,
+                          color: const Color(0xFFEAEAEA),
+                          child: FlutterMap(
+                            mapController: _mapController,
+                            options: MapOptions(
+                              initialCenter: _currentCenter,
+                              initialZoom: 15,
+                            ),
+                            children: [
+                              TileLayer(
+                                urlTemplate:
+                                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                subdomains: const ['a', 'b', 'c'],
+                                userAgentPackageName: 'com.example.releaf_app',
+                                tileProvider: NetworkTileProvider(),
+                              ),
+                              MarkerLayer(markers: _markers),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 48),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 28),
+                      child: Text(
+                        'Bins Category',
+                        style: TextStyle(
+                          color: Color(0xFF675F5A),
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          _buildCategoryButton('Cardboard'),
+                          _buildCategoryButton('Glass'),
+                          _buildCategoryButton('Metal'),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        children: [
+                          _buildCategoryButton('Paper'),
+                          _buildCategoryButton('Plastic'),
+                          _buildCategoryButton('Trash'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              color: const Color(0xFFCDE9C7),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              child: Row(
+                children: [
+                  _buildBottomNavItem(
+                    icon: Icons.home_outlined,
+                    label: 'Home',
+                    selected: _selectedBottomNavIndex == 0,
+                    onTap: () => _onBottomNavTap(0),
+                  ),
+                  _buildBottomNavItem(
+                    icon: Icons.camera_alt_outlined,
+                    label: 'Camera',
+                    selected: _selectedBottomNavIndex == 1,
+                    onTap: () => _onBottomNavTap(1),
+                  ),
+                  _buildBottomNavItem(
+                    icon: Icons.location_on_outlined,
+                    label: 'Bins',
+                    selected: _selectedBottomNavIndex == 2,
+                    onTap: () => _onBottomNavTap(2),
+                  ),
+                  _buildBottomNavItem(
+                    icon: Icons.settings_outlined,
+                    label: 'Profile',
+                    selected: _selectedBottomNavIndex == 3,
+                    onTap: () => _onBottomNavTap(3),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

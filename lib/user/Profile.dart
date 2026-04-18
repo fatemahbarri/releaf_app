@@ -1,344 +1,275 @@
 import 'package:flutter/material.dart';
+
 class Profile extends StatefulWidget {
-	const Profile({super.key});
-	@override
-	ProfileState createState() => ProfileState();
+  final String name;
+  final String email;
+  final String password;
+
+  const Profile({
+    super.key,
+    required this.name,
+    required this.email,
+    this.password = '**************',
+  });
+
+  @override
+  State<Profile> createState() => _ProfileState();
 }
-class ProfileState extends State<Profile> {
-	@override
-	Widget build(BuildContext context) {
-		return Scaffold(
-			body: SafeArea(
-				child: Container(
-					constraints: const BoxConstraints.expand(),
-					color: Color(0xFFFFFFFF),
-					child: Column(
-						crossAxisAlignment: CrossAxisAlignment.start,
-						children: [
-							Expanded(
-								child: Container(
-									color: Color(0xFFF3FFE2),
-									width: double.infinity,
-									height: double.infinity,
-									child: SingleChildScrollView(
-										child: Column(
-											crossAxisAlignment: CrossAxisAlignment.start,
-											children: [
-												Container(
-													padding: const EdgeInsets.only( top: 50),
-													height: 852,
-													width: double.infinity,
-													child: Column(
-														children: [
-															IntrinsicHeight(
-																child: Container(
-																	margin: const EdgeInsets.only( bottom: 12, left: 8, right: 8),
-																	width: double.infinity,
-																	child: Row(
-																		mainAxisAlignment: MainAxisAlignment.spaceBetween,
-																		crossAxisAlignment: CrossAxisAlignment.start,
-																		children: [
-																			SizedBox(
-																				width: 47,
-																				height: 41,
-																				child: Image.network(
-																					"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/bt224cby_expires_30_days.png",
-																					fit: BoxFit.fill,
-																				)
-																			),
-																			Container(
-																				margin: const EdgeInsets.only( top: 31),
-																				width: 157,
-																				height: 157,
-																				child: Image.network(
-																					"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/ujufvow6_expires_30_days.png",
-																					fit: BoxFit.fill,
-																				)
-																			),
-																			SizedBox(
-																				width: 47,
-																				height: 41,
-																				child: SizedBox(),
-																			),
-																		]
-																	),
-																),
-															),
-															Container(
-																margin: const EdgeInsets.only( bottom: 63),
-																child: Text(
-																	"Sara",
-																	style: TextStyle(
-																		color: Color(0xFF7CA385),
-																		fontSize: 35,
-																		fontWeight: FontWeight.bold,
-																	),
-																),
-															),
-															IntrinsicHeight(
-																child: Container(
-																	decoration: BoxDecoration(
-																		border: Border.all(
-																			color: Color(0xFF989898),
-																			width: 1,
-																		),
-																		borderRadius: BorderRadius.circular(14),
-																		color: Color(0xFFCDE9C7),
-																		boxShadow: [
-																			BoxShadow(
-																				color: Color(0x40000000),
-																				blurRadius: 4,
-																				offset: Offset(0, 4),
-																			),
-																		],
-																	),
-																	padding: const EdgeInsets.symmetric(vertical: 15),
-																	margin: const EdgeInsets.only( bottom: 32, left: 24, right: 24),
-																	width: double.infinity,
-																	child: Column(
-																		crossAxisAlignment: CrossAxisAlignment.start,
-																		children: [
-																			Container(
-																				margin: const EdgeInsets.only( bottom: 12, left: 22),
-																				child: Text(
-																					"Email",
-																					style: TextStyle(
-																						color: Color(0xFF498056),
-																						fontSize: 28,
-																						fontWeight: FontWeight.bold,
-																					),
-																				),
-																			),
-																			Container(
-																				margin: const EdgeInsets.only( left: 20),
-																				child: Text(
-																					"sara@gmail.com",
-																					style: TextStyle(
-																						color: Color(0xFF675F5A),
-																						fontSize: 20,
-																						fontWeight: FontWeight.bold,
-																					),
-																				),
-																			),
-																		]
-																	),
-																),
-															),
-															IntrinsicHeight(
-																child: Container(
-																	decoration: BoxDecoration(
-																		border: Border.all(
-																			color: Color(0xFF989898),
-																			width: 1,
-																		),
-																		borderRadius: BorderRadius.circular(14),
-																		color: Color(0xFFCDE9C7),
-																		boxShadow: [
-																			BoxShadow(
-																				color: Color(0x40000000),
-																				blurRadius: 4,
-																				offset: Offset(0, 4),
-																			),
-																		],
-																	),
-																	padding: const EdgeInsets.only( top: 19, bottom: 19, left: 21),
-																	margin: const EdgeInsets.only( bottom: 134, left: 24, right: 24),
-																	width: double.infinity,
-																	child: Column(
-																		crossAxisAlignment: CrossAxisAlignment.start,
-																		children: [
-																			Container(
-																				margin: const EdgeInsets.only( bottom: 17),
-																				child: Text(
-																					"Password",
-																					style: TextStyle(
-																						color: Color(0xFF498056),
-																						fontSize: 28,
-																						fontWeight: FontWeight.bold,
-																					),
-																				),
-																			),
-																			Text(
-																				"**************",
-																				style: TextStyle(
-																					color: Color(0xFF675F5A),
-																					fontSize: 20,
-																					fontWeight: FontWeight.bold,
-																				),
-																			),
-																		]
-																	),
-																),
-															),
-															InkWell(
-																onTap: () { print('Pressed'); },
-																child: IntrinsicWidth(
-																	child: IntrinsicHeight(
-																		child: Container(
-																			decoration: BoxDecoration(
-																				borderRadius: BorderRadius.circular(142),
-																				color: Color(0xFF8DC149),
-																				boxShadow: [
-																					BoxShadow(
-																						color: Color(0x40000000),
-																						blurRadius: 4,
-																						offset: Offset(0, 4),
-																					),
-																				],
-																			),
-																			padding: const EdgeInsets.only( top: 14, bottom: 14, left: 46, right: 46),
-																			margin: const EdgeInsets.only( bottom: 67),
-																			child: Column(
-																				crossAxisAlignment: CrossAxisAlignment.start,
-																				children: [
-																					Text(
-																						"Log Out",
-																						style: TextStyle(
-																							color: Color(0xFF9C1111),
-																							fontSize: 22,
-																							fontWeight: FontWeight.bold,
-																						),
-																					),
-																				]
-																			),
-																		),
-																	),
-																),
-															),
-															IntrinsicHeight(
-																child: Container(
-																	color: Color(0xFFCDE9C7),
-																	width: double.infinity,
-																	child: SingleChildScrollView(
-																		scrollDirection: Axis.horizontal,
-																		child: Row(
-																			crossAxisAlignment: CrossAxisAlignment.start,
-																			children: [
-																				IntrinsicWidth(
-																					child: IntrinsicHeight(
-																						child: Container(
-																							padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																							child: Column(
-																								children: [
-																									Container(
-																										margin: const EdgeInsets.only( bottom: 4),
-																										width: 56,
-																										height: 32,
-																										child: Image.network(
-																											"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/up3lml43_expires_30_days.png",
-																											fit: BoxFit.fill,
-																										)
-																									),
-																									Text(
-																										"Home",
-																										style: TextStyle(
-																											color: Color(0xFF49454F),
-																											fontSize: 12,
-																										),
-																									),
-																								]
-																							),
-																						),
-																					),
-																				),
-																				IntrinsicWidth(
-																					child: IntrinsicHeight(
-																						child: Container(
-																							padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																							child: Column(
-																								children: [
-																									Container(
-																										margin: const EdgeInsets.only( bottom: 4),
-																										width: 56,
-																										height: 32,
-																										child: Image.network(
-																											"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/qwyxo406_expires_30_days.png",
-																											fit: BoxFit.fill,
-																										)
-																									),
-																									Text(
-																										"Camera",
-																										style: TextStyle(
-																											color: Color(0xFF49454F),
-																											fontSize: 12,
-																										),
-																									),
-																								]
-																							),
-																						),
-																					),
-																				),
-																				IntrinsicWidth(
-																					child: IntrinsicHeight(
-																						child: Container(
-																							padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																							child: Column(
-																								children: [
-																									Container(
-																										margin: const EdgeInsets.only( bottom: 4),
-																										width: 56,
-																										height: 32,
-																										child: Image.network(
-																											"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/hxy75h7q_expires_30_days.png",
-																											fit: BoxFit.fill,
-																										)
-																									),
-																									Text(
-																										"Bins",
-																										style: TextStyle(
-																											color: Color(0xFF49454F),
-																											fontSize: 12,
-																										),
-																									),
-																								]
-																							),
-																						),
-																					),
-																				),
-																				IntrinsicWidth(
-																					child: IntrinsicHeight(
-																						child: Container(
-																							padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																							child: Column(
-																								children: [
-																									Container(
-																										margin: const EdgeInsets.only( bottom: 4),
-																										width: 56,
-																										height: 32,
-																										child: Image.network(
-																											"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/rnq4p0vj_expires_30_days.png",
-																											fit: BoxFit.fill,
-																										)
-																									),
-																									Text(
-																										"Profile",
-																										style: TextStyle(
-																											color: Color(0xFF49454F),
-																											fontSize: 12,
-																										),
-																									),
-																								]
-																							),
-																						),
-																					),
-																				),
-																			],
-																		)
-																	),
-																),
-															),
-														]
-													),
-												),
-											],
-										)
-									),
-								),
-							),
-						],
-					),
-				),
-			),
-		);
-	}
+
+class _ProfileState extends State<Profile> {
+  int _selectedIndex = 3;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    // Later, connect these to your real screens
+    switch (index) {
+      case 0:
+        debugPrint('Go to Home');
+        break;
+      case 1:
+        debugPrint('Go to Camera');
+        break;
+      case 2:
+        debugPrint('Go to Bins');
+        break;
+      case 3:
+        debugPrint('Already in Profile');
+        break;
+    }
+  }
+
+  void _handleLogout() {
+    debugPrint('Log Out pressed');
+    // Later:
+    // Navigator.pushReplacement(...);
+  }
+
+  void _handleEditProfile() {
+    debugPrint('Edit profile pressed');
+    // Later:
+    // Open edit profile screen or dialog
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF3FFE2),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(
+                            Icons.arrow_back_ios_new,
+                            color: Color(0xFF4E6757),
+                          ),
+                        ),
+                        const Expanded(
+                          child: Text(
+                            'Profile',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF4E6757),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 48),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Container(
+                          width: 130,
+                          height: 130,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: const Color(0xFFCDE9C7),
+                            border: Border.all(
+                              color: const Color(0xFF4E6757),
+                              width: 3,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.person,
+                            size: 80,
+                            color: Color(0xFF4E6757),
+                          ),
+                        ),
+                        Positioned(
+                          right: -2,
+                          bottom: 8,
+                          child: GestureDetector(
+                            onTap: _handleEditProfile,
+                            child: Container(
+                              width: 42,
+                              height: 42,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF4E6757),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: const Color(0xFFF3FFE2),
+                                  width: 2,
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.edit,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    Text(
+                      widget.name,
+                      style: const TextStyle(
+                        color: Color(0xFF7CA385),
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    _buildInfoCard(
+                      title: 'Email',
+                      value: widget.email,
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    _buildInfoCard(
+                      title: 'Password',
+                      value: widget.password,
+                    ),
+
+                    const SizedBox(height: 60),
+
+                    ElevatedButton(
+                      onPressed: _handleLogout,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFB8D97A),
+                        elevation: 4,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 36,
+                          vertical: 14,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: const Text(
+                        'Log Out',
+                        style: TextStyle(
+                          color: Color(0xFF9C1111),
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            BottomNavigationBar(
+              currentIndex: _selectedIndex,
+              onTap: _onItemTapped,
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: const Color(0xFFCDE9C7),
+              selectedItemColor: const Color(0xFF4E6757),
+              unselectedItemColor: Colors.black54,
+              items: const [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.home_outlined),
+                  activeIcon: Icon(Icons.home),
+                  label: 'Home',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.camera_alt_outlined),
+                  activeIcon: Icon(Icons.camera_alt),
+                  label: 'Camera',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.location_on_outlined),
+                  activeIcon: Icon(Icons.location_on),
+                  label: 'Bins',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.settings_outlined),
+                  activeIcon: Icon(Icons.settings),
+                  label: 'Profile',
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoCard({
+    required String title,
+    required String value,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFCDE9C7),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFB0B0B0)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x22000000),
+            blurRadius: 6,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: Color(0xFF498056),
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Color(0xFF675F5A),
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

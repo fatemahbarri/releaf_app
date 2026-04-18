@@ -1,675 +1,486 @@
 import 'package:flutter/material.dart';
-class LocationPage2 extends StatefulWidget {
-	const LocationPage2({super.key});
-	@override
-	LocationPage2State createState() => LocationPage2State();
+import 'LocationPage3.dart';
+
+class RecyclingLocation {
+  final String name;
+  final String address;
+  final String category;
+  final double latitude;
+  final double longitude;
+
+  const RecyclingLocation({
+    required this.name,
+    required this.address,
+    required this.category,
+    required this.latitude,
+    required this.longitude,
+  });
 }
-class LocationPage2State extends State<LocationPage2> {
-	@override
-	Widget build(BuildContext context) {
-		return Scaffold(
-			body: SafeArea(
-				child: Container(
-					constraints: const BoxConstraints.expand(),
-					color: Color(0xFFFFFFFF),
-					child: Column(
-						crossAxisAlignment: CrossAxisAlignment.start,
-						children: [
-							Expanded(
-								child: Container(
-									color: Color(0xFFF3FFE2),
-									width: double.infinity,
-									height: double.infinity,
-									child: SingleChildScrollView(
-										padding: const EdgeInsets.only( top: 50),
-										child: Column(
-											crossAxisAlignment: CrossAxisAlignment.start,
-											children: [
-												IntrinsicHeight(
-													child: Container(
-														margin: const EdgeInsets.only( bottom: 14, left: 8, right: 8),
-														width: double.infinity,
-														child: Row(
-															children: [
-																Container(
-																	margin: const EdgeInsets.only( right: 35),
-																	width: 47,
-																	height: 41,
-																	child: Image.network(
-																		"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/vnp05wii_expires_30_days.png",
-																		fit: BoxFit.fill,
-																	)
-																),
-																Expanded(
-																	child: InkWell(
-																		onTap: () { print('Pressed'); },
-																		child: IntrinsicHeight(
-																			child: Container(
-																				decoration: BoxDecoration(
-																					borderRadius: BorderRadius.circular(27),
-																					color: Color(0xFF499A64),
-																					boxShadow: [
-																						BoxShadow(
-																							color: Color(0x40000000),
-																							blurRadius: 4,
-																							offset: Offset(0, 4),
-																						),
-																					],
-																				),
-																				padding: const EdgeInsets.symmetric(vertical: 12),
-																				margin: const EdgeInsets.only( right: 35),
-																				width: double.infinity,
-																				child: Column(
-																					children: [
-																						Text(
-																							"Plastic",
-																							style: TextStyle(
-																								color: Color(0xFFFFFFFF),
-																								fontSize: 28,
-																								fontWeight: FontWeight.bold,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																),
-																SizedBox(
-																	width: 47,
-																	height: 41,
-																	child: SizedBox(),
-																),
-															]
-														),
-													),
-												),
-												IntrinsicHeight(
-													child: Container(
-														margin: const EdgeInsets.only( bottom: 18, left: 30, right: 30),
-														width: double.infinity,
-														child: Row(
-															children: [
-																Expanded(
-																	child: IntrinsicHeight(
-																		child: Container(
-																			decoration: BoxDecoration(
-																				border: Border.all(
-																					color: Color(0xFFD9D9D9),
-																					width: 1,
-																				),
-																				borderRadius: BorderRadius.circular(9999),
-																				color: Color(0xFFFFFFFF),
-																			),
-																			padding: const EdgeInsets.only( top: 12, bottom: 12, left: 16, right: 16),
-																			margin: const EdgeInsets.only( right: 20),
-																			width: double.infinity,
-																			child: Row(
-																				mainAxisAlignment: MainAxisAlignment.spaceBetween,
-																				children: [
-																					Text(
-																						"Search Location",
-																						style: TextStyle(
-																							color: Color(0xFFB3B3B3),
-																							fontSize: 16,
-																						),
-																					),
-																					Container(
-																						decoration: BoxDecoration(
-																							borderRadius: BorderRadius.circular(9999),
-																						),
-																						width: 16,
-																						height: 16,
-																						child: ClipRRect(
-																							borderRadius: BorderRadius.circular(9999),
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/scq6yrrd_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						)
-																					),
-																				]
-																			),
-																		),
-																	),
-																),
-																SizedBox(
-																	width: 24,
-																	height: 24,
-																	child: Image.network(
-																		"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/v9muj9jj_expires_30_days.png",
-																		fit: BoxFit.fill,
-																	)
-																),
-															]
-														),
-													),
-												),
-												IntrinsicHeight(
-													child: Container(
-														padding: const EdgeInsets.only( top: 205, left: 28),
-														margin: const EdgeInsets.only( bottom: 9, left: 13, right: 13),
-														width: double.infinity,
-														decoration: BoxDecoration(
-															image: DecorationImage(
-																image: NetworkImage("https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/av8ew5ue_expires_30_days.png"),
-																fit: BoxFit.fill
-															),
-														),
-														child: Column(
-															crossAxisAlignment: CrossAxisAlignment.start,
-															children: [
-																Container(
-																	margin: const EdgeInsets.only( bottom: 2),
-																	child: Text(
-																		"Paper",
-																		style: TextStyle(
-																			color: Color(0xFFFFFFFF),
-																			fontSize: 20,
-																			fontWeight: FontWeight.bold,
-																		),
-																	),
-																),
-															]
-														),
-													),
-												),
-												IntrinsicHeight(
-													child: Container(
-														decoration: BoxDecoration(
-															border: Border.all(
-																color: Color(0xFF989898),
-																width: 1,
-															),
-															borderRadius: BorderRadius.circular(14),
-															color: Color(0xFFFFFFFF),
-															boxShadow: [
-																BoxShadow(
-																	color: Color(0x40000000),
-																	blurRadius: 4,
-																	offset: Offset(0, 4),
-																),
-															],
-														),
-														padding: const EdgeInsets.only( top: 20, bottom: 20, left: 16, right: 16),
-														margin: const EdgeInsets.only( bottom: 14, left: 22, right: 22),
-														width: double.infinity,
-														child: Row(
-															children: [
-																Expanded(
-																	child: IntrinsicHeight(
-																		child: Container(
-																			margin: const EdgeInsets.only( right: 34),
-																			width: double.infinity,
-																			child: Column(
-																				crossAxisAlignment: CrossAxisAlignment.start,
-																				children: [
-																					Container(
-																						margin: const EdgeInsets.only( bottom: 11),
-																						child: Text(
-																							"Khobar Recycling Center",
-																							style: TextStyle(
-																								color: Color(0xFF000000),
-																								fontSize: 20,
-																								fontWeight: FontWeight.bold,
-																							),
-																						),
-																					),
-																					Text(
-																						"Prince Faisal Bin Fahd Road, Al Khobar",
-																						style: TextStyle(
-																							color: Color(0xFF000000),
-																							fontSize: 11,
-																							fontWeight: FontWeight.bold,
-																						),
-																					),
-																				]
-																			),
-																		),
-																	),
-																),
-																InkWell(
-																	onTap: () { print('Pressed'); },
-																	child: IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				decoration: BoxDecoration(
-																					borderRadius: BorderRadius.circular(142),
-																					color: Color(0xFF8DC149),
-																					boxShadow: [
-																						BoxShadow(
-																							color: Color(0x40000000),
-																							blurRadius: 4,
-																							offset: Offset(0, 4),
-																						),
-																					],
-																				),
-																				padding: const EdgeInsets.only( top: 10, bottom: 10, left: 26, right: 26),
-																				child: Column(
-																					crossAxisAlignment: CrossAxisAlignment.start,
-																					children: [
-																						Text(
-																							"Go",
-																							style: TextStyle(
-																								color: Color(0xFF5B5656),
-																								fontSize: 18,
-																								fontWeight: FontWeight.bold,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																),
-															]
-														),
-													),
-												),
-												IntrinsicHeight(
-													child: Container(
-														decoration: BoxDecoration(
-															border: Border.all(
-																color: Color(0xFF989898),
-																width: 1,
-															),
-															borderRadius: BorderRadius.circular(14),
-															color: Color(0xFFFFFFFF),
-															boxShadow: [
-																BoxShadow(
-																	color: Color(0x40000000),
-																	blurRadius: 4,
-																	offset: Offset(0, 4),
-																),
-															],
-														),
-														padding: const EdgeInsets.only( top: 20, bottom: 20, left: 17, right: 17),
-														margin: const EdgeInsets.only( bottom: 14, left: 22, right: 22),
-														width: double.infinity,
-														child: Row(
-															mainAxisAlignment: MainAxisAlignment.spaceBetween,
-															children: [
-																IntrinsicWidth(
-																	child: IntrinsicHeight(
-																		child: Column(
-																			crossAxisAlignment: CrossAxisAlignment.start,
-																			children: [
-																				Container(
-																					margin: const EdgeInsets.only( bottom: 13),
-																					child: Text(
-																						"Eastern Eco Drop-Off",
-																						style: TextStyle(
-																							color: Color(0xFF000000),
-																							fontSize: 20,
-																							fontWeight: FontWeight.bold,
-																						),
-																					),
-																				),
-																				Text(
-																					" King Fahd Street, Al Thuqbah District",
-																					style: TextStyle(
-																						color: Color(0xFF000000),
-																						fontSize: 11,
-																						fontWeight: FontWeight.bold,
-																					),
-																				),
-																			]
-																		),
-																	),
-																),
-																InkWell(
-																	onTap: () { print('Pressed'); },
-																	child: IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				decoration: BoxDecoration(
-																					borderRadius: BorderRadius.circular(142),
-																					color: Color(0xFF8DC149),
-																					boxShadow: [
-																						BoxShadow(
-																							color: Color(0x40000000),
-																							blurRadius: 4,
-																							offset: Offset(0, 4),
-																						),
-																					],
-																				),
-																				padding: const EdgeInsets.only( top: 10, bottom: 10, left: 26, right: 26),
-																				child: Column(
-																					crossAxisAlignment: CrossAxisAlignment.start,
-																					children: [
-																						Text(
-																							"Go",
-																							style: TextStyle(
-																								color: Color(0xFF5B5656),
-																								fontSize: 18,
-																								fontWeight: FontWeight.bold,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																),
-															]
-														),
-													),
-												),
-												IntrinsicHeight(
-													child: Container(
-														decoration: BoxDecoration(
-															border: Border.all(
-																color: Color(0xFF989898),
-																width: 1,
-															),
-															borderRadius: BorderRadius.circular(14),
-															color: Color(0xFFFFFFFF),
-															boxShadow: [
-																BoxShadow(
-																	color: Color(0x40000000),
-																	blurRadius: 4,
-																	offset: Offset(0, 4),
-																),
-															],
-														),
-														padding: const EdgeInsets.only( top: 20, bottom: 20, left: 16, right: 16),
-														margin: const EdgeInsets.only( bottom: 14, left: 22, right: 22),
-														width: double.infinity,
-														child: Row(
-															children: [
-																Expanded(
-																	child: IntrinsicHeight(
-																		child: Container(
-																			margin: const EdgeInsets.only( right: 44),
-																			width: double.infinity,
-																			child: Column(
-																				crossAxisAlignment: CrossAxisAlignment.start,
-																				children: [
-																					Container(
-																						margin: const EdgeInsets.only( bottom: 11),
-																						child: Text(
-																							"Corniche Waste Sorting",
-																							style: TextStyle(
-																								color: Color(0xFF000000),
-																								fontSize: 20,
-																								fontWeight: FontWeight.bold,
-																							),
-																						),
-																					),
-																					Text(
-																						"Khobar Corniche Road, Al Bahar Area",
-																						style: TextStyle(
-																							color: Color(0xFF000000),
-																							fontSize: 11,
-																							fontWeight: FontWeight.bold,
-																						),
-																					),
-																				]
-																			),
-																		),
-																	),
-																),
-																InkWell(
-																	onTap: () { print('Pressed'); },
-																	child: IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				decoration: BoxDecoration(
-																					borderRadius: BorderRadius.circular(142),
-																					color: Color(0xFF8DC149),
-																					boxShadow: [
-																						BoxShadow(
-																							color: Color(0x40000000),
-																							blurRadius: 4,
-																							offset: Offset(0, 4),
-																						),
-																					],
-																				),
-																				padding: const EdgeInsets.only( top: 10, bottom: 10, left: 26, right: 26),
-																				child: Column(
-																					crossAxisAlignment: CrossAxisAlignment.start,
-																					children: [
-																						Text(
-																							"Go",
-																							style: TextStyle(
-																								color: Color(0xFF5B5656),
-																								fontSize: 18,
-																								fontWeight: FontWeight.bold,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																),
-															]
-														),
-													),
-												),
-												IntrinsicHeight(
-													child: Container(
-														decoration: BoxDecoration(
-															border: Border.all(
-																color: Color(0xFF989898),
-																width: 1,
-															),
-															borderRadius: BorderRadius.circular(14),
-															color: Color(0xFFFFFFFF),
-															boxShadow: [
-																BoxShadow(
-																	color: Color(0x40000000),
-																	blurRadius: 4,
-																	offset: Offset(0, 4),
-																),
-															],
-														),
-														padding: const EdgeInsets.only( top: 20, bottom: 20, left: 16, right: 16),
-														margin: const EdgeInsets.only( bottom: 11, left: 22, right: 22),
-														width: double.infinity,
-														child: Row(
-															children: [
-																Expanded(
-																	child: IntrinsicHeight(
-																		child: Container(
-																			margin: const EdgeInsets.only( right: 36),
-																			width: double.infinity,
-																			child: Column(
-																				crossAxisAlignment: CrossAxisAlignment.start,
-																				children: [
-																					Container(
-																						margin: const EdgeInsets.only( bottom: 11),
-																						child: Text(
-																							"Bayfront Recycle Center",
-																							style: TextStyle(
-																								color: Color(0xFF000000),
-																								fontSize: 20,
-																								fontWeight: FontWeight.bold,
-																							),
-																						),
-																					),
-																					Text(
-																						"Seaside Road, Al Khobar Corniche Extension",
-																						style: TextStyle(
-																							color: Color(0xFF000000),
-																							fontSize: 11,
-																							fontWeight: FontWeight.bold,
-																						),
-																					),
-																				]
-																			),
-																		),
-																	),
-																),
-																InkWell(
-																	onTap: () { print('Pressed'); },
-																	child: IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				decoration: BoxDecoration(
-																					borderRadius: BorderRadius.circular(142),
-																					color: Color(0xFF8DC149),
-																					boxShadow: [
-																						BoxShadow(
-																							color: Color(0x40000000),
-																							blurRadius: 4,
-																							offset: Offset(0, 4),
-																						),
-																					],
-																				),
-																				padding: const EdgeInsets.only( top: 10, bottom: 10, left: 26, right: 26),
-																				child: Column(
-																					crossAxisAlignment: CrossAxisAlignment.start,
-																					children: [
-																						Text(
-																							"Go",
-																							style: TextStyle(
-																								color: Color(0xFF5B5656),
-																								fontSize: 18,
-																								fontWeight: FontWeight.bold,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																),
-															]
-														),
-													),
-												),
-												IntrinsicHeight(
-													child: Container(
-														color: Color(0xFFCDE9C7),
-														width: double.infinity,
-														child: SingleChildScrollView(
-															scrollDirection: Axis.horizontal,
-															child: Row(
-																crossAxisAlignment: CrossAxisAlignment.start,
-																children: [
-																	IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																				child: Column(
-																					children: [
-																						Container(
-																							margin: const EdgeInsets.only( bottom: 4),
-																							width: 56,
-																							height: 32,
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/3rcywlgs_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						),
-																						Text(
-																							"Home",
-																							style: TextStyle(
-																								color: Color(0xFF49454F),
-																								fontSize: 12,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																	IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																				child: Column(
-																					children: [
-																						Container(
-																							margin: const EdgeInsets.only( bottom: 4),
-																							width: 56,
-																							height: 32,
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/66g05rxh_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						),
-																						Text(
-																							"Camera",
-																							style: TextStyle(
-																								color: Color(0xFF49454F),
-																								fontSize: 12,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																	IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																				child: Column(
-																					children: [
-																						Container(
-																							margin: const EdgeInsets.only( bottom: 4),
-																							width: 56,
-																							height: 32,
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/jualo717_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						),
-																						Text(
-																							"Bins",
-																							style: TextStyle(
-																								color: Color(0xFF625B71),
-																								fontSize: 12,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																	IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																				child: Column(
-																					children: [
-																						Container(
-																							margin: const EdgeInsets.only( bottom: 4),
-																							width: 56,
-																							height: 32,
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/sRTqd7cMrP/2b4zbuhk_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						),
-																						Text(
-																							"Profile",
-																							style: TextStyle(
-																								color: Color(0xFF49454F),
-																								fontSize: 12,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																],
-															)
-														),
-													),
-												),
-											],
-										)
-									),
-								),
-							),
-						],
-					),
-				),
-			),
-		);
-	}
+
+class LocationPage2 extends StatefulWidget {
+  final String category;
+
+  const LocationPage2({
+    super.key,
+    required this.category,
+  });
+
+  @override
+  State<LocationPage2> createState() => _LocationPage2State();
+}
+
+class _LocationPage2State extends State<LocationPage2> {
+  final TextEditingController _searchController = TextEditingController();
+
+  int _selectedBottomNavIndex = 2;
+  String _searchText = '';
+
+  final List<RecyclingLocation> _allLocations = const [
+    RecyclingLocation(
+      name: 'Khobar Recycling Center',
+      address: 'Prince Faisal Bin Fahd Road, Al Khobar',
+      category: 'Plastic',
+      latitude: 26.2794,
+      longitude: 50.2083,
+    ),
+    RecyclingLocation(
+      name: 'Eastern Eco Drop-Off',
+      address: 'King Fahd Street, Al Thuqbah District',
+      category: 'Plastic',
+      latitude: 26.2868,
+      longitude: 50.1897,
+    ),
+    RecyclingLocation(
+      name: 'Corniche Waste Sorting',
+      address: 'Khobar Corniche Road, Al Bahar Area',
+      category: 'Plastic',
+      latitude: 26.3092,
+      longitude: 50.2205,
+    ),
+    RecyclingLocation(
+      name: 'Bayfront Recycle Center',
+      address: 'Seaside Road, Al Khobar Corniche Extension',
+      category: 'Plastic',
+      latitude: 26.3205,
+      longitude: 50.2261,
+    ),
+    RecyclingLocation(
+      name: 'Glass Collection Point',
+      address: 'Prince Turki Road, Al Khobar',
+      category: 'Glass',
+      latitude: 26.2954,
+      longitude: 50.2010,
+    ),
+    RecyclingLocation(
+      name: 'Green Paper Hub',
+      address: 'King Saud Street, Dammam',
+      category: 'Paper',
+      latitude: 26.4207,
+      longitude: 50.0888,
+    ),
+    RecyclingLocation(
+      name: 'Metal Recovery Point',
+      address: 'Industrial Area, Dammam',
+      category: 'Metal',
+      latitude: 26.3927,
+      longitude: 49.9776,
+    ),
+    RecyclingLocation(
+      name: 'Cardboard Station',
+      address: 'Al Ulaya District, Khobar',
+      category: 'Cardboard',
+      latitude: 26.3008,
+      longitude: 50.1836,
+    ),
+    RecyclingLocation(
+      name: 'General Waste Bin',
+      address: 'Campus Road, University Area',
+      category: 'Trash',
+      latitude: 26.3072,
+      longitude: 50.1496,
+    ),
+  ];
+
+  List<RecyclingLocation> get _filteredLocations {
+    return _allLocations.where((location) {
+      final matchesCategory =
+          location.category.toLowerCase() == widget.category.toLowerCase();
+
+      final query = _searchText.trim().toLowerCase();
+      final matchesSearch = query.isEmpty ||
+          location.name.toLowerCase().contains(query) ||
+          location.address.toLowerCase().contains(query);
+
+      return matchesCategory && matchesSearch;
+    }).toList();
+  }
+
+  void _handleGo(RecyclingLocation location) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LocationPage3(
+          locationName: location.name,
+          address: location.address,
+          category: location.category,
+          latitude: location.latitude,
+          longitude: location.longitude,
+        ),
+      ),
+    );
+  }
+
+  void _onBottomNavTap(int index) {
+    setState(() {
+      _selectedBottomNavIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        debugPrint('Go to Home');
+        break;
+      case 1:
+        debugPrint('Go to Camera');
+        break;
+      case 2:
+        debugPrint('Already in Bins');
+        break;
+      case 3:
+        debugPrint('Go to Profile');
+        break;
+    }
+  }
+
+  Widget _buildBottomNavItem({
+    required IconData icon,
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                decoration: BoxDecoration(
+                  color: selected ? const Color(0xFFA8C89B) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(
+                  icon,
+                  color: const Color(0xFF2B2B2B),
+                  size: 28,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: selected
+                      ? const Color(0xFF5A4A73)
+                      : const Color(0xFF2B2B2B),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLocationCard(RecyclingLocation location) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFD6D6D6)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: const Color(0xFFE7F4E4),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.location_on_outlined,
+              color: Color(0xFF4E9F67),
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  location.name,
+                  style: const TextStyle(
+                    color: Color(0xFF2F3A31),
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  location.address,
+                  style: const TextStyle(
+                    color: Color(0xFF6C6C6C),
+                    fontSize: 13,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          ElevatedButton(
+            onPressed: () => _handleGo(location),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFB8D97A),
+              foregroundColor: const Color(0xFF4F5B46),
+              elevation: 0,
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+            child: const Text(
+              'Go',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isTrash = widget.category.toLowerCase() == 'trash';
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF3FFE2),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 18),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(
+                            Icons.arrow_back_ios_new,
+                            color: Color(0xFF6F8F74),
+                            size: 28,
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            margin: const EdgeInsets.only(right: 48),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF4E9F67),
+                              borderRadius: BorderRadius.circular(28),
+                              boxShadow: const [
+                                BoxShadow(
+                                  color: Color(0x22000000),
+                                  blurRadius: 8,
+                                  offset: Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              isTrash
+                                  ? 'Trash (non-recyclables)'
+                                  : widget.category,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: isTrash ? 20 : 26,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(color: const Color(0xFFD9D9D9)),
+                      ),
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (value) {
+                          setState(() {
+                            _searchText = value;
+                          });
+                        },
+                        decoration: const InputDecoration(
+                          hintText: 'Search location',
+                          hintStyle: TextStyle(
+                            color: Color(0xFFB3B3B3),
+                            fontSize: 16,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Color(0xFF2F3A31),
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(vertical: 13),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE7F4E4),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFCCE0C7)),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.info_outline,
+                            color: Color(0xFF4E6757),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Showing available ${widget.category.toLowerCase()} bin locations.',
+                              style: const TextStyle(
+                                color: Color(0xFF4E6757),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      '${_filteredLocations.length} location${_filteredLocations.length == 1 ? '' : 's'} found',
+                      style: const TextStyle(
+                        color: Color(0xFF675F5A),
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    if (_filteredLocations.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFFD6D6D6)),
+                        ),
+                        child: const Text(
+                          'No matching locations found for this category.',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Color(0xFF5B5656),
+                          ),
+                        ),
+                      )
+                    else
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _filteredLocations.length,
+                        separatorBuilder: (_, __) =>
+                            const SizedBox(height: 14),
+                        itemBuilder: (context, index) {
+                          final location = _filteredLocations[index];
+                          return _buildLocationCard(location);
+                        },
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              color: const Color(0xFFCDE9C7),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              child: Row(
+                children: [
+                  _buildBottomNavItem(
+                    icon: Icons.home_outlined,
+                    label: 'Home',
+                    selected: _selectedBottomNavIndex == 0,
+                    onTap: () => _onBottomNavTap(0),
+                  ),
+                  _buildBottomNavItem(
+                    icon: Icons.camera_alt_outlined,
+                    label: 'Camera',
+                    selected: _selectedBottomNavIndex == 1,
+                    onTap: () => _onBottomNavTap(1),
+                  ),
+                  _buildBottomNavItem(
+                    icon: Icons.location_on_outlined,
+                    label: 'Bins',
+                    selected: _selectedBottomNavIndex == 2,
+                    onTap: () => _onBottomNavTap(2),
+                  ),
+                  _buildBottomNavItem(
+                    icon: Icons.settings_outlined,
+                    label: 'Profile',
+                    selected: _selectedBottomNavIndex == 3,
+                    onTap: () => _onBottomNavTap(3),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
