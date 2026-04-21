@@ -1,16 +1,169 @@
-# releaf_app
+<h1 align="center">🌱 ReLeaf: Smart Waste Sorting System</h1>
+<p align="center"><b>ReLeaf is a mobile application designed to help users classify waste items and promote proper recycling habits. Using image classification and an AI-powered assistant, the system guides users in identifying waste types and locating nearby recycling bins.
+</b></p>
+<p align="center">♻️ Turning waste into awareness.</p>
 
-A new Flutter project.
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-Frontend-blue">
+  <img src="https://img.shields.io/badge/Firebase-Database-orange">
+  <img src="https://img.shields.io/badge/TensorFlowLite-ML-green">
+  <img src="https://img.shields.io/badge/OpenAI-LLM-purple">
+</p>
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🎯 Project Goal
 
-A few resources to get you started if this is your first Flutter project:
+To develop an intelligent, user-friendly system that enhances recycling awareness and supports proper waste management using AI technologies.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🚀 Features
+
+* 📷 Image-based waste classification (Plastic, Glass, Metal, Paper, Cardboard, Trash)
+* 🤖 AI-powered assistant for recycling guidance
+* 📍 Bin location finder using map interfaces
+* 📝 Report issues feature for user feedback
+* 🔔 Simple and user-friendly interface for all users
+
+---
+
+## 🛠️ Technologies Used
+
+| Component        | Technology                    |
+| ---------------- | ----------------------------- |
+| Frontend         | Flutter                       |
+| Backend          | Node.js (Express)             |
+| Database         | Firebase Firestore            |
+| Authentication   | Firebase Auth                 |
+| Machine Learning | TensorFlow Lite (MobileNetV2) |
+| AI Assistant     | OpenAI API                    |
+
+---
+
+## 📊 Dataset & Preparation
+
+* Two datasets were used:
+
+  * TrashNet dataset: https://github.com/garythung/trashnet
+  * Garbage Classification dataset: https://www.kaggle.com/datasets/mostafaabla/garbage-classification
+
+* After merging and cleaning:
+
+  * Total images: **6434 images**
+  * Classes:
+
+    * Cardboard
+    * Glass
+    * Metal
+    * Paper
+    * Plastic
+    * Trash
+
+* Data was cleaned and duplicate images were removed to improve quality 
+
+---
+
+## 🧠 Model & Training
+
+* **Model:** MobileNetV2 (Transfer Learning)
+* **Input Size:** 224 × 224
+* **Optimizer:** Adam
+* **Batch Size:** 32
+
+### Training Strategy:
+
+* Initial training with frozen layers
+* Fine-tuning last layers of the model
+* Learning rate reduced during fine-tuning
+
+### Data Split:
+
+* Training: 80%
+* Validation: 10%
+* Testing: 10% 
+
+---
+
+## 📈 Results
+
+* **Training Accuracy:** 96.48%
+* **Validation Accuracy:** 92.69%
+* **Test Accuracy:** 92.41% 
+
+### Performance Insights:
+
+* Best class: **Paper (F1 ≈ 0.95)**
+* Most confusion between:
+
+  * Plastic & Glass
+  * Plastic & Trash
+
+Overall, the model achieved strong performance across all classes with minimal misclassification.
+
+---
+
+## 🤖 AI Assistant (LLM Integration)
+
+Three approaches were tested:
+
+* **Ollama (Local LLM)** → simple but limited
+* **LM Studio (Local + Backend)** → more control but slower
+* **OpenAI API (Cloud)** → best performance
+
+### ✅ Final Choice:
+
+* OpenAI API (gpt-4.1-mini)
+
+### Why?
+
+* Faster responses
+* Higher accuracy
+* Better context understanding
+* More reliable performance
+
+---
+
+## 📱 App Screenshots
+
+*(Add your screenshots here by uploading images and dragging them into this section)*
+
+---
+
+## ⚙️ How It Works
+
+1. 📷 User captures or uploads an image
+2. 🧠 Model classifies the waste type
+3. 📱 Result is displayed instantly
+4. 🤖 AI assistant provides extra guidance
+5. 📍 User finds nearest recycling bin
+
+---
+
+## 🧪 Development Experience
+
+During development, several challenges were addressed:
+
+* Integrating LLM with backend APIs
+* Handling complex API responses and output cleaning
+* Working with local LLM limitations (Ollama & LM Studio)
+* Optimizing model for mobile deployment (TensorFlow Lite)
+
+These challenges helped improve system performance and design decisions.
+
+---
+
+## 👥 Team
+
+* Fatemah Hussain Alyami
+* Ghadi Talal Alzahrani
+* Nadin Nasser Abduljabbar
+* Dana Bader Alakeel
+* Amal Salman Almirsal
+
+
+---
+
+## 📌 Note
+
+This project is developed as part of a graduation project at Imam Abdulrahman Bin Faisal University. It aims to provide an efficient and user-friendly solution to improve recycling awareness and waste management.
