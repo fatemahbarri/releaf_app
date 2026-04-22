@@ -1,3 +1,6 @@
+<p align="center">
+  <img src="ReLeaf_logo.png" width="300">
+</p>
 <h1 align="center">🌱 ReLeaf: Smart Waste Sorting System</h1>
 <p align="center"><b>ReLeaf is a mobile application designed to help users classify waste items and promote proper recycling habits. Using image classification and an AI-powered assistant, the system guides users in identifying waste types and locating nearby recycling bins.
 </b></p>
