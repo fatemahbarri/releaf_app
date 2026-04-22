@@ -2,14 +2,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-class ChatBox extends StatefulWidget {
-  const ChatBox({super.key});
+class Chatbot extends StatefulWidget {
+  const Chatbot({super.key});
 
   @override
-  State<ChatBox> createState() => _ChatBoxState();
+  State<Chatbot> createState() => _ChatbotState();
 }
 
-class _ChatBoxState extends State<ChatBox> {
+class _ChatbotState extends State<Chatbot> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
