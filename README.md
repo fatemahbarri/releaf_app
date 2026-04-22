@@ -157,7 +157,7 @@ These challenges helped improve system performance and design decisions.
 
 * Fatemah Hussain Alyami
 * Ghadi Talal Alzahrani
-* Nadin Nasser Abduljabbar
+* Nadeen Nasser Abduljabbar
 * Dana Bader Alakeel
 * Amal Salman Almirsal
 
