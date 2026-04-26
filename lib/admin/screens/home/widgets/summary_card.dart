@@ -33,16 +33,27 @@ class SummaryCard extends StatelessWidget {
         ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          DonutChart(
-            percentage: activePercentage,
-            centerTopText: '$totalUsers',
-            centerBottomText: 'Users',
+          // ✅ Donut fixed size (no stretching)
+          SizedBox(
+            width: 110,
+            height: 110,
+            child: DonutChart(
+              percentage: activePercentage,
+              centerTopText: '$totalUsers',
+              centerBottomText: 'Users',
+            ),
           ),
+
           const SizedBox(width: 18),
-          Expanded(
+
+          // ✅ Flexible instead of Expanded (prevents stretching)
+          Flexible(
+            fit: FlexFit.loose,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min, // 🔥 important
               children: [
                 const Text(
                   'Users Activity',

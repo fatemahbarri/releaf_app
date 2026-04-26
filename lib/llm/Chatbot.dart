@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
+import 'package:releaf_app/user/HomePageUser.dart';
 
 class Chatbot extends StatefulWidget {
   const Chatbot({super.key});
@@ -34,8 +35,7 @@ class _ChatbotState extends State<Chatbot> {
   ];
 
   Future<void> _sendMessage({String? customMessage}) async {
-    final String userMessage =
-        customMessage ?? _messageController.text.trim();
+    final String userMessage = customMessage ?? _messageController.text.trim();
 
     if (userMessage.isEmpty || _isLoading) return;
 
@@ -129,7 +129,8 @@ class _ChatbotState extends State<Chatbot> {
             Expanded(
               child: ListView(
                 controller: _scrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 children: [
                   _buildWelcomeCard(),
                   const SizedBox(height: 14),
@@ -162,6 +163,25 @@ class _ChatbotState extends State<Chatbot> {
       ),
       child: Row(
         children: [
+          // 🔙 زر الرجوع
+          IconButton(
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const HomePageUser(),
+                ),
+                (route) => false,
+              );
+            },
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.white,
+            ),
+          ),
+
+          const SizedBox(width: 8),
+
           Container(
             width: 48,
             height: 48,
@@ -175,7 +195,9 @@ class _ChatbotState extends State<Chatbot> {
               size: 28,
             ),
           ),
+
           const SizedBox(width: 12),
+
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,27 +216,6 @@ class _ChatbotState extends State<Chatbot> {
                   style: TextStyle(
                     color: Colors.white70,
                     fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.16),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.circle, color: Colors.lightGreenAccent, size: 10),
-                SizedBox(width: 6),
-                Text(
-                  'Online',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -292,7 +293,8 @@ class _ChatbotState extends State<Chatbot> {
               borderRadius: BorderRadius.circular(20),
               onTap: () => _sendMessage(customMessage: question),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
@@ -322,127 +324,127 @@ class _ChatbotState extends State<Chatbot> {
   }
 
   Widget _buildMessageBubble(ChatMessage message) {
-  final bool isUser = message.isUser;
+    final bool isUser = message.isUser;
 
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 6),
-    child: Row(
-      mainAxisAlignment:
-          isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        if (!isUser) ...[
-          CircleAvatar(
-            radius: 16,
-            backgroundColor: message.isError
-                ? const Color(0xFFFFD6D6)
-                : const Color(0xFFCEE8C9),
-            child: Icon(
-              message.isError ? Icons.error_outline : Icons.eco,
-              size: 17,
-              color: message.isError
-                  ? Colors.redAccent
-                  : const Color(0xFF4A7A52),
-            ),
-          ),
-          const SizedBox(width: 8),
-        ],
-        Flexible(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: isUser
-                  ? const Color(0xFF7FB77E)
-                  : message.isError
-                      ? const Color(0xFFFFEEEE)
-                      : Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(18),
-                topRight: const Radius.circular(18),
-                bottomLeft: Radius.circular(isUser ? 18 : 6),
-                bottomRight: Radius.circular(isUser ? 6 : 18),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment:
+            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!isUser) ...[
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: message.isError
+                  ? const Color(0xFFFFD6D6)
+                  : const Color(0xFFCEE8C9),
+              child: Icon(
+                message.isError ? Icons.error_outline : Icons.eco,
+                size: 17,
+                color: message.isError
+                    ? Colors.redAccent
+                    : const Color(0xFF4A7A52),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
+            ),
+            const SizedBox(width: 8),
+          ],
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: isUser
+                    ? const Color(0xFF7FB77E)
+                    : message.isError
+                        ? const Color(0xFFFFEEEE)
+                        : Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(18),
+                  topRight: const Radius.circular(18),
+                  bottomLeft: Radius.circular(isUser ? 18 : 6),
+                  bottomRight: Radius.circular(isUser ? 6 : 18),
                 ),
-              ],
-            ),
-            child: isUser
-                ? Text(
-                    message.text,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.5,
-                      height: 1.45,
-                    ),
-                  )
-                : MarkdownBody(
-                    data: message.text,
-                    selectable: true,
-                    shrinkWrap: true,
-                    styleSheet: MarkdownStyleSheet(
-                      p: const TextStyle(
-                        color: Color(0xFF263328),
-                        fontSize: 14.5,
-                        height: 1.45,
-                      ),
-                      strong: const TextStyle(
-                        color: Color(0xFF263328),
-                        fontSize: 14.5,
-                        height: 1.45,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      em: const TextStyle(
-                        color: Color(0xFF263328),
-                        fontSize: 14.5,
-                        height: 1.45,
-                        fontStyle: FontStyle.italic,
-                      ),
-                      listBullet: const TextStyle(
-                        color: Color(0xFF263328),
-                        fontSize: 14.5,
-                        height: 1.45,
-                      ),
-                      h1: const TextStyle(
-                        color: Color(0xFF2F5D50),
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      h2: const TextStyle(
-                        color: Color(0xFF2F5D50),
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      h3: const TextStyle(
-                        color: Color(0xFF2F5D50),
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      blockSpacing: 10,
-                      listIndent: 20,
-                    ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
                   ),
-          ),
-        ),
-        if (isUser) ...[
-          const SizedBox(width: 8),
-          const CircleAvatar(
-            radius: 16,
-            backgroundColor: Color(0xFFDDEFD7),
-            child: Icon(
-              Icons.person,
-              size: 17,
-              color: Color(0xFF4A7A52),
+                ],
+              ),
+              child: isUser
+                  ? Text(
+                      message.text,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14.5,
+                        height: 1.45,
+                      ),
+                    )
+                  : MarkdownBody(
+                      data: message.text,
+                      selectable: true,
+                      shrinkWrap: true,
+                      styleSheet: MarkdownStyleSheet(
+                        p: const TextStyle(
+                          color: Color(0xFF263328),
+                          fontSize: 14.5,
+                          height: 1.45,
+                        ),
+                        strong: const TextStyle(
+                          color: Color(0xFF263328),
+                          fontSize: 14.5,
+                          height: 1.45,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        em: const TextStyle(
+                          color: Color(0xFF263328),
+                          fontSize: 14.5,
+                          height: 1.45,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        listBullet: const TextStyle(
+                          color: Color(0xFF263328),
+                          fontSize: 14.5,
+                          height: 1.45,
+                        ),
+                        h1: const TextStyle(
+                          color: Color(0xFF2F5D50),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        h2: const TextStyle(
+                          color: Color(0xFF2F5D50),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        h3: const TextStyle(
+                          color: Color(0xFF2F5D50),
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        blockSpacing: 10,
+                        listIndent: 20,
+                      ),
+                    ),
             ),
           ),
+          if (isUser) ...[
+            const SizedBox(width: 8),
+            const CircleAvatar(
+              radius: 16,
+              backgroundColor: Color(0xFFDDEFD7),
+              child: Icon(
+                Icons.person,
+                size: 17,
+                color: Color(0xFF4A7A52),
+              ),
+            ),
+          ],
         ],
-      ],
-    ),
-  );
-}
+      ),
+    );
+  }
 
   Widget _buildTypingBubble() {
     return Padding(

@@ -3,8 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../widgets/AdminBar.dart';
+import '../../widgets/admin_background.dart';
+import '../../widgets/admin_header.dart';
+import '../../theme/admin_theme.dart';
 import 'AdminProfileEdit.dart';
-import '../../../SplashScreen.dart';
+import '../../../auth/Login.dart';
 
 class AdminProfile extends StatefulWidget {
   const AdminProfile({super.key});
@@ -14,9 +17,9 @@ class AdminProfile extends StatefulWidget {
 }
 
 class AdminProfileState extends State<AdminProfile> {
-  String adminName = "Admin";
-  String adminEmail = "";
-  String adminPassword = "**************";
+  String adminName = 'Admin';
+  String adminEmail = '';
+  String adminPassword = '**************';
 
   bool isLoading = true;
 
@@ -30,30 +33,30 @@ class AdminProfileState extends State<AdminProfile> {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
       return;
     }
 
-    adminEmail = user.email ?? "";
+    adminEmail = user.email ?? '';
 
     final doc = await FirebaseFirestore.instance
         .collection('admins')
         .doc(user.uid)
         .get();
 
+    if (!mounted) return;
+
     if (doc.exists) {
       final data = doc.data();
 
       setState(() {
-        adminName = data?['name'] ?? "Admin";
+        adminName = data?['name'] ?? 'Admin';
         adminEmail = data?['email'] ?? adminEmail;
         isLoading = false;
       });
     } else {
       setState(() {
-        adminName = "Admin";
+        adminName = 'Admin';
         isLoading = false;
       });
     }
@@ -94,12 +97,16 @@ class AdminProfileState extends State<AdminProfile> {
     }
   }
 
-  void _logout() async {
+  Future<void> _logout() async {
     await FirebaseAuth.instance.signOut();
+
+    if (!mounted) return;
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => const SplashScreen()),
+      MaterialPageRoute(
+        builder: (_) => const LoginPage(isAdminMode: true),
+      ),
       (route) => false,
     );
   }
@@ -108,21 +115,25 @@ class AdminProfileState extends State<AdminProfile> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return const Scaffold(
-        backgroundColor: Color(0xFFF3FFE2),
-        body: Center(
-          child: CircularProgressIndicator(),
+        body: AdminBackground(
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
         ),
       );
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3FFE2),
-      body: SafeArea(
+      body: AdminBackground(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
           child: Column(
             children: [
-              const SizedBox(height: 20),
+              const AdminHeader(
+                title: 'Admin Profile',
+                showBack: false,
+              ),
+              const SizedBox(height: 28),
               Center(
                 child: Stack(
                   clipBehavior: Clip.none,
@@ -132,16 +143,23 @@ class AdminProfileState extends State<AdminProfile> {
                       height: 170,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xFFC7D3C6),
+                        color: AdminTheme.card,
                         border: Border.all(
-                          color: const Color(0xFF446B54),
+                          color: AdminTheme.primary,
                           width: 4,
                         ),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x22000000),
+                            blurRadius: 10,
+                            offset: Offset(0, 5),
+                          ),
+                        ],
                       ),
                       child: const Icon(
                         Icons.person,
                         size: 120,
-                        color: Color(0xFF446B54),
+                        color: AdminTheme.primary,
                       ),
                     ),
                     Positioned(
@@ -154,9 +172,9 @@ class AdminProfileState extends State<AdminProfile> {
                           height: 55,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: const Color(0xFF446B54),
+                            color: AdminTheme.primary,
                             border: Border.all(
-                              color: const Color(0xFFF3FFE2),
+                              color: AdminTheme.background,
                               width: 2,
                             ),
                           ),
@@ -171,32 +189,33 @@ class AdminProfileState extends State<AdminProfile> {
                   ],
                 ),
               ),
-              const SizedBox(height: 34),
+              const SizedBox(height: 30),
               Text(
                 adminName,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  color: Color(0xFF7CA385),
-                  fontSize: 35,
+                  color: AdminTheme.primary,
+                  fontSize: 34,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 57),
+              const SizedBox(height: 44),
               _infoCard(
-                title: "Email",
+                title: 'Email',
                 value: adminEmail,
               ),
               _passwordCard(),
               InkWell(
                 onTap: _logout,
+                borderRadius: BorderRadius.circular(142),
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(142),
-                    color: const Color(0xFF8DC149),
+                    color: AdminTheme.primary,
                     boxShadow: const [
                       BoxShadow(
-                        color: Color(0x40000000),
-                        blurRadius: 4,
+                        color: Color(0x22000000),
+                        blurRadius: 6,
                         offset: Offset(0, 4),
                       ),
                     ],
@@ -207,9 +226,9 @@ class AdminProfileState extends State<AdminProfile> {
                   ),
                   margin: const EdgeInsets.only(bottom: 16),
                   child: const Text(
-                    "Log Out",
+                    'Log Out',
                     style: TextStyle(
-                      color: Color(0xFF9C1111),
+                      color: Colors.white,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
@@ -229,77 +248,69 @@ class AdminProfileState extends State<AdminProfile> {
     required String value,
   }) {
     return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 28),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 22),
       decoration: BoxDecoration(
         border: Border.all(
-          color: const Color(0xFF989898),
+          color: AdminTheme.border,
           width: 1,
         ),
-        borderRadius: BorderRadius.circular(14),
-        color: const Color(0xFFCDE9C7),
+        borderRadius: BorderRadius.circular(16),
+        color: AdminTheme.card,
         boxShadow: const [
           BoxShadow(
-            color: Color(0x40000000),
-            blurRadius: 4,
+            color: Color(0x22000000),
+            blurRadius: 6,
             offset: Offset(0, 4),
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      margin: const EdgeInsets.only(bottom: 32),
-      width: double.infinity,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 22),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                color: Color(0xFF498056),
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              color: AdminTheme.primary,
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
             ),
-            const SizedBox(height: 12),
-            Text(
-              value,
-              style: const TextStyle(
-                color: Color(0xFF675F5A),
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: const TextStyle(
+              color: AdminTheme.textMuted,
+              fontSize: 19,
+              fontWeight: FontWeight.bold,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _passwordCard() {
     return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 60),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 21),
       decoration: BoxDecoration(
         border: Border.all(
-          color: const Color(0xFF989898),
+          color: AdminTheme.border,
           width: 1,
         ),
-        borderRadius: BorderRadius.circular(14),
-        color: const Color(0xFFCDE9C7),
+        borderRadius: BorderRadius.circular(16),
+        color: AdminTheme.card,
         boxShadow: const [
           BoxShadow(
-            color: Color(0x40000000),
-            blurRadius: 4,
+            color: Color(0x22000000),
+            blurRadius: 6,
             offset: Offset(0, 4),
           ),
         ],
       ),
-      padding: const EdgeInsets.only(
-        top: 16,
-        bottom: 16,
-        left: 21,
-        right: 21,
-      ),
-      margin: const EdgeInsets.only(bottom: 80),
-      width: double.infinity,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -307,19 +318,19 @@ class AdminProfileState extends State<AdminProfile> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Password",
+                'Password',
                 style: TextStyle(
-                  color: Color(0xFF498056),
-                  fontSize: 28,
+                  color: AdminTheme.primary,
+                  fontSize: 26,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               SizedBox(height: 17),
               Text(
-                "**************",
+                '**************',
                 style: TextStyle(
-                  color: Color(0xFF675F5A),
-                  fontSize: 20,
+                  color: AdminTheme.textMuted,
+                  fontSize: 19,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -330,7 +341,7 @@ class AdminProfileState extends State<AdminProfile> {
             icon: const Icon(
               Icons.edit_outlined,
               size: 30,
-              color: Colors.black87,
+              color: AdminTheme.textDark,
             ),
           ),
         ],

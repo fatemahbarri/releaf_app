@@ -18,11 +18,13 @@ dependencies:
   firebase_core: ^2.30.0
   firebase_auth: ^4.17.0
   cloud_firestore: ^4.15.0
+  flutter_svg: ^2.0.10+1
   flutter_custom_clippers: ^2.1.0
   tflite_flutter: ^0.11.0
   image_picker: ^1.1.2
   image: ^4.2.0
   http: ^1.0.0
+  shared_preferences: ^2.3.2
   flutter_markdown_plus: ^1.0.6
 
 dev_dependencies:
@@ -33,7 +35,15 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Medium.ttf
+        - asset: assets/fonts/Poppins-Bold.ttf
+
   assets:
     - assets/model/best_model.tflite
     - assets/model/labels.txt
     - assets/images/
+    - assets/images/waves/

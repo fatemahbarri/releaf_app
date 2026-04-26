@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:releaf_app/WelcomeScreen.dart';
 import 'package:releaf_app/auth/SignUp.dart';
+import 'package:releaf_app/user/HomePageUser.dart';
 import 'package:releaf_app/services/firebase_service.dart';
 import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/widgets/auth_card.dart';
 import 'package:releaf_app/widgets/custom_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:releaf_app/admin/widgets/admin_background.dart';
 import '../admin/screens/home/AdminHomePage.dart';
 
 class LoginPage extends StatefulWidget {
@@ -23,17 +26,15 @@ class LoginPage extends StatefulWidget {
 class BottomWaveClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
-    var path = Path();
+    final path = Path();
 
     path.lineTo(0, size.height - 60);
-
     path.quadraticBezierTo(
       size.width / 2,
       size.height,
       size.width,
       size.height - 60,
     );
-
     path.lineTo(size.width, 0);
     path.close();
 
@@ -52,17 +53,17 @@ class _LoginPageState extends State<LoginPage> {
 
   bool isLoading = false;
   bool obscurePassword = true;
+  bool rememberMe = false;
   String? adminName;
 
   String get titleText {
-    return widget.isAdminMode ? 'Admin Sign In' : 'User Sign In';
+    return widget.isAdminMode ? 'Admin Login' : 'User Login';
   }
 
-  String get welcomeText {
-    if (widget.isAdminMode && adminName != null && adminName!.isNotEmpty) {
-      return 'Welcome $adminName';
-    }
-    return 'Welcome Back';
+  @override
+  void initState() {
+    super.initState();
+    _loadRememberedEmail();
   }
 
   @override
@@ -70,6 +71,34 @@ class _LoginPageState extends State<LoginPage> {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadRememberedEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    final key =
+        widget.isAdminMode ? 'remembered_admin_email' : 'remembered_user_email';
+    final savedEmail = prefs.getString(key);
+
+    if (savedEmail != null && savedEmail.isNotEmpty) {
+      setState(() {
+        emailController.text = savedEmail;
+        rememberMe = true;
+      });
+
+      await _checkAdminName(savedEmail);
+    }
+  }
+
+  Future<void> _saveRememberedEmail(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key =
+        widget.isAdminMode ? 'remembered_admin_email' : 'remembered_user_email';
+
+    if (rememberMe) {
+      await prefs.setString(key, email);
+    } else {
+      await prefs.remove(key);
+    }
   }
 
   Future<void> _checkAdminName(String email) async {
@@ -139,11 +168,20 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
+      await _saveRememberedEmail(email);
+
       if (widget.isAdminMode) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => AdminHomePage(adminName: name),
+            builder: (_) => AdminHomePage(adminName: name),
+          ),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const HomePageUser(),
           ),
         );
       }
@@ -167,6 +205,14 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Widget _buildBackground({required Widget child}) {
+    if (widget.isAdminMode) {
+      return AdminBackground(child: child);
+    }
+
+    return AppBackground(child: child);
+  }
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String hintText,
@@ -183,10 +229,16 @@ class _LoginPageState extends State<LoginPage> {
         obscureText: obscureText,
         keyboardType: keyboardType,
         onChanged: onChanged,
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+        ),
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: const TextStyle(
             color: Color(0xFF8A8A8A),
+            fontSize: 15,
+            fontWeight: FontWeight.w400,
           ),
           filled: true,
           fillColor: const Color(0xFFFAFAFA),
@@ -197,21 +249,21 @@ class _LoginPageState extends State<LoginPage> {
           ),
           suffixIcon: suffixIcon,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
             borderSide: const BorderSide(
               color: Color(0xFFE0E0E0),
               width: 1,
             ),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
             borderSide: const BorderSide(
               color: Color(0xFFE0E0E0),
               width: 1,
             ),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(14),
             borderSide: const BorderSide(
               color: Color(0xFF499A64),
               width: 1.5,
@@ -222,143 +274,198 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: SizedBox(
-              height: 280,
-              width: double.infinity,
-              child: ClipPath(
-                clipper: BottomWaveClipper(),
-                child: Container(
-                  color: const Color(0xFFB7D98A),
+  Widget _buildRememberMe() {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          rememberMe = !rememberMe;
+        });
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color:
+                    rememberMe ? const Color(0xFF499A64) : Colors.transparent,
+                border: Border.all(
+                  color: rememberMe
+                      ? const Color(0xFF499A64)
+                      : const Color(0xFFBDBDBD),
+                  width: 2,
+                ),
+              ),
+              child: rememberMe
+                  ? const Icon(
+                      Icons.check,
+                      size: 14,
+                      color: Colors.white,
+                    )
+                  : null,
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'Remember me',
+              style: TextStyle(
+                color: Color(0xFF675F5A),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginContent() {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 16,
+        ),
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: IconButton(
+                onPressed: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const WelcomeScreen(),
+                    ),
+                  );
+                },
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  size: 22,
+                  color: Color(0xFF2A2A2A),
                 ),
               ),
             ),
-          ),
-          AppBackground(
-            child: SafeArea(
-              child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const WelcomeScreen(),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            const SizedBox(height: 4),
+            Text(
+              titleText,
+              style: const TextStyle(
+                color: Color(0xFF498056),
+                fontSize: 30,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 18),
+            Image.asset(
+              'assets/images/Releaf_logo.png',
+              height: widget.isAdminMode ? 130 : 125,
+            ),
+            const SizedBox(height: 70),
+            AuthCard(
+              child: Column(
+                children: [
+                  _buildTextField(
+                    controller: emailController,
+                    hintText: 'Email Address',
+                    keyboardType: TextInputType.emailAddress,
+                    prefixIcon: const Icon(
+                      Icons.email_outlined,
+                      color: Color(0xFF499A64),
+                    ),
+                    onChanged: (value) => _checkAdminName(value),
+                  ),
+                  _buildTextField(
+                    controller: passwordController,
+                    hintText: 'Password',
+                    obscureText: obscurePassword,
+                    prefixIcon: const Icon(
+                      Icons.lock_outline,
+                      color: Color(0xFF499A64),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        obscurePassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        color: const Color(0xFF675F5A),
                       ),
+                      onPressed: () {
+                        setState(() {
+                          obscurePassword = !obscurePassword;
+                        });
+                      },
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      titleText,
-                      style: const TextStyle(
-                        color: Color(0xFF498056),
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Image.asset(
-                      'assets/images/Releaf_logo.png',
-                      height: 130,
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      welcomeText,
-                      style: const TextStyle(
-                        color: Color(0xFF7BA285),
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Enter your credentials to continue',
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
-                    AuthCard(
-                      child: Column(
-                        children: [
-                          _buildTextField(
-                            controller: emailController,
-                            hintText: 'Email Address',
-                            keyboardType: TextInputType.emailAddress,
-                            prefixIcon: const Icon(
-                              Icons.email_outlined,
-                              color: Color(0xFF499A64),
-                            ),
-                            onChanged: (v) => _checkAdminName(v),
+                  ),
+                  const SizedBox(height: 2),
+                  _buildRememberMe(),
+                  const SizedBox(height: 18),
+                  CustomButton(
+                    text: 'Login',
+                    isLoading: isLoading,
+                    onTap: _signIn,
+                  ),
+                  if (!widget.isAdminMode) ...[
+                    const SizedBox(height: 14),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SignUp(),
                           ),
-                          _buildTextField(
-                            controller: passwordController,
-                            hintText: 'Password',
-                            obscureText: obscurePassword,
-                            prefixIcon: const Icon(
-                              Icons.lock_outline,
-                              color: Color(0xFF499A64),
-                            ),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                obscurePassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  obscurePassword = !obscurePassword;
-                                });
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          CustomButton(
-                            text: 'Login',
-                            isLoading: isLoading,
-                            onTap: _signIn,
-                          ),
-                          if (!widget.isAdminMode) ...[
-                            const SizedBox(height: 12),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const SignUp(),
-                                  ),
-                                );
-                              },
-                              child: const Text(
-                                "Don’t have an account? Sign up",
-                                style: TextStyle(
-                                  color: Color(0xFF4676AE),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
+                        );
+                      },
+                      child: const Text(
+                        'Don’t have an account? Sign up',
+                        style: TextStyle(
+                          color: Color(0xFF4676AE),
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
-                ),
+                ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Theme(
+      data: Theme.of(context).copyWith(
+        textTheme: Theme.of(context).textTheme.apply(),
+      ),
+      child: Scaffold(
+        body: Stack(
+          children: [
+            if (!widget.isAdminMode)
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: SizedBox(
+                  height: 260,
+                  width: double.infinity,
+                  child: ClipPath(
+                    clipper: BottomWaveClipper(),
+                    child: Container(
+                      color: const Color(0xFFB7D98A),
+                    ),
+                  ),
+                ),
+              ),
+            _buildBackground(
+              child: _buildLoginContent(),
+            ),
+          ],
+        ),
       ),
     );
   }

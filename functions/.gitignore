@@ -1,2 +1,16 @@
+# Env files
+.env
+backend/.env
+
+# Node
 node_modules/
-*.local
+backend/node_modules/
+functions/node_modules/
+
+# Build
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/

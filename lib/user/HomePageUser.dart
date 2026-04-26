@@ -1,365 +1,284 @@
 import 'package:flutter/material.dart';
+import 'package:releaf_app/widgets/app_background.dart';
+import 'package:releaf_app/user/UserWidgets/UserBottomNav.dart';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:releaf_app/user/ReportIssueUser.dart';
+import 'package:releaf_app/llm/Chatbot.dart';
+
 class HomePageUser extends StatefulWidget {
-	const HomePageUser({super.key});
-	@override
-	HomePageUserState createState() => HomePageUserState();
+  const HomePageUser({super.key});
+
+  @override
+  State<HomePageUser> createState() => _HomePageUserState();
 }
-class HomePageUserState extends State<HomePageUser> {
-	@override
-	Widget build(BuildContext context) {
-		return Scaffold(
-			body: SafeArea(
-				child: Container(
-					constraints: const BoxConstraints.expand(),
-					color: Color(0xFFFFFFFF),
-					child: Column(
-						crossAxisAlignment: CrossAxisAlignment.start,
-						children: [
-							Expanded(
-								child: Container(
-									color: Color(0xFFF3FFE2),
-									width: double.infinity,
-									height: double.infinity,
-									child: SingleChildScrollView(
-										padding: const EdgeInsets.only( top: 80),
-										child: Column(
-											crossAxisAlignment: CrossAxisAlignment.start,
-											children: [
-												IntrinsicHeight(
-													child: Container(
-														margin: const EdgeInsets.only( bottom: 45),
-														width: double.infinity,
-														child: Column(
-															children: [
-																Text(
-																	"Welcome, Sara",
-																	style: TextStyle(
-																		color: Color(0xFF7CA385),
-																		fontSize: 36,
-																		fontWeight: FontWeight.bold,
-																	),
-																),
-															]
-														),
-													),
-												),
-												IntrinsicHeight(
-													child: Container(
-														margin: const EdgeInsets.only( bottom: 3),
-														width: double.infinity,
-														child: Column(
-															children: [
-																SizedBox(
-																	width: 293,
-																	child: Text(
-																		"Recycle today for a cleaner tomorrow!",
-																		style: TextStyle(
-																			color: Color(0xFF675F5A),
-																			fontSize: 24,
-																			fontWeight: FontWeight.bold,
-																		),
-																		textAlign: TextAlign.center,
-																	),
-																),
-															]
-														),
-													),
-												),
-												Container(
-													margin: const EdgeInsets.only( bottom: 16, left: 13, right: 13),
-													height: 255,
-													width: double.infinity,
-													child: Image.network(
-														"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/eZXFHBRH4B/fc3yp63v_expires_30_days.png",
-														fit: BoxFit.fill,
-													)
-												),
-												IntrinsicHeight(
-													child: Container(
-														margin: const EdgeInsets.only( bottom: 19, left: 31, right: 31),
-														width: double.infinity,
-														child: Column(
-															crossAxisAlignment: CrossAxisAlignment.start,
-															children: [
-																Container(
-																	margin: const EdgeInsets.only( bottom: 23, left: 13),
-																	child: Text(
-																		"Activities",
-																		style: TextStyle(
-																			color: Color(0xFF675F5A),
-																			fontSize: 30,
-																			fontWeight: FontWeight.bold,
-																		),
-																	),
-																),
-																InkWell(
-																	onTap: () { print('Pressed'); },
-																	child: IntrinsicHeight(
-																		child: Container(
-																			decoration: BoxDecoration(
-																				borderRadius: BorderRadius.circular(27),
-																				color: Color(0xFF499A64),
-																				boxShadow: [
-																					BoxShadow(
-																						color: Color(0x40000000),
-																						blurRadius: 4,
-																						offset: Offset(0, 4),
-																					),
-																				],
-																			),
-																			padding: const EdgeInsets.symmetric(vertical: 12),
-																			margin: const EdgeInsets.only( bottom: 16),
-																			width: double.infinity,
-																			child: Column(
-																				children: [
-																					Text(
-																						"Tips",
-																						style: TextStyle(
-																							color: Color(0xFFFFFFFF),
-																							fontSize: 20,
-																							fontWeight: FontWeight.bold,
-																						),
-																					),
-																				]
-																			),
-																		),
-																	),
-																),
-																InkWell(
-																	onTap: () { print('Pressed'); },
-																	child: IntrinsicHeight(
-																		child: Container(
-																			decoration: BoxDecoration(
-																				borderRadius: BorderRadius.circular(27),
-																				color: Color(0xFF499A64),
-																				boxShadow: [
-																					BoxShadow(
-																						color: Color(0x40000000),
-																						blurRadius: 4,
-																						offset: Offset(0, 4),
-																					),
-																				],
-																			),
-																			padding: const EdgeInsets.symmetric(vertical: 14),
-																			margin: const EdgeInsets.only( bottom: 16),
-																			width: double.infinity,
-																			child: Column(
-																				children: [
-																					Text(
-																						"Scan Trash",
-																						style: TextStyle(
-																							color: Color(0xFFFFFFFF),
-																							fontSize: 20,
-																							fontWeight: FontWeight.bold,
-																						),
-																					),
-																				]
-																			),
-																		),
-																	),
-																),
-																InkWell(
-																	onTap: () { print('Pressed'); },
-																	child: IntrinsicHeight(
-																		child: Container(
-																			decoration: BoxDecoration(
-																				borderRadius: BorderRadius.circular(27),
-																				color: Color(0xFF499A64),
-																				boxShadow: [
-																					BoxShadow(
-																						color: Color(0x40000000),
-																						blurRadius: 4,
-																						offset: Offset(0, 4),
-																					),
-																				],
-																			),
-																			padding: const EdgeInsets.symmetric(vertical: 14),
-																			width: double.infinity,
-																			child: Column(
-																				children: [
-																					Text(
-																						"Location",
-																						style: TextStyle(
-																							color: Color(0xFFFFFFFF),
-																							fontSize: 20,
-																							fontWeight: FontWeight.bold,
-																						),
-																					),
-																				]
-																			),
-																		),
-																	),
-																),
-															]
-														),
-													),
-												),
-												InkWell(
-													onTap: () { print('Pressed'); },
-													child: IntrinsicWidth(
-														child: IntrinsicHeight(
-															child: Container(
-																decoration: BoxDecoration(
-																	borderRadius: BorderRadius.circular(142),
-																	color: Color(0xFF8DC149),
-																	boxShadow: [
-																		BoxShadow(
-																			color: Color(0x40000000),
-																			blurRadius: 4,
-																			offset: Offset(0, 4),
-																		),
-																	],
-																),
-																padding: const EdgeInsets.only( top: 10, bottom: 10, left: 9, right: 9),
-																margin: const EdgeInsets.only( bottom: 17, left: 10),
-																child: Column(
-																	crossAxisAlignment: CrossAxisAlignment.start,
-																	children: [
-																		SizedBox(
-																			width: 40,
-																			height: 40,
-																			child: Image.network(
-																				"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/eZXFHBRH4B/m58pzf8y_expires_30_days.png",
-																				fit: BoxFit.fill,
-																			)
-																		),
-																	]
-																),
-															),
-														),
-													),
-												),
-												IntrinsicHeight(
-													child: Container(
-														color: Color(0xFFCDE9C7),
-														width: double.infinity,
-														child: SingleChildScrollView(
-															scrollDirection: Axis.horizontal,
-															child: Row(
-																crossAxisAlignment: CrossAxisAlignment.start,
-																children: [
-																	IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																				child: Column(
-																					children: [
-																						Container(
-																							margin: const EdgeInsets.only( bottom: 4),
-																							width: 56,
-																							height: 32,
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/eZXFHBRH4B/sep7xhso_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						),
-																						Text(
-																							"Home",
-																							style: TextStyle(
-																								color: Color(0xFF625B71),
-																								fontSize: 12,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																	IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																				child: Column(
-																					children: [
-																						Container(
-																							margin: const EdgeInsets.only( bottom: 4),
-																							width: 56,
-																							height: 32,
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/eZXFHBRH4B/ooib99q7_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						),
-																						Text(
-																							"Camera",
-																							style: TextStyle(
-																								color: Color(0xFF49454F),
-																								fontSize: 12,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																	IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																				child: Column(
-																					children: [
-																						Container(
-																							margin: const EdgeInsets.only( bottom: 4),
-																							width: 56,
-																							height: 32,
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/eZXFHBRH4B/glazf56n_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						),
-																						Text(
-																							"Bins",
-																							style: TextStyle(
-																								color: Color(0xFF49454F),
-																								fontSize: 12,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																	IntrinsicWidth(
-																		child: IntrinsicHeight(
-																			child: Container(
-																				padding: const EdgeInsets.only( top: 6, bottom: 6, left: 23, right: 23),
-																				child: Column(
-																					children: [
-																						Container(
-																							margin: const EdgeInsets.only( bottom: 4),
-																							width: 56,
-																							height: 32,
-																							child: Image.network(
-																								"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/eZXFHBRH4B/96m86ems_expires_30_days.png",
-																								fit: BoxFit.fill,
-																							)
-																						),
-																						Text(
-																							"Profile",
-																							style: TextStyle(
-																								color: Color(0xFF49454F),
-																								fontSize: 12,
-																							),
-																						),
-																					]
-																				),
-																			),
-																		),
-																	),
-																],
-															)
-														),
-													),
-												),
-											],
-										)
-									),
-								),
-							),
-						],
-					),
-				),
-			),
-		);
-	}
+
+class _HomePageUserState extends State<HomePageUser> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  String userName = 'User';
+  bool isLoadingName = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      setState(() {
+        userName = 'User';
+        isLoadingName = false;
+      });
+      return;
+    }
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (!mounted) return;
+
+      setState(() {
+        userName = doc.data()?['name'] ?? 'User';
+        isLoadingName = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        userName = 'User';
+        isLoadingName = false;
+      });
+    }
+  }
+
+  void _openChat() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const Chatbot(),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBackground(
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: Colors.transparent,
+
+        // 👇 من اليسار
+        drawer: _buildSideMenu(),
+
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 25),
+            child: Column(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    onPressed: () {
+                      _scaffoldKey.currentState?.openDrawer();
+                    },
+                    icon: const Icon(
+                      Icons.menu_rounded,
+                      color: Color.fromARGB(255, 19, 87, 49),
+                      size: 36,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  isLoadingName ? "Welcome..." : "Welcome, $userName",
+                  style: const TextStyle(
+                    color: Color(0xFF7CA385),
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  "Recycle today for a cleaner tomorrow!",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFF675F5A),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 25),
+                Image.asset(
+                  'assets/images/User_home.png',
+                  height: 260,
+                ),
+                const SizedBox(height: 100),
+              ],
+            ),
+          ),
+        ),
+
+        floatingActionButton: FloatingActionButton(
+          onPressed: _openChat,
+          backgroundColor: const Color(0xFF8DC149),
+          child: const Icon(Icons.chat_bubble_outline),
+        ),
+
+        bottomNavigationBar: const UserBottomNav(
+          currentIndex: 0,
+        ),
+      ),
+    );
+  }
+
+  // ================= SIDE MENU =================
+  Widget _buildSideMenu() {
+    return Drawer(
+      width: MediaQuery.of(context).size.width,
+      backgroundColor: const Color(0xFFF3FFE2),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(28, 34, 28, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Icon(
+                    Icons.menu_rounded,
+                    color: Color(0xFF499A64),
+                    size: 38,
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      width: 46,
+                      height: 46,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFCDE9C7),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.close_rounded,
+                        color: Color(0xFF2F4F35),
+                        size: 28,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'More',
+                style: TextStyle(
+                  color: Color(0xFF499A64),
+                  fontSize: 32,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 50),
+              _buildMenuItem(
+                icon: Icons.settings_outlined,
+                title: 'Settings',
+                onTap: () {},
+              ),
+              _buildMenuItem(
+                icon: Icons.info_outline,
+                title: 'About ReLeaf',
+                onTap: () {},
+              ),
+              _buildMenuItem(
+                icon: Icons.report_problem_outlined,
+                title: 'Issues',
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ReportIssueUser(),
+                    ),
+                  );
+                },
+              ),
+              const Spacer(),
+              _buildMenuItem(
+                icon: Icons.translate_rounded,
+                title: 'عربي',
+                onTap: () {},
+              ),
+              _buildMenuItem(
+                icon: Icons.logout_rounded,
+                title: 'Logout',
+                color: const Color(0xFFE85A5A),
+                onTap: () async {
+                  await FirebaseAuth.instance.signOut();
+
+                  if (!mounted) return;
+
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    '/',
+                    (route) => false,
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'ReLeaf v1.0.0 © 2026',
+                style: TextStyle(
+                  color: Color(0xFF8A8A8A),
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    Color color = const Color(0xFF675F5A),
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 28),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: color == const Color(0xFFE85A5A)
+                  ? color
+                  : const Color(0xFF499A64),
+              size: 30,
+            ),
+            const SizedBox(width: 22),
+            Text(
+              title,
+              style: TextStyle(
+                color: color,
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

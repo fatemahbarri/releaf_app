@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../widgets/admin_background.dart';
+import '../../widgets/admin_header.dart';
+import '../../theme/admin_theme.dart';
+
 class AdminProfileEdit extends StatefulWidget {
   final String currentName;
   final String currentEmail;
@@ -42,24 +46,18 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
     final confirmPassword = _confirmPasswordController.text.trim();
 
     if (name.isEmpty || email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill the required fields')),
-      );
+      _showMessage('Please fill the required fields');
       return;
     }
 
     if (password.isNotEmpty || confirmPassword.isNotEmpty) {
       if (password != confirmPassword) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Passwords do not match')),
-        );
+        _showMessage('Passwords do not match');
         return;
       }
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -105,39 +103,39 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
         message = 'Password is too weak';
       }
 
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update profile')),
-      );
+      _showMessage(message);
+    } catch (_) {
+      _showMessage('Failed to update profile');
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
       }
     }
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   Widget _buildInputField({
     required TextEditingController controller,
     required String hint,
     bool obscureText = false,
+    IconData? icon,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 34),
+      margin: const EdgeInsets.only(bottom: 18),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F8F8),
+        color: AdminTheme.card,
         border: Border.all(
-          color: const Color(0xFFC4C4C4),
+          color: AdminTheme.border,
           width: 1,
         ),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: const [
           BoxShadow(
             color: Color(0x22000000),
@@ -149,16 +147,27 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
       child: TextField(
         controller: controller,
         obscureText: obscureText,
+        style: const TextStyle(
+          color: AdminTheme.textDark,
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+        ),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: const TextStyle(
-            color: Color(0xFF9B9B9B),
-            fontSize: 22,
-            fontWeight: FontWeight.w600,
+            color: Color(0xFF8A8A8A),
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
           ),
+          prefixIcon: icon == null
+              ? null
+              : Icon(
+                  icon,
+                  color: AdminTheme.primary,
+                ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: 24,
+            horizontal: 18,
             vertical: 18,
           ),
         ),
@@ -178,94 +187,97 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3FFE2),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(22, 24, 22, 24),
-                child: Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        onPressed:
-                            _isLoading ? null : () => Navigator.pop(context),
-                        icon: const Icon(
-                          Icons.arrow_back_ios_new,
-                          color: Color(0xFF675F5A),
-                          size: 34,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      width: 170,
-                      height: 170,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: const Color(0xFFC7D3C6),
-                        border: Border.all(
-                          color: const Color(0xFF446B54),
-                          width: 5,
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.person,
-                        size: 120,
-                        color: Color(0xFF446B54),
-                      ),
-                    ),
-                    const SizedBox(height: 70),
-                    _buildInputField(
-                      controller: _nameController,
-                      hint: 'Name',
-                    ),
-                    _buildInputField(
-                      controller: _emailController,
-                      hint: 'Email',
-                    ),
-                    _buildInputField(
-                      controller: _passwordController,
-                      hint: 'Password',
-                      obscureText: true,
-                    ),
-                    _buildInputField(
-                      controller: _confirmPasswordController,
-                      hint: 'Confirm Password',
-                      obscureText: true,
-                    ),
-                    const SizedBox(height: 36),
-                    SizedBox(
-                      width: 230,
-                      height: 68,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _saveChanges,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFB8D67D),
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(34),
-                          ),
-                        ),
-                        child: _isLoading
-                            ? const CircularProgressIndicator()
-                            : const Text(
-                                'Done',
-                                style: TextStyle(
-                                  color: Color(0xFF5B5554),
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                      ),
+      body: AdminBackground(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(22, 24, 22, 24),
+          child: Column(
+            children: [
+              const AdminHeader(
+                title: 'Edit Profile',
+                showBack: true,
+              ),
+              const SizedBox(height: 28),
+              Container(
+                width: 155,
+                height: 155,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AdminTheme.card,
+                  border: Border.all(
+                    color: AdminTheme.primary,
+                    width: 4,
+                  ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x22000000),
+                      blurRadius: 10,
+                      offset: Offset(0, 5),
                     ),
                   ],
                 ),
+                child: const Icon(
+                  Icons.person,
+                  size: 105,
+                  color: AdminTheme.primary,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 44),
+              _buildInputField(
+                controller: _nameController,
+                hint: 'Name',
+                icon: Icons.person_outline,
+              ),
+              _buildInputField(
+                controller: _emailController,
+                hint: 'Email',
+                icon: Icons.email_outlined,
+              ),
+              _buildInputField(
+                controller: _passwordController,
+                hint: 'New Password',
+                obscureText: true,
+                icon: Icons.lock_outline,
+              ),
+              _buildInputField(
+                controller: _confirmPasswordController,
+                hint: 'Confirm New Password',
+                obscureText: true,
+                icon: Icons.lock_reset_outlined,
+              ),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: 230,
+                height: 60,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _saveChanges,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AdminTheme.primary,
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(34),
+                    ),
+                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text(
+                          'Save Changes',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

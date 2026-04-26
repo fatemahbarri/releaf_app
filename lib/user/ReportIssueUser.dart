@@ -181,7 +181,6 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
               showBackButton: true,
               onBack: () => Navigator.pop(context),
             ),
-
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
@@ -204,7 +203,6 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
                 ),
               ),
             ),
-
             ReLeafBottomBar(
               selectedIndex: _selectedIndex,
               onTap: _onItemTapped,

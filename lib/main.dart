@@ -16,6 +16,24 @@ void main() async {
   runApp(const ReLeafApp());
 }
 
+class NoStretchScrollBehavior extends ScrollBehavior {
+  const NoStretchScrollBehavior();
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    return child;
+  }
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) {
+    return const ClampingScrollPhysics(); // Android style
+  }
+}
+
 class ReLeafApp extends StatelessWidget {
   const ReLeafApp({super.key});
 
@@ -24,6 +42,10 @@ class ReLeafApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'ReLeaf',
+      scrollBehavior: const NoStretchScrollBehavior(),
+      theme: ThemeData(
+        fontFamily: 'Poppins',
+      ),
       home: const SplashScreen(),
     );
   }

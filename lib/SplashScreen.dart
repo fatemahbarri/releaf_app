@@ -19,13 +19,11 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    // Animation controller
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1600),
     );
 
-    // Scale animation
     _scale = TweenSequence<double>([
       TweenSequenceItem(
         tween: Tween<double>(
@@ -45,7 +43,6 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    // Navigate to Welcome screen after 3 seconds
     Timer(const Duration(seconds: 3), () {
       if (!mounted) return;
 
@@ -69,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen>
         child: SafeArea(
           child: Stack(
             children: [
-              // Bottom wave background
+              // Bottom wave
               Align(
                 alignment: Alignment.bottomCenter,
                 child: SizedBox(
@@ -84,8 +81,9 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               ),
 
-              // Logo with animation
-              Center(
+              // Logo (moved up)
+              Align(
+                alignment: const Alignment(0, -0.3), // <-- هنا رفعناه
                 child: AnimatedBuilder(
                   animation: _scale,
                   builder: (context, child) {
@@ -110,7 +108,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 }
 
-// Custom clipper for bottom wave
+// Wave clipper
 class BottomWaveClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
