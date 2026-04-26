@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'AdminHomePage.dart';
-import 'AdminUserManagment.dart';
-import 'AdminBinManagment.dart';
-import 'AdminProfileEdit.dart';
+
+import '../theme/admin_theme.dart';
+import '../screens/home/AdminHomePage.dart';
+import '../screens/users/AdminUserManagment.dart';
+import '../screens/bins/AdminBinsPage.dart';
+import '../screens/reports/AdminReportIssue.dart';
+import '../screens/profile/AdminProfile.dart';
 
 class AdminBar extends StatelessWidget {
   final int selectedIndex;
@@ -14,8 +17,8 @@ class AdminBar extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 88,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      decoration: const BoxDecoration(color: Color(0xFFCDE9C7)),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+      decoration: const BoxDecoration(color: AdminTheme.navBar),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -43,6 +46,13 @@ class AdminBar extends StatelessWidget {
           _buildNavItem(
             context: context,
             index: 3,
+            icon: Icons.report_problem_outlined,
+            selectedIcon: Icons.report_problem,
+            label: 'Issues',
+          ),
+          _buildNavItem(
+            context: context,
+            index: 4,
             icon: Icons.settings_outlined,
             selectedIcon: Icons.settings,
             label: 'Profile',
@@ -65,58 +75,61 @@ class AdminBar extends StatelessWidget {
       onTap: () {
         if (index == selectedIndex) return;
 
-        Widget page;
+        late final Widget page;
 
         switch (index) {
           case 0:
-            page = AdminHomePage(adminName: 'Admin');
+            page = const AdminHomePage(adminName: 'Admin');
             break;
           case 1:
             page = const AdminUserManagment();
             break;
           case 2:
-            page = const AdminBinManagment();
+            page = const AdminBinsPage();
             break;
           case 3:
-            page = const AdminProfileEdit();
+            page = const AdminReportIssue();
+            break;
+          case 4:
+            page = const AdminProfile();
             break;
           default:
-            page = AdminHomePage(adminName: 'Admin');
+            page = const AdminHomePage(adminName: 'Admin');
         }
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => page),
+          MaterialPageRoute(builder: (_) => page),
         );
       },
       child: SizedBox(
-        width: 78,
+        width: 64,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 70,
+              width: 58,
               height: 34,
               decoration: BoxDecoration(
-                color:
-                    isSelected ? const Color(0xFFAFCDA8) : Colors.transparent,
+                color: isSelected ? AdminTheme.selectedNav : Colors.transparent,
                 borderRadius: BorderRadius.circular(22),
               ),
               child: Icon(
                 isSelected ? selectedIcon : icon,
-                size: 30,
-                color: const Color(0xFF2A2A2A),
+                size: 27,
+                color: AdminTheme.textDark,
               ),
             ),
             const SizedBox(height: 6),
             Text(
               label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 10.5,
                 fontWeight: FontWeight.w600,
-                color: isSelected
-                    ? const Color(0xFF625B71)
-                    : const Color(0xFF49454F),
+                color:
+                    isSelected ? AdminTheme.textMuted : const Color(0xFF49454F),
               ),
             ),
           ],
