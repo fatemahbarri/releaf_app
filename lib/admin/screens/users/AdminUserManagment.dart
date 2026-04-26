@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'AdminBar.dart';
-import 'AdminHomePage.dart';
+
+import '../../widgets/AdminBar.dart';
+import '../../widgets/admin_background.dart';
+import '../../theme/admin_theme.dart';
+import '../home/AdminHomePage.dart';
 import 'AdminEditUser.dart';
+
+import '../../widgets/admin_header.dart';
 
 class AdminUserManagment extends StatefulWidget {
   final String initialFilter;
@@ -86,6 +91,59 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
     }
   }
 
+  Future<void> _showDeleteDialog(Map<String, dynamic> user) async {
+    final docId = user['docId'];
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete User'),
+          content: const Text('Are you sure you want to delete this user?'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () => Navigator.pop(context, true),
+              icon: const Icon(Icons.delete, color: Colors.white),
+              label: const Text('Delete'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AdminTheme.error,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      await _deleteUser(docId);
+    }
+  }
+
+  Future<void> _deleteUser(String docId) async {
+    try {
+      await _firestore.collection('users').doc(docId).delete();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User deleted successfully')),
+      );
+
+      await fetchUsers();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error deleting user: $e')),
+      );
+    }
+  }
+
   void applyFilters() {
     final query = searchController.text.toLowerCase().trim();
 
@@ -94,7 +152,6 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
       final email = (user['email'] ?? '').toString().toLowerCase().trim();
       final status = (user['status'] ?? '').toString().toLowerCase();
 
-      // Exclude admin emails
       if (email.endsWith('@releaf.com')) {
         return false;
       }
@@ -110,14 +167,16 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
   }
 
   void searchUsers(String value) {
-    applyFilters();
+    setState(() {
+      applyFilters();
+    });
   }
 
   void updateFilter(String filter) {
     setState(() {
       selectedFilter = filter;
+      applyFilters();
     });
-    applyFilters();
   }
 
   void showFilterMenu(BuildContext context) async {
@@ -159,61 +218,33 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
     await fetchUsers();
   }
 
+  Color _statusColor(String status) {
+    if (status == 'Active') return AdminTheme.success;
+    if (status == 'Blocked') return AdminTheme.error;
+    if (status == 'Inactive') return const Color(0xFFE47D0F);
+    return const Color(0xFF9E9E9E);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3FFE2),
-      body: SafeArea(
+      body: AdminBackground(
         child: Column(
           children: [
             Container(
               width: double.infinity,
-              color: const Color(0xFFF3FFE2),
               padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
               child: Column(
                 children: [
-                  SizedBox(
-                    height: 32,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const AdminHomePage(adminName: 'Admin'),
-                                ),
-                              );
-                            },
-                            child: const Icon(
-                              Icons.arrow_back_ios_new_rounded,
-                              color: Colors.black,
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                        const Center(
-                          child: Text(
-                            'Users Management',
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 0, 0, 0),
-                              fontSize: 25,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  const AdminHeader(
+                    title: 'Users Management',
+                    showBack: false,
                   ),
                   const SizedBox(height: 14),
                   Container(
                     height: 1,
                     width: double.infinity,
-                    color: const Color(0xFFB0B0B0).withOpacity(0.6),
+                    color: AdminTheme.border,
                   ),
                   const SizedBox(height: 18),
                   Row(
@@ -223,8 +254,8 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                           height: 48,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: const Color(0xFFD9D9D9)),
+                            color: AdminTheme.card,
+                            border: Border.all(color: AdminTheme.border),
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: Row(
@@ -242,7 +273,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                                   decoration: const InputDecoration(
                                     hintText: 'Search User',
                                     hintStyle: TextStyle(
-                                      color: Color(0xFFB3B3B3),
+                                      color: Color(0xFF8A8A8A),
                                       fontSize: 16,
                                     ),
                                     border: InputBorder.none,
@@ -265,7 +296,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                               child: Icon(
                                 Icons.tune_rounded,
                                 size: 24,
-                                color: Color(0xFF4D4D4D),
+                                color: AdminTheme.textDark,
                               ),
                             ),
                           );
@@ -279,7 +310,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                     child: Text(
                       'Filter: $selectedFilter',
                       style: const TextStyle(
-                        color: Color(0xFF5F5F5F),
+                        color: AdminTheme.textMuted,
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
                       ),
@@ -290,9 +321,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
             ),
             Expanded(
               child: isLoading
-                  ? const Center(
-                      child: CircularProgressIndicator(),
-                    )
+                  ? const Center(child: CircularProgressIndicator())
                   : errorMessage != null
                       ? Center(
                           child: Text(
@@ -301,7 +330,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
-                              color: Colors.red,
+                              color: AdminTheme.error,
                             ),
                           ),
                         )
@@ -317,7 +346,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
-                                          color: Color(0xFF666666),
+                                          color: AdminTheme.textMuted,
                                         ),
                                       ),
                                     ),
@@ -355,8 +384,8 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                   vertical: 14,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: const Color(0xFF989898), width: 1),
+                  color: AdminTheme.card,
+                  border: Border.all(color: AdminTheme.border, width: 1),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: const [
                     BoxShadow(
@@ -379,7 +408,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              color: Colors.black,
+                              color: AdminTheme.textDark,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -390,7 +419,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              color: Colors.black,
+                              color: AdminTheme.textDark,
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
@@ -410,7 +439,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => AdminEditUser(user: user),
+                    builder: (_) => AdminEditUser(user: user),
                   ),
                 );
 
@@ -422,7 +451,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                   child: Icon(
                     Icons.edit_outlined,
                     size: 24,
-                    color: Color(0xFF4D4D4D),
+                    color: AdminTheme.textDark,
                   ),
                 ),
               ),
@@ -434,24 +463,12 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
   }
 
   Widget _buildStatusButton(String status) {
-    Color backgroundColor;
-
-    if (status == 'Active') {
-      backgroundColor = const Color(0xFF7ACD0E);
-    } else if (status == 'Inactive') {
-      backgroundColor = const Color(0xFFE47D0F);
-    } else if (status == 'Blocked') {
-      backgroundColor = const Color(0xFFD00000);
-    } else {
-      backgroundColor = const Color(0xFF9E9E9E);
-    }
-
     return Container(
       width: 92,
       height: 42,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: backgroundColor,
+        color: _statusColor(status),
         borderRadius: BorderRadius.circular(24),
         boxShadow: const [
           BoxShadow(

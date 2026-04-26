@@ -6,7 +6,7 @@ import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/widgets/auth_card.dart';
 import 'package:releaf_app/widgets/custom_button.dart';
 
-import '../admin/AdminHomePage.dart';
+import '../admin/screens/home/AdminHomePage.dart';
 
 class LoginPage extends StatefulWidget {
   final bool isAdminMode;

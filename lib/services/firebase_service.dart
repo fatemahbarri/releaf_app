@@ -7,7 +7,6 @@ class FirebaseService {
 
   // ================= USERS =================
 
-  // Register a new user and store additional data in Firestore
   Future<void> registerUser({
     required String name,
     required String email,
@@ -28,27 +27,20 @@ class FirebaseService {
       await _firestore.collection('users').doc(user.uid).set({
         'name': name,
         'email': email,
-        'role': email.toLowerCase().endsWith('@releaf.com') ? 'admin' : 'user',
+        'role': 'user',
         'accountStatus': 'active',
         'createdAt': FieldValue.serverTimestamp(),
         'lastLogin': null,
       });
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'email-already-in-use') {
-        throw Exception('This email is already in use');
-      } else if (e.code == 'invalid-email') {
-        throw Exception('Invalid email address');
-      } else if (e.code == 'weak-password') {
-        throw Exception('Password is too weak');
-      } else {
-        throw Exception(e.message ?? 'Registration failed');
-      }
+      throw Exception(e.message ?? 'Registration failed');
     } catch (e) {
       throw Exception('Something went wrong: $e');
     }
   }
 
-  // Login user and return user data from Firestore
+  // ================= LOGIN =================
+
   Future<Map<String, dynamic>> loginUser({
     required String email,
     required String password,
@@ -65,56 +57,55 @@ class FirebaseService {
         throw Exception('Login failed');
       }
 
-      final doc = await _firestore.collection('users').doc(user.uid).get();
+      final adminDoc =
+          await _firestore.collection('admins').doc(user.uid).get();
 
-      if (!doc.exists) {
-        throw Exception('User data not found in database');
+      if (adminDoc.exists) {
+        await _firestore.collection('admins').doc(user.uid).update({
+          'lastLogin': FieldValue.serverTimestamp(),
+        });
+
+        return {
+          ...adminDoc.data()!,
+          'type': 'admin',
+        };
+      }
+
+      final userDoc = await _firestore.collection('users').doc(user.uid).get();
+
+      if (!userDoc.exists) {
+        throw Exception('User data not found');
       }
 
       await _firestore.collection('users').doc(user.uid).update({
         'lastLogin': FieldValue.serverTimestamp(),
       });
 
-      return doc.data()!;
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        throw Exception('No user found for this email');
-      } else if (e.code == 'wrong-password') {
-        throw Exception('Wrong password');
-      } else if (e.code == 'invalid-email') {
-        throw Exception('Invalid email address');
-      } else if (e.code == 'invalid-credential') {
-        throw Exception('Incorrect email or password');
-      } else {
-        throw Exception(e.message ?? 'Login failed');
-      }
+      return {
+        ...userDoc.data()!,
+        'type': 'user',
+      };
     } catch (e) {
-      throw Exception('Something went wrong: $e');
+      throw Exception('Login failed');
     }
   }
 
-  // Get user data by email
+  // ================= USERS QUERY =================
+
   Future<Map<String, dynamic>?> getUserByEmail(String email) async {
-    try {
-      final querySnapshot = await _firestore
-          .collection('users')
-          .where('email', isEqualTo: email)
-          .limit(1)
-          .get();
+    final querySnapshot = await _firestore
+        .collection('users')
+        .where('email', isEqualTo: email)
+        .limit(1)
+        .get();
 
-      if (querySnapshot.docs.isEmpty) {
-        return null;
-      }
+    if (querySnapshot.docs.isEmpty) return null;
 
-      return querySnapshot.docs.first.data();
-    } catch (e) {
-      throw Exception('Failed to fetch user data');
-    }
+    return querySnapshot.docs.first.data();
   }
 
   // ================= BINS =================
 
-  // Add a new bin to Firestore
   Future<void> addBin({
     required String binName,
     required String binType,
@@ -124,65 +115,18 @@ class FirebaseService {
     required double latitude,
     required double longitude,
   }) async {
-    try {
-      await _firestore.collection('bins').add({
-        'binName': binName,
-        'binType': binType,
-        'Description': description,
-        'Region': region,
-        'city': city,
-        'isActive': 'Active',
-        'latitude': latitude,
-        'longitude': longitude,
-      });
-    } catch (e) {
-      throw Exception('Failed to add bin: $e');
-    }
+    await _firestore.collection('bins').add({
+      'binName': binName,
+      'binType': binType,
+      'Description': description,
+      'Region': region,
+      'city': city,
+      'isActive': 'Active',
+      'latitude': latitude,
+      'longitude': longitude,
+    });
   }
 
-  // Fetch all bins
-  Future<List<Map<String, dynamic>>> getBins() async {
-    try {
-      final snapshot = await _firestore.collection('bins').get();
-
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
-        return data;
-      }).toList();
-    } catch (e) {
-      throw Exception('Failed to fetch bins: $e');
-    }
-  }
-
-  // Fetch bins filtered by bin type
-  Future<List<Map<String, dynamic>>> getBinsByType(String binType) async {
-    try {
-      final snapshot = await _firestore
-          .collection('bins')
-          .where('binType', isEqualTo: binType)
-          .get();
-
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
-        return data;
-      }).toList();
-    } catch (e) {
-      throw Exception('Failed to fetch bins by type: $e');
-    }
-  }
-
-  // Delete a bin by document ID
-  Future<void> deleteBin(String id) async {
-    try {
-      await _firestore.collection('bins').doc(id).delete();
-    } catch (e) {
-      throw Exception('Failed to delete bin: $e');
-    }
-  }
-
-  // Update an existing bin
   Future<void> updateBin({
     required String id,
     required String binName,
@@ -194,19 +138,108 @@ class FirebaseService {
     required double longitude,
     required String isActive,
   }) async {
-    try {
-      await _firestore.collection('bins').doc(id).update({
-        'binName': binName,
-        'binType': binType,
-        'Description': description,
-        'Region': region,
-        'city': city,
-        'isActive': isActive,
-        'latitude': latitude,
-        'longitude': longitude,
+    await FirebaseFirestore.instance.collection('bins').doc(id).update({
+      'binName': binName,
+      'binType': binType,
+      'Description': description,
+      'Region': region,
+      'city': city,
+      'latitude': latitude,
+      'longitude': longitude,
+      'isActive': isActive,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> getBins() async {
+    final snapshot = await _firestore.collection('bins').get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return data;
+    }).toList();
+  }
+
+  Future<List<Map<String, dynamic>>> getBinsByType(String category) async {
+    final snapshot = await _firestore
+        .collection('bins')
+        .where('binType', isEqualTo: category)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return data;
+    }).toList();
+  }
+
+  Future<void> deleteBin(String id) async {
+    await _firestore.collection('bins').doc(id).delete();
+  }
+  // ================= ISSUES =================
+
+  Future<void> addIssue({
+    required String type,
+    required String details,
+  }) async {
+    final user = _auth.currentUser;
+
+    if (user == null) {
+      throw Exception('User not logged in');
+    }
+
+    final userDoc = await _firestore.collection('users').doc(user.uid).get();
+
+    final userData = userDoc.data();
+
+    await _firestore.collection('issues').add({
+      'type': type,
+      'details': details,
+      'userName': userData?['name'] ?? 'Unknown',
+      'userEmail': user.email ?? '',
+      'userId': user.uid,
+      'status': 'unread',
+      'isRead': false,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    Future<List<Map<String, dynamic>>> getIssues() async {
+      final snapshot = await _firestore
+          .collection('issues')
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return data;
+      }).toList();
+    }
+
+    Future<List<Map<String, dynamic>>> getIssuesByStatus(String status) async {
+      final snapshot = await _firestore
+          .collection('issues')
+          .where('status', isEqualTo: status)
+          .orderBy('createdAt', descending: true)
+          .get();
+
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return data;
+      }).toList();
+    }
+
+    Future<void> updateIssueStatus({
+      required String issueId,
+      required String status,
+    }) async {
+      await _firestore.collection('issues').doc(issueId).update({
+        'status': status,
+        'updatedAt': FieldValue.serverTimestamp(),
       });
-    } catch (e) {
-      throw Exception('Failed to update bin: $e');
     }
   }
 }
