@@ -3,7 +3,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+
 import 'LocationPage2.dart';
+import '../widgets/releaf_ui.dart';
 
 class LocationPage extends StatefulWidget {
   const LocationPage({super.key});
@@ -18,63 +20,57 @@ class _LocationPageState extends State<LocationPage> {
 
   LatLng _currentCenter = const LatLng(26.385046, 50.189002);
   bool _isSearching = false;
-  int _selectedBottomNavIndex = 2;
-
   List<Marker> _markers = [];
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _getCurrentLocation();
-    });
-  }
-
   Future<void> _getCurrentLocation() async {
-    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) return;
+    try {
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
 
-    var permission = await Geolocator.checkPermission();
+      var permission = await Geolocator.checkPermission();
 
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) return;
-    }
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return;
+      }
 
-    if (permission == LocationPermission.deniedForever) return;
+      if (permission == LocationPermission.deniedForever) return;
 
-    final position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.best,
-    );
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best,
+      );
 
-    final userLocation = LatLng(position.latitude, position.longitude);
+      final userLocation = LatLng(position.latitude, position.longitude);
 
-    setState(() {
-      _currentCenter = userLocation;
-      _markers = [
-        Marker(
-          point: userLocation,
-          width: 50,
-          height: 50,
-          child: const Icon(
-            Icons.my_location,
-            size: 36,
-            color: Colors.blue,
+      if (!mounted) return;
+
+      setState(() {
+        _currentCenter = userLocation;
+        _markers = [
+          Marker(
+            point: userLocation,
+            width: 50,
+            height: 50,
+            child: const Icon(
+              Icons.my_location,
+              size: 36,
+              color: Colors.blue,
+            ),
           ),
-        ),
-      ];
-    });
+        ];
+      });
 
-    _mapController.move(userLocation, 16);
+      _mapController.move(userLocation, 16);
+    } catch (e) {
+      debugPrint('Location error: $e');
+    }
   }
 
   Future<void> _searchLocation() async {
     final query = _searchController.text.trim();
     if (query.isEmpty) return;
 
-    setState(() {
-      _isSearching = true;
-    });
+    setState(() => _isSearching = true);
 
     try {
       final results = await locationFromAddress(query);
@@ -82,6 +78,8 @@ class _LocationPageState extends State<LocationPage> {
 
       final place = results.first;
       final searchedLocation = LatLng(place.latitude, place.longitude);
+
+      if (!mounted) return;
 
       setState(() {
         _currentCenter = searchedLocation;
@@ -100,10 +98,12 @@ class _LocationPageState extends State<LocationPage> {
       });
 
       _mapController.move(searchedLocation, 16);
+    } catch (e) {
+      debugPrint('Search location error: $e');
     } finally {
-      setState(() {
-        _isSearching = false;
-      });
+      if (mounted) {
+        setState(() => _isSearching = false);
+      }
     }
   }
 
@@ -116,131 +116,91 @@ class _LocationPageState extends State<LocationPage> {
     );
   }
 
-  void _onBottomNavTap(int index) {
-    setState(() {
-      _selectedBottomNavIndex = index;
-    });
+Widget _buildCategoryButton(String title, IconData icon) {
+  final isTrash = title == 'Trash';
 
-    switch (index) {
-      case 0:
-        debugPrint('Go to Home');
-        break;
-      case 1:
-        debugPrint('Go to Camera');
-        break;
-      case 2:
-        debugPrint('Already in Bins');
-        break;
-      case 3:
-        debugPrint('Go to Profile');
-        break;
-    }
-  }
+  return Expanded(
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: SizedBox(
+        height: 110, 
+        child: InkWell(
+          onTap: () => _openCategoryPage(title),
+          borderRadius: BorderRadius.circular(20),
+          child: ReLeafCard(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+            margin: EdgeInsets.zero,
+            color: ReLeafColors.lightGreen,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: ReLeafColors.textDark, size: 28),
 
-  Widget _buildCategoryButton(String title) {
-    final isTrash = title == 'Trash';
+                const SizedBox(height: 6),
 
-    return Expanded(
-      child: InkWell(
-        onTap: () => _openCategoryPage(title),
-        borderRadius: BorderRadius.circular(27),
-        child: Container(
-          height: 105,
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          decoration: BoxDecoration(
-            color: const Color(0xFF4E9F67),
-            borderRadius: BorderRadius.circular(27),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x33000000),
-                blurRadius: 8,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: isTrash
-                  ? const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Trash',
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: ReLeafTextStyles.title.copyWith(fontSize: 15),
+                ),
+
+                
+                const SizedBox(height: 4),
+
+                SizedBox(
+                  height: 14, 
+                  child: isTrash
+                      ? Text(
+                          'non-recyclables',
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                          style: ReLeafTextStyles.subtitle.copyWith(
+                            fontSize: 10,
                           ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          '(non-recyclables)',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    )
-                  : Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                        )
+                      : null,
+                ),
+              ],
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildBottomNavItem({
     required IconData icon,
     required String label,
     required bool selected,
-    required VoidCallback onTap,
   }) {
     return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-                decoration: BoxDecoration(
-                  color: selected ? const Color(0xFFA8C89B) : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Icon(
-                  icon,
-                  color: const Color(0xFF2B2B2B),
-                  size: 28,
-                ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              decoration: BoxDecoration(
+                color: selected ? ReLeafColors.primary.withOpacity(0.25) : Colors.transparent,
+                borderRadius: BorderRadius.circular(20),
               ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: selected
-                      ? const Color(0xFF5A4A73)
-                      : const Color(0xFF2B2B2B),
-                  fontWeight: FontWeight.w500,
-                ),
+              child: Icon(
+                icon,
+                color: selected ? ReLeafColors.textDark : ReLeafColors.textMedium,
+                size: 27,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: selected ? ReLeafColors.textDark : ReLeafColors.textMedium,
+                fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -255,123 +215,58 @@ class _LocationPageState extends State<LocationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3FFE2),
+      backgroundColor: ReLeafColors.background,
       body: SafeArea(
         child: Column(
           children: [
+            const ReLeafHeader(
+              title: 'Bin Location',
+              subtitle: 'Find nearby recycling bins',
+              icon: Icons.location_on_rounded,
+              showBackButton: true,
+            ),
+
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.only(top: 24, bottom: 16),
+                padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              if (Navigator.canPop(context)) {
-                                Navigator.pop(context);
-                              }
-                            },
-                            icon: const Icon(
-                              Icons.arrow_back_ios_new,
-                              size: 30,
-                              color: Color(0xFF6F8F74),
-                            ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ReLeafSearchBar(
+                            controller: _searchController,
+                            hintText: 'Search Location',
+                            onChanged: (_) {},
                           ),
-                          const Expanded(
-                            child: Text(
-                              'Bin Location',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Color(0xFF7CA385),
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 48),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 10),
+                        ReLeafButton(
+                          text: '',
+                          icon: _isSearching ? null : Icons.search,
+                          small: true,
+                          onPressed: _isSearching ? null : _searchLocation,
+                        ),
+                        const SizedBox(width: 8),
+                        ReLeafButton(
+                          text: '',
+                          icon: Icons.my_location,
+                          small: true,
+                          onPressed: _getCurrentLocation,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Container(
-                      height: 1,
-                      color: const Color(0xFFBDBDBD),
-                    ),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(40),
-                                border: Border.all(
-                                  color: const Color(0xFFD9D9D9),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _searchController,
-                                      onSubmitted: (_) => _searchLocation(),
-                                      decoration: const InputDecoration(
-                                        hintText: 'Search Location',
-                                        hintStyle: TextStyle(
-                                          color: Color(0xFFB3B3B3),
-                                          fontSize: 16,
-                                        ),
-                                        border: InputBorder.none,
-                                      ),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    onPressed: _isSearching ? null : _searchLocation,
-                                    icon: _isSearching
-                                        ? const SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                            ),
-                                          )
-                                        : const Icon(Icons.search),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: IconButton(
-                              onPressed: _getCurrentLocation,
-                              icon: const Icon(Icons.my_location),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+
+                    const SizedBox(height: 18),
+
+                    ReLeafCard(
+                      padding: EdgeInsets.zero,
+                      margin: EdgeInsets.zero,
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(28),
-                        child: Container(
+                        borderRadius: BorderRadius.circular(18),
+                        child: SizedBox(
                           height: 250,
-                          color: const Color(0xFFEAEAEA),
                           child: FlutterMap(
                             mapController: _mapController,
                             options: MapOptions(
@@ -380,8 +275,7 @@ class _LocationPageState extends State<LocationPage> {
                             ),
                             children: [
                               TileLayer(
-                                urlTemplate:
-                                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                                 subdomains: const ['a', 'b', 'c'],
                                 userAgentPackageName: 'com.example.releaf_app',
                                 tileProvider: NetworkTileProvider(),
@@ -392,76 +286,44 @@ class _LocationPageState extends State<LocationPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 48),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 28),
-                      child: Text(
-                        'Bins Category',
-                        style: TextStyle(
-                          color: Color(0xFF675F5A),
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+
+                    const SizedBox(height: 24),
+
+                    Text(
+                      'Bins Category',
+                      style: ReLeafTextStyles.title.copyWith(fontSize: 24),
                     ),
-                    const SizedBox(height: 28),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          _buildCategoryButton('Cardboard'),
-                          _buildCategoryButton('Glass'),
-                          _buildCategoryButton('Metal'),
-                        ],
-                      ),
+
+                    const SizedBox(height: 14),
+
+                    Row(
+                      children: [
+                        _buildCategoryButton('Cardboard', Icons.inventory_2_outlined),
+                        _buildCategoryButton('Glass', Icons.wine_bar_outlined),
+                        _buildCategoryButton('Metal', Icons.settings_outlined),
+                      ],
                     ),
-                    const SizedBox(height: 28),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        children: [
-                          _buildCategoryButton('Paper'),
-                          _buildCategoryButton('Plastic'),
-                          _buildCategoryButton('Trash'),
-                        ],
-                      ),
+
+                    const SizedBox(height: 12),
+
+                    Row(
+                      children: [
+                        _buildCategoryButton('Paper', Icons.description_outlined),
+                        _buildCategoryButton('Plastic', Icons.local_drink_outlined),
+                        _buildCategoryButton('Trash', Icons.delete_outline),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
-            Container(
-              color: const Color(0xFFCDE9C7),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              child: Row(
-                children: [
-                  _buildBottomNavItem(
-                    icon: Icons.home_outlined,
-                    label: 'Home',
-                    selected: _selectedBottomNavIndex == 0,
-                    onTap: () => _onBottomNavTap(0),
-                  ),
-                  _buildBottomNavItem(
-                    icon: Icons.camera_alt_outlined,
-                    label: 'Camera',
-                    selected: _selectedBottomNavIndex == 1,
-                    onTap: () => _onBottomNavTap(1),
-                  ),
-                  _buildBottomNavItem(
-                    icon: Icons.location_on_outlined,
-                    label: 'Bins',
-                    selected: _selectedBottomNavIndex == 2,
-                    onTap: () => _onBottomNavTap(2),
-                  ),
-                  _buildBottomNavItem(
-                    icon: Icons.settings_outlined,
-                    label: 'Profile',
-                    selected: _selectedBottomNavIndex == 3,
-                    onTap: () => _onBottomNavTap(3),
-                  ),
-                ],
-              ),
-            ),
+
+          ReLeafBottomBar(
+  selectedIndex: 2,
+  onTap: (index) {
+    // navigation later
+  },
+)
           ],
         ),
       ),
