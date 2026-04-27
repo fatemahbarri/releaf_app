@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'LocationPage.dart';
 import '../widgets/releaf_ui.dart';
@@ -22,93 +23,135 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
 
   int _selectedIndex = 0;
 
+  Future<void> _submitIssue(String issueTitle, String details) async {
+    await FirebaseFirestore.instance.collection('issues').add({
+      'type': issueTitle,
+      'details': details.isEmpty ? 'No additional details provided.' : details,
+      'userName': 'Anonymous',
+      'status': 'unread',
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
   void _showIssueDialog(String issueTitle) {
     final TextEditingController detailsController = TextEditingController();
+    bool isSubmitting = false;
 
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          backgroundColor: ReLeafColors.background,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
-          title: Text(
-            issueTitle,
-            style: ReLeafTextStyles.title,
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  issueTitle == 'Other'
-                      ? 'Please describe the issue below.'
-                      : 'You can add extra details below if needed.',
-                  style: ReLeafTextStyles.body,
-                ),
-                const SizedBox(height: 14),
-                TextField(
-                  controller: detailsController,
-                  maxLines: 5,
-                  decoration: InputDecoration(
-                    hintText: 'Write here (optional)',
-                    hintStyle: const TextStyle(color: Color(0xFF8A9A8C)),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.all(14),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: ReLeafColors.border),
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              backgroundColor: ReLeafColors.background,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              title: Text(
+                issueTitle,
+                style: ReLeafTextStyles.title,
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      issueTitle == 'Other'
+                          ? 'Please describe the issue below.'
+                          : 'You can add extra details below if needed.',
+                      style: ReLeafTextStyles.body,
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(color: ReLeafColors.border),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(14),
-                      borderSide: const BorderSide(
-                        color: ReLeafColors.primary,
-                        width: 1.5,
+                    const SizedBox(height: 14),
+                    TextField(
+                      controller: detailsController,
+                      maxLines: 5,
+                      decoration: InputDecoration(
+                        hintText: 'Write here (optional)',
+                        hintStyle: const TextStyle(color: Color(0xFF8A9A8C)),
+                        filled: true,
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.all(14),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide:
+                              const BorderSide(color: ReLeafColors.border),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide:
+                              const BorderSide(color: ReLeafColors.border),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: const BorderSide(
+                            color: ReLeafColors.primary,
+                            width: 1.5,
+                          ),
+                        ),
                       ),
                     ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isSubmitting ? null : () => Navigator.pop(context),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.grey),
                   ),
                 ),
+                ReLeafButton(
+                  text: isSubmitting ? 'Saving...' : 'Submit',
+                  small: true,
+                  onPressed: isSubmitting
+                      ? null
+                      : () async {
+                          final String details =
+                              detailsController.text.trim();
+
+                          setDialogState(() {
+                            isSubmitting = true;
+                          });
+
+                          try {
+                            await _submitIssue(issueTitle, details);
+
+                            if (!mounted) return;
+
+                            Navigator.pop(context);
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  issueTitle == 'Other'
+                                      ? 'Your report has been submitted.'
+                                      : 'Report submitted for: $issueTitle',
+                                ),
+                                backgroundColor: ReLeafColors.secondary,
+                              ),
+                            );
+                          } catch (e) {
+                            if (!mounted) return;
+
+                            setDialogState(() {
+                              isSubmitting = false;
+                            });
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Failed to submit report. Please try again.',
+                                ),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                ),
               ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-            ReLeafButton(
-              text: 'Submit',
-              small: true,
-              onPressed: () {
-                final String details = detailsController.text.trim();
-
-                debugPrint('Issue selected: $issueTitle');
-                debugPrint('User details: $details');
-
-                Navigator.pop(context);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      issueTitle == 'Other'
-                          ? 'Your report has been submitted.'
-                          : 'Report submitted for: $issueTitle',
-                    ),
-                    backgroundColor: ReLeafColors.secondary,
-                  ),
-                );
-              },
-            ),
-          ],
+            );
+          },
         );
       },
     );
