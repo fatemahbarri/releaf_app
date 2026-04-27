@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'package:releaf_app/widgets/app_background.dart';
-import 'package:releaf_app/user/UserWidgets/UserBottomNav.dart';
+import 'package:releaf_app/widgets/releaf_ui.dart';
+
+import 'package:releaf_app/user/HomePageUser.dart';
+import 'package:releaf_app/user/LocationPage.dart';
+import 'package:releaf_app/user/Profile.dart';
+import 'package:releaf_app/classification/image_classifier_screen.dart';
 
 import 'BinDetailsPage.dart';
-import '../widgets/releaf_ui.dart';
 import '../services/firebase_service.dart';
 
 class BinsListPage extends StatefulWidget {
@@ -83,6 +87,47 @@ class _BinsListPageState extends State<BinsListPage> {
     );
   }
 
+  void _onBottomTap(int index) {
+    if (index == 2) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LocationPage(),
+        ),
+      );
+    }
+
+    if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const HomePageUser(),
+        ),
+      );
+    }
+
+    if (index == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const ImageClassifierScreen(),
+        ),
+      );
+    }
+
+    if (index == 3) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const Profile(
+            name: 'User',
+            email: 'user@email.com',
+          ),
+        ),
+      );
+    }
+  }
+
   Widget _buildLocationCard(Map<String, dynamic> bin) {
     return ReLeafCard(
       margin: const EdgeInsets.only(bottom: 12),
@@ -103,6 +148,7 @@ class _BinsListPageState extends State<BinsListPage> {
             ),
           ),
           const SizedBox(width: 12),
+
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,7 +165,9 @@ class _BinsListPageState extends State<BinsListPage> {
               ],
             ),
           ),
+
           const SizedBox(width: 10),
+
           ReLeafButton(
             text: 'Go',
             small: true,
@@ -129,6 +177,12 @@ class _BinsListPageState extends State<BinsListPage> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -144,6 +198,7 @@ class _BinsListPageState extends State<BinsListPage> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               ReLeafHeader(
@@ -151,7 +206,9 @@ class _BinsListPageState extends State<BinsListPage> {
                 subtitle: pageSubtitle,
                 icon: Icons.location_on_rounded,
                 showBackButton: true,
+                onBack: () => Navigator.pop(context),
               ),
+
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 18, 16, 12),
@@ -165,16 +222,22 @@ class _BinsListPageState extends State<BinsListPage> {
                           setState(() => _searchText = value);
                         },
                       ),
+
                       const SizedBox(height: 16),
+
                       Text(
                         'Nearby Locations',
                         style: ReLeafTextStyles.title.copyWith(fontSize: 22),
                       ),
+
                       const SizedBox(height: 12),
+
                       Expanded(
                         child: _isLoading
                             ? const Center(
-                                child: CircularProgressIndicator(),
+                                child: CircularProgressIndicator(
+                                  color: ReLeafColors.secondary,
+                                ),
                               )
                             : _filteredBins.isEmpty
                                 ? const Center(
@@ -200,8 +263,10 @@ class _BinsListPageState extends State<BinsListPage> {
             ],
           ),
         ),
-        bottomNavigationBar: const UserBottomNav(
-          currentIndex: 2,
+
+        bottomNavigationBar: ReLeafBottomBar(
+          selectedIndex: 2,
+          onTap: _onBottomTap,
         ),
       ),
     );

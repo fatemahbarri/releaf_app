@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../widgets/AdminBar.dart';
 import '../../widgets/admin_background.dart';
-import '../../widgets/admin_header.dart';
 import '../../theme/admin_theme.dart';
 import 'AdminProfileEdit.dart';
 import '../../../auth/Login.dart';
@@ -22,6 +21,13 @@ class AdminProfileState extends State<AdminProfile> {
   String adminPassword = '**************';
 
   bool isLoading = true;
+
+  static const Color primary = Color(0xFF7FB77E);
+  static const Color secondary = Color(0xFF5E9C76);
+  static const Color lightGreen = Color(0xFFEAF6E3);
+  static const Color border = Color(0xFFDCE8D7);
+  static const Color textDark = Color(0xFF2F5D50);
+  static const Color textMedium = Color(0xFF4E6A57);
 
   @override
   void initState() {
@@ -111,6 +117,111 @@ class AdminProfileState extends State<AdminProfile> {
     );
   }
 
+  Widget _topBar() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [primary, secondary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(24),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.18),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(
+              Icons.person_outline,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+          const SizedBox(width: 12),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Admin Profile',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'View and manage your account',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _gradientButton({
+    required String text,
+    required IconData icon,
+    required VoidCallback onTap,
+    Color? overrideColor,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 13),
+        decoration: BoxDecoration(
+          color: overrideColor,
+          gradient: overrideColor == null
+              ? const LinearGradient(
+                  colors: [primary, secondary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          borderRadius: BorderRadius.circular(26),
+          boxShadow: [
+            BoxShadow(
+              color: (overrideColor ?? primary).withOpacity(0.28),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              text,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 17,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
@@ -120,118 +231,112 @@ class AdminProfileState extends State<AdminProfile> {
             child: CircularProgressIndicator(),
           ),
         ),
+        bottomNavigationBar: AdminBar(selectedIndex: 4),
       );
     }
 
     return Scaffold(
       body: AdminBackground(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+        child: SafeArea(
+          bottom: false,
           child: Column(
             children: [
-              const AdminHeader(
-                title: 'Admin Profile',
-                showBack: false,
-              ),
-              const SizedBox(height: 28),
-              Center(
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Container(
-                      width: 170,
-                      height: 170,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AdminTheme.card,
-                        border: Border.all(
-                          color: AdminTheme.primary,
-                          width: 4,
-                        ),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x22000000),
-                            blurRadius: 10,
-                            offset: Offset(0, 5),
+              _topBar(),
+
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 20),
+                  child: Column(
+                    children: [
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Container(
+                            width: 135,
+                            height: 135,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: lightGreen,
+                              border: Border.all(
+                                color: primary,
+                                width: 3,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.08),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.person,
+                              size: 82,
+                              color: textDark,
+                            ),
+                          ),
+                          Positioned(
+                            right: -2,
+                            bottom: 8,
+                            child: GestureDetector(
+                              onTap: _openEditPage,
+                              child: Container(
+                                width: 42,
+                                height: 42,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: secondary,
+                                  border: Border.all(
+                                    color: AdminTheme.background,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.person,
-                        size: 120,
-                        color: AdminTheme.primary,
-                      ),
-                    ),
-                    Positioned(
-                      right: -2,
-                      bottom: -2,
-                      child: GestureDetector(
-                        onTap: _openEditPage,
-                        child: Container(
-                          width: 55,
-                          height: 55,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AdminTheme.primary,
-                            border: Border.all(
-                              color: AdminTheme.background,
-                              width: 2,
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.edit,
-                            color: Colors.white,
-                            size: 28,
-                          ),
+
+                      const SizedBox(height: 18),
+
+                      Text(
+                        adminName,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: textDark,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 30),
-              Text(
-                adminName,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: AdminTheme.primary,
-                  fontSize: 34,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 44),
-              _infoCard(
-                title: 'Email',
-                value: adminEmail,
-              ),
-              _passwordCard(),
-              InkWell(
-                onTap: _logout,
-                borderRadius: BorderRadius.circular(142),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(142),
-                    color: AdminTheme.primary,
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x22000000),
-                        blurRadius: 6,
-                        offset: Offset(0, 4),
+
+                      const SizedBox(height: 28),
+
+                      _infoCard(
+                        icon: Icons.email_outlined,
+                        title: 'Email',
+                        value: adminEmail,
                       ),
+
+                      const SizedBox(height: 14),
+
+                      _passwordCard(),
+
+                      const SizedBox(height: 30),
+
+                      _gradientButton(
+                        text: 'Log Out',
+                        icon: Icons.logout_rounded,
+                        onTap: _logout,
+                        overrideColor: AdminTheme.error,
+                      ),
+
+                      const SizedBox(height: 24),
                     ],
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 14,
-                    horizontal: 46,
-                  ),
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: const Text(
-                    'Log Out',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
                   ),
                 ),
               ),
@@ -244,46 +349,55 @@ class AdminProfileState extends State<AdminProfile> {
   }
 
   Widget _infoCard({
+    required IconData icon,
     required String title,
     required String value,
   }) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 28),
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 22),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(
-          color: AdminTheme.border,
-          width: 1,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        color: AdminTheme.card,
-        boxShadow: const [
+        color: lightGreen,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: border),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x22000000),
-            blurRadius: 6,
-            offset: Offset(0, 4),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: AdminTheme.primary,
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
-            ),
+          Icon(
+            icon,
+            color: textDark,
+            size: 28,
           ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: const TextStyle(
-              color: AdminTheme.textMuted,
-              fontSize: 19,
-              fontWeight: FontWeight.bold,
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: textDark,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    color: textMedium,
+                    fontSize: 15,
+                    height: 1.3,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -294,54 +408,70 @@ class AdminProfileState extends State<AdminProfile> {
   Widget _passwordCard() {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 60),
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 21),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: Border.all(
-          color: AdminTheme.border,
-          width: 1,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        color: AdminTheme.card,
-        boxShadow: const [
+        color: lightGreen,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: border),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x22000000),
-            blurRadius: 6,
-            offset: Offset(0, 4),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Password',
-                style: TextStyle(
-                  color: AdminTheme.primary,
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(height: 17),
-              Text(
-                '**************',
-                style: TextStyle(
-                  color: AdminTheme.textMuted,
-                  fontSize: 19,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+          const Icon(
+            Icons.lock_outline,
+            color: textDark,
+            size: 28,
           ),
-          IconButton(
-            onPressed: _openEditPage,
-            icon: const Icon(
-              Icons.edit_outlined,
-              size: 30,
-              color: AdminTheme.textDark,
+          const SizedBox(width: 14),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Password',
+                  style: TextStyle(
+                    color: textDark,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 6),
+                Text(
+                  '**************',
+                  style: TextStyle(
+                    color: textMedium,
+                    fontSize: 15,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: _openEditPage,
+            child: Container(
+              width: 42,
+              height: 36,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [primary, secondary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: const Icon(
+                Icons.edit_outlined,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
           ),
         ],

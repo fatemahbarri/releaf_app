@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../widgets/app_background.dart';
-import '../user/UserWidgets/UserBottomNav.dart';
+import '../widgets/releaf_ui.dart';
+import '../user/HomePageUser.dart';
+import '../user/LocationPage.dart';
+import '../user/Profile.dart';
 import 'tflite_helper.dart';
 
 class ImageClassifierScreen extends StatefulWidget {
@@ -80,199 +82,185 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
 
   void _learnMore() {}
 
+  void _onBottomTap(int index) {
+    if (index == 1) return;
+
+    if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const HomePageUser(),
+        ),
+      );
+    }
+
+    if (index == 2) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LocationPage(),
+        ),
+      );
+    }
+
+    if (index == 3) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const Profile(
+            name: 'User',
+            email: 'user@email.com',
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AppBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 26, 24, 28),
-            child: Column(
-              children: [
-                // Title
-                Center(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF56A36C),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      "Waste Classification",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
+    return Scaffold(
+      backgroundColor: ReLeafColors.background,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            const ReLeafHeader(
+              title: 'Waste Classification',
+              subtitle: 'Take or upload a waste image',
+              icon: Icons.camera_alt_outlined,
+            ),
+
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ReLeafCard(
+                      padding: const EdgeInsets.all(12),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(18),
+                        child: Container(
+                          width: double.infinity,
+                          height: 340,
+                          color: Colors.white,
+                          child: _image != null
+                              ? Image.file(
+                                  _image!,
+                                  fit: BoxFit.contain,
+                                )
+                              : Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 28,
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(
+                                          Icons.image_outlined,
+                                          color: ReLeafColors.textMedium,
+                                          size: 54,
+                                        ),
+                                        const SizedBox(height: 14),
+                                        Text(
+                                          'Take a photo or upload a waste image',
+                                          textAlign: TextAlign.center,
+                                          style: ReLeafTextStyles.body.copyWith(
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
 
-                const SizedBox(height: 30),
+                    const SizedBox(height: 18),
 
-                // Image box
-                Container(
-                  width: 320,
-                  height: 370,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: const Color(0xFF56A36C),
-                      width: 2,
-                    ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(22),
-                    child: _image != null
-                        ? Image.file(_image!, fit: BoxFit.contain)
-                        : Center(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 28),
-                              child: Text(
-                                "Take a photo or upload a waste image",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.grey.shade600,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Center(
+                            child: ReLeafButton(
+                              text: 'Take Photo',
+                              icon: Icons.camera_alt_outlined,
+                              onPressed: _pickCamera,
                             ),
                           ),
-                  ),
-                ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Center(
+                            child: ReLeafButton(
+                              text: 'Upload',
+                              icon: Icons.upload_rounded,
+                              onPressed: _pickGallery,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
 
-                const SizedBox(height: 28),
+                    const SizedBox(height: 12),
 
-                // Buttons Row
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildOvalButton(
-                        text: "Take Photo",
-                        icon: Icons.camera_alt_outlined,
-                        color: const Color(0xFF499A64),
-                        onTap: _pickCamera,
+                    Center(
+                      child: ReLeafButton(
+                        text: 'Learn More',
+                        icon: Icons.info_outline,
+                        onPressed: _learnMore,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildOvalButton(
-                        text: "Upload",
-                        icon: Icons.upload_rounded,
-                        color: const Color(0xFF8DC149),
-                        onTap: _pickGallery,
+
+                    const SizedBox(height: 26),
+
+                    Text(
+                      'Result',
+                      style: ReLeafTextStyles.title.copyWith(fontSize: 22),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    ReLeafCard(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 20,
+                        horizontal: 16,
+                      ),
+                      color: ReLeafColors.lightGreen,
+                      child: Column(
+                        children: [
+                          _isLoading
+                              ? const CircularProgressIndicator(
+                                  color: ReLeafColors.secondary,
+                                )
+                              : Text(
+                                  _result,
+                                  textAlign: TextAlign.center,
+                                  style: ReLeafTextStyles.title.copyWith(
+                                    fontSize: 20,
+                                  ),
+                                ),
+                          if (_confidence.isNotEmpty) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              'Confidence: $_confidence',
+                              style: ReLeafTextStyles.subtitle,
+                            ),
+                          ],
+                        ],
                       ),
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 14),
-
-                // Learn More
-                _buildOvalButton(
-                  text: "Learn More",
-                  icon: Icons.info_outline,
-                  color: const Color(0xFF8DC149),
-                  onTap: _learnMore,
-                ),
-
-                const SizedBox(height: 36),
-
-                // Result
-                const Text(
-                  "Result",
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF2E7D32),
-                  ),
-                ),
-
-                const SizedBox(height: 12),
-
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 18,
-                    horizontal: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.85),
-                    borderRadius: BorderRadius.circular(22),
-                  ),
-                  child: Column(
-                    children: [
-                      _isLoading
-                          ? const CircularProgressIndicator()
-                          : Text(
-                              _result,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF2E7D32),
-                              ),
-                            ),
-                      if (_confidence.isNotEmpty) ...[
-                        const SizedBox(height: 6),
-                        Text("Confidence: $_confidence"),
-                      ],
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-              ],
-            ),
-          ),
-        ),
-        bottomNavigationBar: const UserBottomNav(
-          currentIndex: 1,
-        ),
-      ),
-    );
-  }
-
-  // 👇 الأزرار البيضاوية
-  Widget _buildOvalButton({
-    required String text,
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 52,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(40),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x40000000),
-              blurRadius: 4,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: Colors.white),
-            const SizedBox(width: 8),
-            Text(
-              text,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
               ),
+            ),
+
+            ReLeafBottomBar(
+              selectedIndex: 1,
+              onTap: _onBottomTap,
             ),
           ],
         ),

@@ -3,9 +3,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:releaf_app/widgets/app_background.dart';
-import 'package:releaf_app/user/UserWidgets/UserBottomNav.dart';
+import 'package:releaf_app/widgets/releaf_ui.dart';
 
-import '../widgets/releaf_ui.dart';
+import 'package:releaf_app/user/HomePageUser.dart';
+import 'package:releaf_app/user/LocationPage.dart';
+import 'package:releaf_app/user/Profile.dart';
+import 'package:releaf_app/classification/image_classifier_screen.dart';
 
 class BinDetailsPage extends StatefulWidget {
   final String locationName;
@@ -28,6 +31,47 @@ class BinDetailsPage extends StatefulWidget {
 }
 
 class _BinDetailsPageState extends State<BinDetailsPage> {
+  void _onBottomTap(int index) {
+    if (index == 2) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LocationPage(),
+        ),
+      );
+    }
+
+    if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const HomePageUser(),
+        ),
+      );
+    }
+
+    if (index == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const ImageClassifierScreen(),
+        ),
+      );
+    }
+
+    if (index == 3) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const Profile(
+            name: 'User',
+            email: 'user@email.com',
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final LatLng selectedLocation = LatLng(
@@ -39,113 +83,69 @@ class _BinDetailsPageState extends State<BinDetailsPage> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
+          bottom: false,
           child: Column(
             children: [
               ReLeafHeader(
-                title: widget.category,
-                subtitle: 'Selected bin location',
+                title: widget.locationName,
+                subtitle: widget.address,
                 icon: Icons.location_on_rounded,
                 showBackButton: true,
+                onBack: () => Navigator.pop(context),
               ),
+
+              ReLeafInfoBox(
+                text: 'Category: ${widget.category}',
+                icon: Icons.recycling_rounded,
+              ),
+
               Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // MAP
-                      ReLeafCard(
-                        padding: EdgeInsets.zero,
-                        margin: EdgeInsets.zero,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(18),
-                          child: SizedBox(
-                            height: 330,
-                            width: double.infinity,
-                            child: FlutterMap(
-                              options: MapOptions(
-                                initialCenter: selectedLocation,
-                                initialZoom: 16,
-                              ),
-                              children: [
-                                TileLayer(
-                                  urlTemplate:
-                                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                  subdomains: const ['a', 'b', 'c'],
-                                  userAgentPackageName:
-                                      'com.example.releaf_app',
-                                ),
-                                MarkerLayer(
-                                  markers: [
-                                    Marker(
-                                      point: selectedLocation,
-                                      width: 80,
-                                      height: 80,
-                                      child: const Icon(
-                                        Icons.location_on,
-                                        color: Colors.red,
-                                        size: 42,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+                  child: ReLeafCard(
+                    padding: EdgeInsets.zero,
+                    margin: EdgeInsets.zero,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(18),
+                      child: FlutterMap(
+                        options: MapOptions(
+                          initialCenter: selectedLocation,
+                          initialZoom: 16,
+                        ),
+                        children: [
+                          TileLayer(
+                            urlTemplate:
+                                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            subdomains: const ['a', 'b', 'c'],
+                            userAgentPackageName: 'com.example.releaf_app',
                           ),
-                        ),
-                      ),
-
-                      const SizedBox(height: 18),
-
-                      // DETAILS
-                      ReLeafCard(
-                        padding: const EdgeInsets.all(18),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.locationName,
-                              style: ReLeafTextStyles.title.copyWith(
-                                fontSize: 20,
+                          MarkerLayer(
+                            markers: [
+                              Marker(
+                                point: selectedLocation,
+                                width: 80,
+                                height: 80,
+                                child: const Icon(
+                                  Icons.location_on,
+                                  color: Colors.red,
+                                  size: 46,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(
-                                  Icons.location_on_outlined,
-                                  color: ReLeafColors.textDark,
-                                  size: 21,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    widget.address,
-                                    style: ReLeafTextStyles.body.copyWith(
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 14),
-                            ReLeafInfoBox(
-                              text: 'Category: ${widget.category}',
-                              icon: Icons.recycling_rounded,
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ],
           ),
         ),
-        bottomNavigationBar: const UserBottomNav(
-          currentIndex: 2,
+
+        bottomNavigationBar: ReLeafBottomBar(
+          selectedIndex: 2,
+          onTap: _onBottomTap,
         ),
       ),
     );

@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:releaf_app/widgets/releaf_ui.dart';
+import 'package:releaf_app/user/HomePageUser.dart';
+import 'package:releaf_app/user/LocationPage.dart';
+import 'package:releaf_app/classification/image_classifier_screen.dart';
+
 class Profile extends StatefulWidget {
   final String name;
   final String email;
@@ -20,78 +25,68 @@ class _ProfileState extends State<Profile> {
   int _selectedIndex = 3;
 
   void _onItemTapped(int index) {
+    if (index == 3) return;
+
     setState(() {
       _selectedIndex = index;
     });
 
-    // Later, connect these to your real screens
-    switch (index) {
-      case 0:
-        debugPrint('Go to Home');
-        break;
-      case 1:
-        debugPrint('Go to Camera');
-        break;
-      case 2:
-        debugPrint('Go to Bins');
-        break;
-      case 3:
-        debugPrint('Already in Profile');
-        break;
+    if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const HomePageUser(),
+        ),
+      );
+    }
+
+    if (index == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const ImageClassifierScreen(),
+        ),
+      );
+    }
+
+    if (index == 2) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LocationPage(),
+        ),
+      );
     }
   }
 
   void _handleLogout() {
     debugPrint('Log Out pressed');
-    // Later:
-    // Navigator.pushReplacement(...);
   }
 
   void _handleEditProfile() {
     debugPrint('Edit profile pressed');
-    // Later:
-    // Open edit profile screen or dialog
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF3FFE2),
+      backgroundColor: ReLeafColors.background,
       body: SafeArea(
         child: Column(
           children: [
+            ReLeafHeader(
+              title: 'Profile',
+              subtitle: 'View and manage your account',
+              icon: Icons.person_outline,
+              showBackButton: true,
+              onBack: () => Navigator.pop(context),
+            ),
+
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 20),
                 child: Column(
                   children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Color(0xFF4E6757),
-                          ),
-                        ),
-                        const Expanded(
-                          child: Text(
-                            'Profile',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF4E6757),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 48),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-
                     Stack(
                       clipBehavior: Clip.none,
                       children: [
@@ -100,16 +95,23 @@ class _ProfileState extends State<Profile> {
                           height: 130,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: const Color(0xFFCDE9C7),
+                            color: ReLeafColors.lightGreen,
                             border: Border.all(
-                              color: const Color(0xFF4E6757),
+                              color: ReLeafColors.primary,
                               width: 3,
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
                           child: const Icon(
                             Icons.person,
                             size: 80,
-                            color: Color(0xFF4E6757),
+                            color: ReLeafColors.textDark,
                           ),
                         ),
                         Positioned(
@@ -121,10 +123,10 @@ class _ProfileState extends State<Profile> {
                               width: 42,
                               height: 42,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF4E6757),
+                                color: ReLeafColors.secondary,
                                 shape: BoxShape.circle,
                                 border: Border.all(
-                                  color: const Color(0xFFF3FFE2),
+                                  color: ReLeafColors.background,
                                   width: 2,
                                 ),
                               ),
@@ -139,89 +141,47 @@ class _ProfileState extends State<Profile> {
                       ],
                     ),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 18),
 
                     Text(
                       widget.name,
-                      style: const TextStyle(
-                        color: Color(0xFF7CA385),
+                      textAlign: TextAlign.center,
+                      style: ReLeafTextStyles.title.copyWith(
                         fontSize: 28,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 28),
 
                     _buildInfoCard(
+                      icon: Icons.email_outlined,
                       title: 'Email',
                       value: widget.email,
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 14),
 
                     _buildInfoCard(
+                      icon: Icons.lock_outline,
                       title: 'Password',
                       value: widget.password,
                     ),
 
-                    const SizedBox(height: 60),
+                    const SizedBox(height: 32),
 
-                    ElevatedButton(
+                    ReLeafButton(
+                      text: 'Log Out',
+                      icon: Icons.logout_rounded,
                       onPressed: _handleLogout,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFB8D97A),
-                        elevation: 4,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 36,
-                          vertical: 14,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: const Text(
-                        'Log Out',
-                        style: TextStyle(
-                          color: Color(0xFF9C1111),
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
                     ),
                   ],
                 ),
               ),
             ),
 
-            BottomNavigationBar(
-              currentIndex: _selectedIndex,
+            ReLeafBottomBar(
+              selectedIndex: _selectedIndex,
               onTap: _onItemTapped,
-              type: BottomNavigationBarType.fixed,
-              backgroundColor: const Color(0xFFCDE9C7),
-              selectedItemColor: const Color(0xFF4E6757),
-              unselectedItemColor: Colors.black54,
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined),
-                  activeIcon: Icon(Icons.home),
-                  label: 'Home',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.camera_alt_outlined),
-                  activeIcon: Icon(Icons.camera_alt),
-                  label: 'Camera',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.location_on_outlined),
-                  activeIcon: Icon(Icons.location_on),
-                  label: 'Bins',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.settings_outlined),
-                  activeIcon: Icon(Icons.settings),
-                  label: 'Profile',
-                ),
-              ],
             ),
           ],
         ),
@@ -230,42 +190,36 @@ class _ProfileState extends State<Profile> {
   }
 
   Widget _buildInfoCard({
+    required IconData icon,
     required String title,
     required String value,
   }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFCDE9C7),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFB0B0B0)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x22000000),
-            blurRadius: 6,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return ReLeafCard(
+      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.zero,
+      color: ReLeafColors.lightGreen,
+      child: Row(
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Color(0xFF498056),
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+          Icon(
+            icon,
+            color: ReLeafColors.textDark,
+            size: 28,
           ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Color(0xFF675F5A),
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: ReLeafTextStyles.title.copyWith(fontSize: 18),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  value,
+                  style: ReLeafTextStyles.body.copyWith(fontSize: 15),
+                ),
+              ],
             ),
           ),
         ],

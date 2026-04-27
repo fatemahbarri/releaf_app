@@ -15,12 +15,25 @@ class AdminBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      height: 88,
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-      decoration: const BoxDecoration(color: AdminTheme.navBar),
+      decoration: BoxDecoration(
+        color: AdminTheme.navBar,
+
+        // ✅ Rounded like user bar
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(22),
+        ),
+
+        // ✅ Shadow like user bar
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildNavItem(
             context: context,
@@ -71,68 +84,80 @@ class AdminBar extends StatelessWidget {
   }) {
     final bool isSelected = selectedIndex == index;
 
-    return GestureDetector(
-      onTap: () {
-        if (index == selectedIndex) return;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          if (index == selectedIndex) return;
 
-        late final Widget page;
+          late final Widget page;
 
-        switch (index) {
-          case 0:
-            page = const AdminHomePage(adminName: 'Admin');
-            break;
-          case 1:
-            page = const AdminUserManagment();
-            break;
-          case 2:
-            page = const AdminBinsPage();
-            break;
-          case 3:
-            page = const AdminReportIssue();
-            break;
-          case 4:
-            page = const AdminProfile();
-            break;
-          default:
-            page = const AdminHomePage(adminName: 'Admin');
-        }
+          switch (index) {
+            case 0:
+              page = const AdminHomePage(adminName: 'Admin');
+              break;
+            case 1:
+              page = const AdminUserManagment();
+              break;
+            case 2:
+              page = const AdminBinsPage();
+              break;
+            case 3:
+              page = const AdminReportIssue();
+              break;
+            case 4:
+              page = const AdminProfile();
+              break;
+            default:
+              page = const AdminHomePage(adminName: 'Admin');
+          }
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => page),
-        );
-      },
-      child: SizedBox(
-        width: 64,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 58,
-              height: 34,
-              decoration: BoxDecoration(
-                color: isSelected ? AdminTheme.selectedNav : Colors.transparent,
-                borderRadius: BorderRadius.circular(22),
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => page),
+          );
+        },
+
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // ✅ Same pill design as user bar
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AdminTheme.primary.withOpacity(0.25)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(
+                  isSelected ? selectedIcon : icon,
+                  size: 26,
+                  color: isSelected
+                      ? AdminTheme.primary
+                      : AdminTheme.textMuted,
+                ),
               ),
-              child: Icon(
-                isSelected ? selectedIcon : icon,
-                size: 27,
-                color: AdminTheme.textDark,
+
+              const SizedBox(height: 4),
+
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isSelected
+                      ? AdminTheme.primary
+                      : AdminTheme.textMuted,
+                  fontWeight:
+                      isSelected ? FontWeight.bold : FontWeight.w500,
+                ),
               ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 10.5,
-                fontWeight: FontWeight.w600,
-                color:
-                    isSelected ? AdminTheme.textMuted : const Color(0xFF49454F),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -4,14 +4,14 @@ import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
-import 'package:releaf_app/user/ReportIssueUser.dart';
-import 'package:releaf_app/llm/Chatbot.dart';
-
 import 'package:releaf_app/widgets/app_background.dart';
-import 'package:releaf_app/user/UserWidgets/UserBottomNav.dart';
+import 'package:releaf_app/widgets/releaf_ui.dart';
+
+import 'package:releaf_app/user/HomePageUser.dart';
+import 'package:releaf_app/classification/image_classifier_screen.dart';
+import 'package:releaf_app/user/Profile.dart';
 
 import 'BinsListPage.dart';
-import '../widgets/releaf_ui.dart';
 
 class LocationPage extends StatefulWidget {
   const LocationPage({super.key});
@@ -122,6 +122,40 @@ class _LocationPageState extends State<LocationPage> {
     );
   }
 
+  void _onBottomTap(int index) {
+    if (index == 2) return;
+
+    if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const HomePageUser(),
+        ),
+      );
+    }
+
+    if (index == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const ImageClassifierScreen(),
+        ),
+      );
+    }
+
+    if (index == 3) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const Profile(
+            name: 'User',
+            email: 'user@email.com',
+          ),
+        ),
+      );
+    }
+  }
+
   Widget _buildCategoryButton(String title, IconData icon) {
     final isTrash = title == 'Trash';
 
@@ -190,6 +224,7 @@ class _LocationPageState extends State<LocationPage> {
                 icon: Icons.location_on_rounded,
                 showBackButton: false,
               ),
+
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
@@ -221,7 +256,9 @@ class _LocationPageState extends State<LocationPage> {
                           ),
                         ],
                       ),
+
                       const SizedBox(height: 18),
+
                       ReLeafCard(
                         padding: EdgeInsets.zero,
                         margin: EdgeInsets.zero,
@@ -250,12 +287,16 @@ class _LocationPageState extends State<LocationPage> {
                           ),
                         ),
                       ),
+
                       const SizedBox(height: 24),
+
                       Text(
                         'Bins Category',
                         style: ReLeafTextStyles.title.copyWith(fontSize: 24),
                       ),
+
                       const SizedBox(height: 14),
+
                       Row(
                         children: [
                           _buildCategoryButton(
@@ -272,7 +313,9 @@ class _LocationPageState extends State<LocationPage> {
                           ),
                         ],
                       ),
+
                       const SizedBox(height: 12),
+
                       Row(
                         children: [
                           _buildCategoryButton(
@@ -289,6 +332,7 @@ class _LocationPageState extends State<LocationPage> {
                           ),
                         ],
                       ),
+
                       const SizedBox(height: 24),
                     ],
                   ),
@@ -297,8 +341,10 @@ class _LocationPageState extends State<LocationPage> {
             ],
           ),
         ),
-        bottomNavigationBar: const UserBottomNav(
-          currentIndex: 2,
+
+        bottomNavigationBar: ReLeafBottomBar(
+          selectedIndex: 2,
+          onTap: _onBottomTap,
         ),
       ),
     );

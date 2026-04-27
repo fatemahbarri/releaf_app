@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:releaf_app/widgets/app_background.dart';
-import 'package:releaf_app/user/UserWidgets/UserBottomNav.dart';
+import 'package:releaf_app/widgets/releaf_ui.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:releaf_app/user/ReportIssueUser.dart';
 import 'package:releaf_app/llm/Chatbot.dart';
+
+import 'package:releaf_app/user/LocationPage.dart';
+import 'package:releaf_app/user/Profile.dart';
+import 'package:releaf_app/classification/image_classifier_screen.dart';
 
 class HomePageUser extends StatefulWidget {
   const HomePageUser({super.key});
@@ -69,124 +72,175 @@ class _HomePageUserState extends State<HomePageUser> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return AppBackground(
-      child: Scaffold(
-        key: _scaffoldKey,
-        backgroundColor: Colors.transparent,
+  void _onBottomTap(int index) {
+    if (index == 0) return;
 
-        // 👇 من اليسار
-        drawer: _buildSideMenu(),
+    if (index == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const ImageClassifierScreen(),
+        ),
+      );
+    }
 
-        body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 25),
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    onPressed: () {
-                      _scaffoldKey.currentState?.openDrawer();
-                    },
-                    icon: const Icon(
-                      Icons.menu_rounded,
-                      color: Color.fromARGB(255, 19, 87, 49),
-                      size: 36,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  isLoadingName ? "Welcome..." : "Welcome, $userName",
-                  style: const TextStyle(
-                    color: Color(0xFF7CA385),
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  "Recycle today for a cleaner tomorrow!",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Color(0xFF675F5A),
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 25),
-                Image.asset(
-                  'assets/images/User_home.png',
-                  height: 260,
-                ),
-                const SizedBox(height: 100),
-              ],
-            ),
+    if (index == 2) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LocationPage(),
+        ),
+      );
+    }
+
+    if (index == 3) {
+      final user = FirebaseAuth.instance.currentUser;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => Profile(
+            name: userName,
+            email: user?.email ?? 'user@email.com',
           ),
         ),
+      );
+    }
+  }
 
-        floatingActionButton: FloatingActionButton(
-          onPressed: _openChat,
-          backgroundColor: const Color(0xFF8DC149),
-          child: const Icon(Icons.chat_bubble_outline),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: ReLeafColors.background,
+      drawer: _buildSideMenu(),
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            ReLeafHeader(
+              title: isLoadingName ? 'Welcome...' : 'Welcome, $userName',
+              subtitle: 'Recycle today for a cleaner tomorrow!',
+              icon: Icons.eco_rounded,
+            ),
+
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ReLeafButton(
+                      text: 'Menu',
+                      icon: Icons.menu_rounded,
+                      small: true,
+                      onPressed: () {
+                        _scaffoldKey.currentState?.openDrawer();
+                      },
+                    ),
+
+                    const SizedBox(height: 22),
+
+                    ReLeafCard(
+                      padding: const EdgeInsets.all(18),
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            'assets/images/User_home.png',
+                            height: 250,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Welcome to ReLeaf',
+                            style: ReLeafTextStyles.title.copyWith(
+                              fontSize: 24,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Classify waste, find recycling bins, and get recycling guidance easily.',
+                            textAlign: TextAlign.center,
+                            style: ReLeafTextStyles.body.copyWith(
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    const ReLeafInfoBox(
+                      text:
+                          'Use the chatbot if you need help knowing where an item belongs.',
+                      icon: Icons.chat_bubble_outline,
+                    ),
+
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
+            ),
+
+            ReLeafBottomBar(
+              selectedIndex: 0,
+              onTap: _onBottomTap,
+            ),
+          ],
         ),
+      ),
 
-        bottomNavigationBar: const UserBottomNav(
-          currentIndex: 0,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 75, right: 8),
+        child: FloatingActionButton(
+          onPressed: _openChat,
+          backgroundColor: ReLeafColors.secondary,
+          foregroundColor: Colors.white,
+          child: const Icon(Icons.chat_bubble_outline),
         ),
       ),
     );
   }
 
-  // ================= SIDE MENU =================
   Widget _buildSideMenu() {
     return Drawer(
       width: MediaQuery.of(context).size.width,
-      backgroundColor: const Color(0xFFF3FFE2),
+      backgroundColor: ReLeafColors.background,
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(28, 34, 28, 24),
+          padding: const EdgeInsets.fromLTRB(24, 28, 24, 22),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Icon(
-                    Icons.menu_rounded,
-                    color: Color(0xFF499A64),
-                    size: 38,
+                  Text(
+                    'More',
+                    style: ReLeafTextStyles.title.copyWith(fontSize: 30),
                   ),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
                       width: 46,
                       height: 46,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFCDE9C7),
-                        shape: BoxShape.circle,
+                      decoration: BoxDecoration(
+                        color: ReLeafColors.lightGreen,
+                        borderRadius: BorderRadius.circular(16),
                       ),
                       child: const Icon(
                         Icons.close_rounded,
-                        color: Color(0xFF2F4F35),
+                        color: ReLeafColors.textDark,
                         size: 28,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-              const Text(
-                'More',
-                style: TextStyle(
-                  color: Color(0xFF499A64),
-                  fontSize: 32,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 50),
+
+              const SizedBox(height: 32),
+
               _buildMenuItem(
                 icon: Icons.settings_outlined,
                 title: 'Settings',
@@ -210,7 +264,9 @@ class _HomePageUserState extends State<HomePageUser> {
                   );
                 },
               ),
+
               const Spacer(),
+
               _buildMenuItem(
                 icon: Icons.translate_rounded,
                 title: 'عربي',
@@ -232,12 +288,13 @@ class _HomePageUserState extends State<HomePageUser> {
                   );
                 },
               ),
+
               const SizedBox(height: 8),
-              const Text(
+
+              Text(
                 'ReLeaf v1.0.0 © 2026',
-                style: TextStyle(
-                  color: Color(0xFF8A8A8A),
-                  fontSize: 15,
+                style: ReLeafTextStyles.subtitle.copyWith(
+                  color: const Color(0xFF8A8A8A),
                 ),
               ),
             ],
@@ -251,29 +308,29 @@ class _HomePageUserState extends State<HomePageUser> {
     required IconData icon,
     required String title,
     required VoidCallback onTap,
-    Color color = const Color(0xFF675F5A),
+    Color color = ReLeafColors.textMedium,
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 28),
+      borderRadius: BorderRadius.circular(18),
+      child: ReLeafCard(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         child: Row(
           children: [
             Icon(
               icon,
               color: color == const Color(0xFFE85A5A)
                   ? color
-                  : const Color(0xFF499A64),
-              size: 30,
+                  : ReLeafColors.textDark,
+              size: 28,
             ),
-            const SizedBox(width: 22),
+            const SizedBox(width: 16),
             Text(
               title,
-              style: TextStyle(
+              style: ReLeafTextStyles.title.copyWith(
+                fontSize: 18,
                 color: color,
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
               ),
             ),
           ],
