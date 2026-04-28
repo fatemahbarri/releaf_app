@@ -5,18 +5,23 @@ class SummaryCard extends StatelessWidget {
   final int totalUsers;
   final int activeUsers;
   final int inactiveUsers;
+  final int blockedUsers;
 
   const SummaryCard({
     super.key,
     required this.totalUsers,
     required this.activeUsers,
     required this.inactiveUsers,
+    required this.blockedUsers,
   });
 
   @override
   Widget build(BuildContext context) {
     final double activePercentage =
         totalUsers == 0 ? 0 : activeUsers / totalUsers;
+
+    final double blockedPercentage =
+        totalUsers == 0 ? 0 : blockedUsers / totalUsers;
 
     return Container(
       width: double.infinity,
@@ -35,12 +40,13 @@ class SummaryCard extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ✅ Donut fixed size (no stretching)
+          /// 🔵 Donut (3 ألوان)
           SizedBox(
             width: 110,
             height: 110,
             child: DonutChart(
-              percentage: activePercentage,
+              activePercentage: activePercentage,
+              blockedPercentage: blockedPercentage,
               centerTopText: '$totalUsers',
               centerBottomText: 'Users',
             ),
@@ -48,12 +54,12 @@ class SummaryCard extends StatelessWidget {
 
           const SizedBox(width: 18),
 
-          // ✅ Flexible instead of Expanded (prevents stretching)
+          /// 📊 التفاصيل
           Flexible(
             fit: FlexFit.loose,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min, // 🔥 important
+              mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
                   'Users Activity',
@@ -65,7 +71,7 @@ class SummaryCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'A quick overview of active and inactive users.',
+                  'A quick overview of active, inactive and blocked users.',
                   style: TextStyle(
                     fontSize: 13.5,
                     height: 1.4,
@@ -73,16 +79,30 @@ class SummaryCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 14),
+
+                /// 🟢 Active
                 _LegendItem(
-                  color: Color(0xFF22B573),
+                  color: const Color(0xFF22B573),
                   label: 'Active Users',
                   value: activeUsers.toString(),
                 ),
+
                 const SizedBox(height: 8),
+
+                /// ⚪ Inactive
                 _LegendItem(
-                  color: Color(0xFFD8D8D8),
+                  color: const Color(0xFFD8D8D8),
                   label: 'Inactive Users',
                   value: inactiveUsers.toString(),
+                ),
+
+                const SizedBox(height: 8),
+
+                /// 🔴 Blocked
+                _LegendItem(
+                  color: const Color(0xFFE53935),
+                  label: 'Blocked Users',
+                  value: blockedUsers.toString(),
                 ),
               ],
             ),

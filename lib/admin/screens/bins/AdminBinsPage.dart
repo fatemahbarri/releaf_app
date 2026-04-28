@@ -3,8 +3,10 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:releaf_app/widgets/app_top_bar.dart';
 
 import '../../widgets/AdminBar.dart';
+import '../../widgets/admin_background.dart';
 import '../../theme/admin_theme.dart';
 import 'BinsByCategoryPage.dart';
 
@@ -23,13 +25,12 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
   bool _isSearching = false;
   List<Marker> _markers = [];
 
-  static const Color primary = Color(0xFF7FB77E);
-  static const Color secondary = Color(0xFF5E9C76);
-  static const Color background = Color(0xFFF7FBF2);
-  static const Color lightGreen = Color(0xFFEAF6E3);
-  static const Color border = Color(0xFFDCE8D7);
-  static const Color textDark = Color(0xFF2F5D50);
-  static const Color textMedium = Color(0xFF4E6A57);
+  static const Color primary = AdminTheme.primary;
+  static const Color secondary = AdminTheme.secondary;
+  static const Color lightGreen = AdminTheme.background;
+  static const Color border = AdminTheme.border;
+  static const Color textDark = AdminTheme.textDark;
+  static const Color textMedium = AdminTheme.textMedium;
 
   @override
   void dispose() {
@@ -229,237 +230,182 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: background,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [primary, secondary],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(24),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.18),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Icon(
-                      Icons.location_on_rounded,
-                      color: Colors.white,
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Bins Management',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 2),
-                        Text(
-                          'Manage recycling bin locations',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+    return AdminBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              AppTopBar(
+                title: 'Bins Management',
+                icon: Icons.location_on_rounded,
+                showNotifications: false,
+                gradientColors: const [
+                  AdminTheme.primary,
+                  AdminTheme.secondary,
                 ],
               ),
-            ),
-
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _searchController,
-                            onSubmitted: (_) => _searchLocation(),
-                            decoration: InputDecoration(
-                              hintText: 'Search Location',
-                              hintStyle: const TextStyle(
-                                color: Color(0xFF8A9A8C),
-                              ),
-                              prefixIcon: const Icon(
-                                Icons.search,
-                                color: textMedium,
-                              ),
-                              filled: true,
-                              fillColor: Colors.white,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 14,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(22),
-                                borderSide: const BorderSide(color: border),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(22),
-                                borderSide: const BorderSide(color: border),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(22),
-                                borderSide: const BorderSide(
-                                  color: primary,
-                                  width: 1.4,
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: _searchController,
+                              onSubmitted: (_) => _searchLocation(),
+                              decoration: InputDecoration(
+                                hintText: 'Search Location',
+                                hintStyle: const TextStyle(
+                                  color: Color(0xFF8A9A8C),
+                                ),
+                                prefixIcon: const Icon(
+                                  Icons.search,
+                                  color: textMedium,
+                                ),
+                                filled: true,
+                                fillColor: Colors.white,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(22),
+                                  borderSide: const BorderSide(color: border),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(22),
+                                  borderSide: const BorderSide(color: border),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(22),
+                                  borderSide: const BorderSide(
+                                    color: primary,
+                                    width: 1.4,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        _buildRoundIconButton(
-                          icon: Icons.search,
-                          onPressed: _isSearching ? null : _searchLocation,
-                          child: _isSearching
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
-                                )
-                              : null,
-                        ),
-                        const SizedBox(width: 8),
-                        _buildRoundIconButton(
-                          icon: Icons.my_location,
-                          onPressed: _getCurrentLocation,
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: border),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
+                          const SizedBox(width: 10),
+                          _buildRoundIconButton(
+                            icon: Icons.search,
+                            onPressed: _isSearching ? null : _searchLocation,
+                            child: _isSearching
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: 8),
+                          _buildRoundIconButton(
+                            icon: Icons.my_location,
+                            onPressed: _getCurrentLocation,
                           ),
                         ],
                       ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(18),
-                        child: SizedBox(
-                          height: 250,
-                          child: FlutterMap(
-                            mapController: _mapController,
-                            options: MapOptions(
-                              initialCenter: _currentCenter,
-                              initialZoom: 15,
+                      const SizedBox(height: 18),
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(color: border),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 8,
+                              offset: const Offset(0, 3),
                             ),
-                            children: [
-                              TileLayer(
-                                urlTemplate:
-                                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                subdomains: const ['a', 'b', 'c'],
-                                userAgentPackageName:
-                                    'com.example.releaf_app',
-                                tileProvider: NetworkTileProvider(),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: SizedBox(
+                            height: 250,
+                            child: FlutterMap(
+                              mapController: _mapController,
+                              options: MapOptions(
+                                initialCenter: _currentCenter,
+                                initialZoom: 15,
                               ),
-                              MarkerLayer(markers: _markers),
-                            ],
+                              children: [
+                                TileLayer(
+                                  urlTemplate:
+                                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                  subdomains: const ['a', 'b', 'c'],
+                                  userAgentPackageName:
+                                      'com.example.releaf_app',
+                                  tileProvider: NetworkTileProvider(),
+                                ),
+                                MarkerLayer(markers: _markers),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    const Text(
-                      'Bins Category',
-                      style: TextStyle(
-                        color: textDark,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Bins Category',
+                        style: TextStyle(
+                          color: textDark,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-
-                    const SizedBox(height: 14),
-
-                    Row(
-                      children: [
-                        _buildCategoryButton(
-                          'Cardboard',
-                          Icons.inventory_2_outlined,
-                        ),
-                        _buildCategoryButton(
-                          'Glass',
-                          Icons.wine_bar_outlined,
-                        ),
-                        _buildCategoryButton(
-                          'Metal',
-                          Icons.settings_outlined,
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    Row(
-                      children: [
-                        _buildCategoryButton(
-                          'Paper',
-                          Icons.description_outlined,
-                        ),
-                        _buildCategoryButton(
-                          'Plastic',
-                          Icons.local_drink_outlined,
-                        ),
-                        _buildCategoryButton(
-                          'Trash',
-                          Icons.delete_outline,
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 24),
-                  ],
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          _buildCategoryButton(
+                            'Cardboard',
+                            Icons.inventory_2_outlined,
+                          ),
+                          _buildCategoryButton(
+                            'Glass',
+                            Icons.wine_bar_outlined,
+                          ),
+                          _buildCategoryButton(
+                            'Metal',
+                            Icons.settings_outlined,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          _buildCategoryButton(
+                            'Paper',
+                            Icons.description_outlined,
+                          ),
+                          _buildCategoryButton(
+                            'Plastic',
+                            Icons.local_drink_outlined,
+                          ),
+                          _buildCategoryButton(
+                            'Trash',
+                            Icons.delete_outline,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        bottomNavigationBar: const AdminBar(selectedIndex: 2),
       ),
-
-      // ✅ Navigation works because we use your real AdminBar
-      bottomNavigationBar: const AdminBar(selectedIndex: 2),
     );
   }
 }

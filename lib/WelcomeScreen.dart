@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'auth/Login.dart';
-import '../widgets/releaf_ui.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -8,97 +7,119 @@ class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ReLeafColors.background,
+      backgroundColor: const Color(0xFFF3FFE2),
       body: SafeArea(
         child: Column(
           children: [
-            // Top curved section
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 40),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [ReLeafColors.primary, ReLeafColors.secondary],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(60),
-                ),
-              ),
-              child: Column(
-                children: [
-                  const Text(
-                    "WELCOME TO\nReLeaf",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 34,
-                      fontWeight: FontWeight.bold,
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF8DC149),
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(140),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Color(0x40000000),
+                      blurRadius: 4,
+                      offset: Offset(0, 4),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Image.asset(
-                    'assets/images/releaf_welcome.png',
-                    height: 180,
-                  ),
-                ],
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "WELCOME TO\nReLeaf",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Image.asset(
+                      'assets/images/releaf_welcome.png',
+                      height: 200,
+                    ),
+                  ],
+                ),
               ),
+            ),
+
+            const SizedBox(height: 30),
+
+            // Admin button
+            _buildButton(
+              text: "Login as Admin",
+              color: const Color(0xFF499A64),
+              textColor: Colors.white,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginPage(isAdminMode: true),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 20),
+
+            // User button
+            _buildButton(
+              text: "Login as User",
+              color: const Color(0xFF8DC149),
+              textColor: const Color.fromARGB(255, 22, 56, 47),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginPage(isAdminMode: false),
+                  ),
+                );
+              },
             ),
 
             const SizedBox(height: 40),
+          ],
+        ),
+      ),
+    );
+  }
 
-            // Buttons section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  // Admin
-                  ReLeafButton(
-                    text: "Login as Admin",
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const LoginPage(isAdminMode: true),
-                        ),
-                      );
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // User
-                  ReLeafButton(
-                    text: "Login as User",
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const LoginPage(isAdminMode: false),
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-            const Spacer(),
-
-            // Optional footer text
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Text(
-                "ReLeaf v1.0.0",
-                style: ReLeafTextStyles.subtitle.copyWith(
-                  color: const Color(0xFF8A8A8A),
-                ),
-              ),
+  Widget _buildButton({
+    required String text,
+    required Color color,
+    required Color textColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 250,
+        height: 50,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(40),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x40000000),
+              blurRadius: 4,
+              offset: Offset(0, 4),
             ),
           ],
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: textColor,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );

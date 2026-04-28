@@ -44,9 +44,7 @@ class AdminBackground extends StatelessWidget {
               ),
             ),
           ),
-          SafeArea(
-            child: child,
-          ),
+          child,
         ],
       ),
     );

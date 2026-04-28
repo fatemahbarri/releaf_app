@@ -22,7 +22,7 @@ class CustomButton extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: const Color(0xFF499A64),
-          borderRadius: BorderRadius.circular(40), // 🔥 نفس الويلكم
+          borderRadius: BorderRadius.circular(40),
           boxShadow: const [
             BoxShadow(
               color: Color(0x40000000),

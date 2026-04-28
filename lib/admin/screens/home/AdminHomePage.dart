@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:releaf_app/widgets/app_top_bar.dart';
 
 import '../../theme/admin_theme.dart';
 import '../../widgets/AdminBar.dart';
+import '../../widgets/admin_background.dart';
+
 import '../users/AdminUserManagment.dart';
 import '../bins/AdminBinsPage.dart';
+import '../notifications/AdminNotificationsOverlay.dart';
 
 import 'widgets/dashboard_card.dart';
 import 'widgets/summary_card.dart';
@@ -28,6 +32,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   int totalUsers = 0;
   int activeUsers = 0;
+  int blockedUsers = 0;
   int totalBins = 0;
   int reportedIssues = 0;
   int newNotifications = 0;
@@ -39,9 +44,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
   static const Color primary = Color(0xFF7FB77E);
   static const Color secondary = Color(0xFF5E9C76);
-  static const Color background = Color(0xFFF7FBF2);
   static const Color textDark = Color(0xFF2F5D50);
-  static const Color textMedium = Color(0xFF4E6A57);
 
   @override
   void initState() {
@@ -59,6 +62,10 @@ class _AdminHomePageState extends State<AdminHomePage> {
         _firestore
             .collection('users')
             .where('accountStatus', isEqualTo: 'active')
+            .get(),
+        _firestore
+            .collection('users')
+            .where('accountStatus', isEqualTo: 'blocked')
             .get(),
         _firestore.collection('bins').get(),
         _firestore.collection('issues').get(),
@@ -78,9 +85,10 @@ class _AdminHomePageState extends State<AdminHomePage> {
 
       final totalUsersSnapshot = results[0] as QuerySnapshot;
       final activeUsersSnapshot = results[1] as QuerySnapshot;
-      final totalBinsSnapshot = results[2] as QuerySnapshot;
-      final reportedIssuesSnapshot = results[3] as QuerySnapshot;
-      final newNotificationsSnapshot = results[4] as QuerySnapshot;
+      final blockedUsersSnapshot = results[2] as QuerySnapshot;
+      final totalBinsSnapshot = results[3] as QuerySnapshot;
+      final reportedIssuesSnapshot = results[4] as QuerySnapshot;
+      final newNotificationsSnapshot = results[5] as QuerySnapshot;
 
       String resolvedAdminName = widget.adminName;
 
@@ -93,22 +101,26 @@ class _AdminHomePageState extends State<AdminHomePage> {
         }
       }
 
-      final filteredTotalUsers = totalUsersSnapshot.docs.where((doc) {
+      bool isNormalUser(QueryDocumentSnapshot doc) {
         final data = doc.data() as Map<String, dynamic>;
         final email = (data['email'] ?? '').toString().toLowerCase().trim();
         return !email.endsWith('@releaf.com');
-      }).toList();
+      }
 
-      final filteredActiveUsers = activeUsersSnapshot.docs.where((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        final email = (data['email'] ?? '').toString().toLowerCase().trim();
-        return !email.endsWith('@releaf.com');
-      }).toList();
+      final filteredTotalUsers =
+          totalUsersSnapshot.docs.where(isNormalUser).toList();
+
+      final filteredActiveUsers =
+          activeUsersSnapshot.docs.where(isNormalUser).toList();
+
+      final filteredBlockedUsers =
+          blockedUsersSnapshot.docs.where(isNormalUser).toList();
 
       setState(() {
         displayedAdminName = resolvedAdminName;
         totalUsers = filteredTotalUsers.length;
         activeUsers = filteredActiveUsers.length;
+        blockedUsers = filteredBlockedUsers.length;
         totalBins = totalBinsSnapshot.docs.length;
         reportedIssues = reportedIssuesSnapshot.docs.length;
         newNotifications = newNotificationsSnapshot.docs.length;
@@ -125,7 +137,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
   }
 
   int get inactiveUsers {
-    final value = totalUsers - activeUsers;
+    final value = totalUsers - activeUsers - blockedUsers;
     return value < 0 ? 0 : value;
   }
 
@@ -147,206 +159,151 @@ class _AdminHomePageState extends State<AdminHomePage> {
     );
   }
 
-  Widget _buildTopBar() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [primary, secondary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(24),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.18),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(
-              Icons.dashboard_rounded,
-              color: Colors.white,
-              size: 28,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              isLoading ? 'Welcome...' : 'Welcome, $displayedAdminName',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              const Icon(
-                Icons.notifications_none_rounded,
-                color: Colors.white,
-                size: 30,
-              ),
-              if (newNotifications > 0)
-                Positioned(
-                  right: -4,
-                  top: -4,
-                  child: Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: const BoxDecoration(
-                      color: AdminTheme.error,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      newNotifications.toString(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: background,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            _buildTopBar(),
-
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 18, 16, 12),
-                child: isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                          color: secondary,
-                        ),
-                      )
-                    : errorMessage != null
-                        ? Center(
-                            child: Text(
-                              errorMessage!,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: AdminTheme.error,
-                                fontWeight: FontWeight.w500,
+    return AdminBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              AppTopBar(
+                title:
+                    isLoading ? 'Welcome...' : 'Welcome, $displayedAdminName',
+                icon: Icons.dashboard_rounded,
+                showNotifications: true,
+                notifications: newNotifications,
+                gradientColors: const [primary, secondary],
+                onNotificationTap: () {
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                      opaque: false,
+                      pageBuilder: (_, __, ___) => AdminNotificationsOverlay(
+                        newNotifications: newNotifications,
+                      ),
+                      transitionsBuilder: (_, animation, __, child) {
+                        return SlideTransition(
+                          position: Tween<Offset>(
+                            begin: const Offset(0, -1),
+                            end: Offset.zero,
+                          ).animate(animation),
+                          child: child,
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 18, 16, 12),
+                  child: isLoading
+                      ? const Center(
+                          child: CircularProgressIndicator(color: secondary),
+                        )
+                      : errorMessage != null
+                          ? Center(
+                              child: Text(
+                                errorMessage!,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: AdminTheme.error,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            )
+                          : SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Dashboard',
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: textDark,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  SummaryCard(
+                                    totalUsers: totalUsers,
+                                    activeUsers: activeUsers,
+                                    inactiveUsers: inactiveUsers,
+                                    blockedUsers: blockedUsers,
+                                  ),
+                                  const SizedBox(height: 22),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () =>
+                                              _goToUserManagement('All Users'),
+                                          child: DashboardCard(
+                                            title: 'Total Users',
+                                            value: totalUsers.toString(),
+                                            icon: Icons.people_alt_rounded,
+                                            startColor: const Color(0xFF5E9C76),
+                                            endColor: const Color(0xFF7CA385),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () =>
+                                              _goToUserManagement('Active'),
+                                          child: DashboardCard(
+                                            title: 'Active Users',
+                                            value: activeUsers.toString(),
+                                            icon:
+                                                Icons.person_add_alt_1_rounded,
+                                            startColor: const Color(0xFF4E8F5F),
+                                            endColor: const Color(0xFF66A877),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: _goToBinManagement,
+                                          child: DashboardCard(
+                                            title: 'Total Bins',
+                                            value: totalBins.toString(),
+                                            icon: Icons.delete_outline_rounded,
+                                            startColor: const Color(0xFF3E6F5C),
+                                            endColor: const Color(0xFF5E9C76),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: DashboardCard(
+                                          title: 'Reported Issues',
+                                          value: reportedIssues.toString(),
+                                          icon: Icons.report_problem_outlined,
+                                          startColor: const Color(0xFFB85C38),
+                                          endColor: const Color(0xFFD97A4A),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 24),
+                                ],
                               ),
                             ),
-                          )
-                        : SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Dashboard',
-                                  style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: textDark,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 16),
-
-                                SummaryCard(
-                                  totalUsers: totalUsers,
-                                  activeUsers: activeUsers,
-                                  inactiveUsers: inactiveUsers,
-                                ),
-
-                                const SizedBox(height: 22),
-
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: () =>
-                                            _goToUserManagement('All Users'),
-                                        child: DashboardCard(
-                                          title: 'Total Users',
-                                          value: totalUsers.toString(),
-                                          icon: Icons.people_alt_rounded,
-                                          startColor: const Color(0xFF457660),
-                                          endColor: const Color(0xFF11995D),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: () =>
-                                            _goToUserManagement('Active'),
-                                        child: DashboardCard(
-                                          title: 'Active Users',
-                                          value: activeUsers.toString(),
-                                          icon:
-                                              Icons.person_add_alt_1_rounded,
-                                          startColor: const Color(0xFF146B66),
-                                          endColor: const Color(0xFF238B53),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                const SizedBox(height: 16),
-
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: _goToBinManagement,
-                                        child: DashboardCard(
-                                          title: 'Total Bins',
-                                          value: totalBins.toString(),
-                                          icon: Icons.delete_outline_rounded,
-                                          startColor: const Color(0xFF23416C),
-                                          endColor: const Color(0xFF2E86C1),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: DashboardCard(
-                                        title: 'Reported Issues',
-                                        value: reportedIssues.toString(),
-                                        icon: Icons.report_problem_outlined,
-                                        startColor: const Color(0xFF522D22),
-                                        endColor: const Color(0xFFF4511E),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                const SizedBox(height: 24),
-                              ],
-                            ),
-                          ),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        bottomNavigationBar: const AdminBar(selectedIndex: 0),
       ),
-      bottomNavigationBar: const AdminBar(selectedIndex: 0),
     );
   }
 }

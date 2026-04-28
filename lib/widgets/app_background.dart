@@ -28,7 +28,7 @@ class AppBackground extends StatelessWidget {
               opacity: 0.8,
               child: Transform(
                 alignment: Alignment.center,
-                transform: Matrix4.rotationX(3.1416), // flip if needed
+                transform: Matrix4.rotationX(3.1416),
                 child: SvgPicture.asset(
                   'assets/images/waves/Wave1.svg',
                   fit: BoxFit.cover,

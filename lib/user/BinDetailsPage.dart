@@ -93,12 +93,10 @@ class _BinDetailsPageState extends State<BinDetailsPage> {
                 showBackButton: true,
                 onBack: () => Navigator.pop(context),
               ),
-
               ReLeafInfoBox(
                 text: 'Category: ${widget.category}',
                 icon: Icons.recycling_rounded,
               ),
-
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
@@ -142,7 +140,6 @@ class _BinDetailsPageState extends State<BinDetailsPage> {
             ],
           ),
         ),
-
         bottomNavigationBar: ReLeafBottomBar(
           selectedIndex: 2,
           onTap: _onBottomTap,

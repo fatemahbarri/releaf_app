@@ -148,7 +148,6 @@ class _BinsListPageState extends State<BinsListPage> {
             ),
           ),
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,9 +164,7 @@ class _BinsListPageState extends State<BinsListPage> {
               ],
             ),
           ),
-
           const SizedBox(width: 10),
-
           ReLeafButton(
             text: 'Go',
             small: true,
@@ -208,7 +205,6 @@ class _BinsListPageState extends State<BinsListPage> {
                 showBackButton: true,
                 onBack: () => Navigator.pop(context),
               ),
-
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(16, 18, 16, 12),
@@ -222,16 +218,12 @@ class _BinsListPageState extends State<BinsListPage> {
                           setState(() => _searchText = value);
                         },
                       ),
-
                       const SizedBox(height: 16),
-
                       Text(
                         'Nearby Locations',
                         style: ReLeafTextStyles.title.copyWith(fontSize: 22),
                       ),
-
                       const SizedBox(height: 12),
-
                       Expanded(
                         child: _isLoading
                             ? const Center(
@@ -263,7 +255,6 @@ class _BinsListPageState extends State<BinsListPage> {
             ],
           ),
         ),
-
         bottomNavigationBar: ReLeafBottomBar(
           selectedIndex: 2,
           onTap: _onBottomTap,

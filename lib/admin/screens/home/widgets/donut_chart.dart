@@ -2,13 +2,15 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 class DonutChart extends StatelessWidget {
-  final double percentage;
+  final double activePercentage;
+  final double blockedPercentage;
   final String centerTopText;
   final String centerBottomText;
 
   const DonutChart({
     super.key,
-    required this.percentage,
+    required this.activePercentage,
+    required this.blockedPercentage,
     required this.centerTopText,
     required this.centerBottomText,
   });
@@ -20,9 +22,11 @@ class DonutChart extends StatelessWidget {
       height: 120,
       child: CustomPaint(
         painter: _DonutChartPainter(
-          percentage: percentage,
+          activePercentage: activePercentage,
+          blockedPercentage: blockedPercentage,
           activeColor: const Color(0xFF22B573),
           inactiveColor: const Color(0xFFD8D8D8),
+          blockedColor: const Color(0xFFE53935),
         ),
         child: Center(
           child: Column(
@@ -53,14 +57,18 @@ class DonutChart extends StatelessWidget {
 }
 
 class _DonutChartPainter extends CustomPainter {
-  final double percentage;
+  final double activePercentage;
+  final double blockedPercentage;
   final Color activeColor;
   final Color inactiveColor;
+  final Color blockedColor;
 
   _DonutChartPainter({
-    required this.percentage,
+    required this.activePercentage,
+    required this.blockedPercentage,
     required this.activeColor,
     required this.inactiveColor,
+    required this.blockedColor,
   });
 
   @override
@@ -68,8 +76,9 @@ class _DonutChartPainter extends CustomPainter {
     const strokeWidth = 14.0;
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width / 2) - strokeWidth;
+    final rect = Rect.fromCircle(center: center, radius: radius);
 
-    final backgroundPaint = Paint()
+    final inactivePaint = Paint()
       ..color = inactiveColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
@@ -81,19 +90,34 @@ class _DonutChartPainter extends CustomPainter {
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawCircle(center, radius, backgroundPaint);
+    final blockedPaint = Paint()
+      ..color = blockedColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawCircle(center, radius, inactivePaint);
+
+    final active = activePercentage.clamp(0.0, 1.0);
+    final blocked = blockedPercentage.clamp(0.0, 1.0 - active);
 
     final startAngle = -math.pi / 2;
-    final sweepAngle = 2 * math.pi * percentage.clamp(0.0, 1.0);
-    final rect = Rect.fromCircle(center: center, radius: radius);
+    final activeSweep = 2 * math.pi * active;
+    final blockedSweep = 2 * math.pi * blocked;
 
-    canvas.drawArc(rect, startAngle, sweepAngle, false, activePaint);
+    canvas.drawArc(rect, startAngle, activeSweep, false, activePaint);
+    canvas.drawArc(
+      rect,
+      startAngle + activeSweep,
+      blockedSweep,
+      false,
+      blockedPaint,
+    );
   }
 
   @override
   bool shouldRepaint(covariant _DonutChartPainter oldDelegate) {
-    return oldDelegate.percentage != percentage ||
-        oldDelegate.activeColor != activeColor ||
-        oldDelegate.inactiveColor != inactiveColor;
+    return oldDelegate.activePercentage != activePercentage ||
+        oldDelegate.blockedPercentage != blockedPercentage;
   }
 }

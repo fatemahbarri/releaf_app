@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:releaf_app/widgets/app_background.dart';
+import 'package:releaf_app/admin/widgets/admin_background.dart';
+
 class ReLeafColors {
   static const Color primary = Color(0xFF7FB77E);
   static const Color secondary = Color(0xFF5E9C76);
@@ -33,6 +36,26 @@ class ReLeafTextStyles {
     fontWeight: FontWeight.bold,
     color: Colors.white,
   );
+}
+
+class ReLeafRoleBackground extends StatelessWidget {
+  final Widget child;
+  final bool isAdmin;
+
+  const ReLeafRoleBackground({
+    super.key,
+    required this.child,
+    required this.isAdmin,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (isAdmin) {
+      return AdminBackground(child: child);
+    }
+
+    return AppBackground(child: child);
+  }
 }
 
 class ReLeafHeader extends StatelessWidget {
@@ -226,7 +249,8 @@ class ReLeafSearchBar extends StatelessWidget {
         prefixIcon: Icon(icon, color: ReLeafColors.textMedium),
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(22),
           borderSide: const BorderSide(color: ReLeafColors.border),
@@ -305,9 +329,8 @@ class ReLeafBottomBar extends StatelessWidget {
               ),
               child: Icon(
                 icon,
-                color: selected
-                    ? ReLeafColors.textDark
-                    : ReLeafColors.textMedium,
+                color:
+                    selected ? ReLeafColors.textDark : ReLeafColors.textMedium,
                 size: 27,
               ),
             ),
@@ -316,9 +339,8 @@ class ReLeafBottomBar extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 12,
-                color: selected
-                    ? ReLeafColors.textDark
-                    : ReLeafColors.textMedium,
+                color:
+                    selected ? ReLeafColors.textDark : ReLeafColors.textMedium,
                 fontWeight: selected ? FontWeight.bold : FontWeight.w500,
               ),
             ),
@@ -334,7 +356,6 @@ class ReLeafBottomBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: ReLeafColors.lightGreen,
 
-       
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(22),
         ),
@@ -352,7 +373,8 @@ class ReLeafBottomBar extends StatelessWidget {
       child: Row(
         children: [
           _buildItem(icon: Icons.home_outlined, label: 'Home', index: 0),
-          _buildItem(icon: Icons.camera_alt_outlined, label: 'Camera', index: 1),
+          _buildItem(
+              icon: Icons.camera_alt_outlined, label: 'Camera', index: 1),
           _buildItem(icon: Icons.location_on_outlined, label: 'Bins', index: 2),
           _buildItem(icon: Icons.settings_outlined, label: 'Profile', index: 3),
         ],

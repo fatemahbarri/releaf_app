@@ -13,7 +13,7 @@ class AdminTheme {
   // Navigation
   static const Color navBar = Color(0xFFC7E2C2);
   static const Color selectedNav = Color(0xFFA8C89B);
-
+  static const Color textMedium = Color(0xFF4E6A57);
   // Cards & Inputs
   static const Color card = Color(0xFFF8FCF6);
   static const Color border = Color(0xFFBDBDBD);
