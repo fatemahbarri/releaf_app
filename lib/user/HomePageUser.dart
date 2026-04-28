@@ -10,6 +10,7 @@ import 'package:releaf_app/llm/Chatbot.dart';
 import 'package:releaf_app/user/LocationPage.dart';
 import 'package:releaf_app/user/Profile.dart';
 import 'package:releaf_app/classification/image_classifier_screen.dart';
+import 'package:releaf_app/user/RecyclingProgressPage.dart';
 
 class HomePageUser extends StatefulWidget {
   const HomePageUser({super.key});
@@ -168,9 +169,13 @@ class _HomePageUserState extends State<HomePageUser> {
                       ),
                     ),
 
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                    const ReLeafInfoBox(
+                      _buildRecyclingGameCard(),
+
+                      const SizedBox(height: 16),
+
+                      const ReLeafInfoBox(
                       text:
                           'Use the chatbot if you need help knowing where an item belongs.',
                       icon: Icons.chat_bubble_outline,
@@ -202,7 +207,44 @@ class _HomePageUserState extends State<HomePageUser> {
       ),
     );
   }
-
+    Widget _buildRecyclingGameCard() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const RecyclingProgressPage(),
+          ),
+        );
+      },
+      child: ReLeafCard(
+        padding: const EdgeInsets.all(18),
+        child: Row(
+          children: [
+            Icon(Icons.eco_rounded, size: 50, color: ReLeafColors.primary),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Recycling Progress',
+                    style: ReLeafTextStyles.title.copyWith(fontSize: 20),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Tap to grow your plant 🌱',
+                    style: ReLeafTextStyles.body,
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+          ],
+        ),
+      ),
+    );
+  }
   Widget _buildSideMenu() {
     return Drawer(
       width: MediaQuery.of(context).size.width,
