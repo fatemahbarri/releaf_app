@@ -69,8 +69,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
             .get(),
         _firestore.collection('bins').get(),
         _firestore.collection('issues').get(),
-        _firestore.collection('issues').where('isRead', isEqualTo: false).get(),
-      ];
+        _firestore.collection('issues').where('status', isEqualTo: 'unread').get(),      ];
 
       DocumentSnapshot? currentAdminDoc;
 

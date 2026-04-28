@@ -3,12 +3,13 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-
 import 'package:releaf_app/widgets/app_background.dart';
-import 'package:releaf_app/user/UserWidgets/UserBottomNav.dart';
-
 import 'BinsListPage.dart';
 import '../widgets/releaf_ui.dart';
+import 'package:releaf_app/user/HomePageUser.dart';
+import 'package:releaf_app/user/Profile.dart';
+import 'package:releaf_app/classification/image_classifier_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LocationPage extends StatefulWidget {
   const LocationPage({super.key});
@@ -118,7 +119,37 @@ class _LocationPageState extends State<LocationPage> {
       ),
     );
   }
+  void _onBottomTap(int index) {
+    if (index == 2) return;
 
+    if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomePageUser()),
+      );
+    }
+
+    if (index == 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const ImageClassifierScreen()),
+      );
+    }
+
+    if (index == 3) {
+      final user = FirebaseAuth.instance.currentUser;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => Profile(
+            name: 'User',
+            email: user?.email ?? 'user@email.com',
+          ),
+        ),
+      );
+    }
+  }
   Widget _buildCategoryButton(String title, IconData icon) {
     final isTrash = title == 'Trash';
 
@@ -189,7 +220,7 @@ class _LocationPageState extends State<LocationPage> {
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
+                  padding: const EdgeInsets.fromLTRB(16, 18, 16, 100),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -294,8 +325,9 @@ class _LocationPageState extends State<LocationPage> {
             ],
           ),
         ),
-        bottomNavigationBar: const UserBottomNav(
-          currentIndex: 2,
+        bottomNavigationBar: ReLeafBottomBar(
+          selectedIndex: 2,
+          onTap: _onBottomTap,
         ),
       ),
     );

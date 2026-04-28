@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../theme/admin_theme.dart';
 
 class AdminNotificationsOverlay extends StatelessWidget {
@@ -12,7 +13,7 @@ class AdminNotificationsOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.black.withOpacity(0.35), // 🔥 تعتيم الخلفية
+      color: Colors.black.withOpacity(0.35),
       child: SafeArea(
         child: Align(
           alignment: Alignment.topCenter,
@@ -21,7 +22,7 @@ class AdminNotificationsOverlay extends StatelessWidget {
             margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AdminTheme.backgroundDark, // 🔥 أوضح من gradient
+              color: AdminTheme.backgroundDark,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
@@ -33,7 +34,6 @@ class AdminNotificationsOverlay extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                /// 🔥 Header (العنوان + زر X)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -54,8 +54,6 @@ class AdminNotificationsOverlay extends StatelessWidget {
                         ),
                       ],
                     ),
-
-                    /// ❌ زر الإغلاق
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
                       child: Container(
@@ -76,7 +74,6 @@ class AdminNotificationsOverlay extends StatelessWidget {
 
                 const SizedBox(height: 10),
 
-                /// 🔥 النص
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
@@ -85,68 +82,83 @@ class AdminNotificationsOverlay extends StatelessWidget {
                         : 'You have $newNotifications new issue(s)',
                     style: const TextStyle(
                       fontSize: 14,
-                      color: AdminTheme.textMedium, // 🔥 واضح الآن
+                      color: AdminTheme.textMedium,
                     ),
                   ),
                 ),
 
                 const SizedBox(height: 16),
 
-                /// 🔥 القائمة
-                if (newNotifications == 0)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Text(
-                      'No notifications',
-                      style: TextStyle(
-                        color: AdminTheme.textMedium,
-                        fontSize: 14,
-                      ),
-                    ),
-                  )
-                else
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: newNotifications,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white, // 🔥 كارد أبيض واضح
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: AdminTheme.primary.withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Icon(
-                                Icons.report_problem,
-                                color: AdminTheme.primary,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            const Expanded(
-                              child: Text(
-                                'New issue reported',
-                                style: TextStyle(
-                                  color: AdminTheme.textDark,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
+                StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                  stream: FirebaseFirestore.instance
+                      .collection('issues')
+                      .where('status', isEqualTo: 'unread')
+                      .orderBy('createdAt', descending: true)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: CircularProgressIndicator(
+                          color: AdminTheme.primary,
                         ),
                       );
-                    },
-                  ),
+                    }
+
+                    final issues = snapshot.data?.docs ?? [];
+
+                    if (issues.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: issues.length,
+                      itemBuilder: (context, index) {
+                        final issue = issues[index].data();
+                        final title =
+                            (issue['type'] ?? 'New issue reported').toString();
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: AdminTheme.primary.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(
+                                  Icons.report_problem,
+                                  color: AdminTheme.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  title,
+                                  style: const TextStyle(
+                                    color: AdminTheme.textDark,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ],
             ),
           ),
