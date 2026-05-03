@@ -17,6 +17,8 @@ class SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final double activePercentage =
         totalUsers == 0 ? 0 : activeUsers / totalUsers;
 
@@ -27,20 +29,24 @@ class SummaryCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.75),
+        color: isDark
+            ? const Color(0xFF1F2D28).withOpacity(0.92)
+            : Colors.white.withOpacity(0.75),
         borderRadius: BorderRadius.circular(28),
-        boxShadow: const [
+        border: Border.all(
+          color: isDark ? Colors.white10 : Colors.transparent,
+        ),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x12000000),
+            color: Colors.black.withOpacity(isDark ? 0.25 : 0.07),
             blurRadius: 12,
-            offset: Offset(0, 6),
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// 🔵 Donut (3 ألوان)
           SizedBox(
             width: 110,
             height: 110,
@@ -51,58 +57,50 @@ class SummaryCard extends StatelessWidget {
               centerBottomText: 'Users',
             ),
           ),
-
           const SizedBox(width: 18),
-
-          /// 📊 التفاصيل
           Flexible(
             fit: FlexFit.loose,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                Text(
                   'Users Activity',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
-                    color: Colors.black87,
+                    color: isDark ? Colors.white : Colors.black87,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'A quick overview of active, inactive and blocked users.',
                   style: TextStyle(
                     fontSize: 13.5,
                     height: 1.4,
-                    color: Color(0xFF6B6B6B),
+                    color: isDark ? Colors.white70 : const Color(0xFF6B6B6B),
                   ),
                 ),
                 const SizedBox(height: 14),
-
-                /// 🟢 Active
                 _LegendItem(
                   color: const Color(0xFF22B573),
                   label: 'Active Users',
                   value: activeUsers.toString(),
+                  isDark: isDark,
                 ),
-
                 const SizedBox(height: 8),
-
-                /// ⚪ Inactive
                 _LegendItem(
-                  color: const Color(0xFFD8D8D8),
+                  color: isDark ? Colors.white24 : const Color(0xFFD8D8D8),
                   label: 'Inactive Users',
                   value: inactiveUsers.toString(),
+                  isDark: isDark,
                 ),
-
                 const SizedBox(height: 8),
-
-                /// 🔴 Blocked
                 _LegendItem(
                   color: const Color(0xFFE53935),
                   label: 'Blocked Users',
                   value: blockedUsers.toString(),
+                  isDark: isDark,
                 ),
               ],
             ),
@@ -117,11 +115,13 @@ class _LegendItem extends StatelessWidget {
   final Color color;
   final String label;
   final String value;
+  final bool isDark;
 
   const _LegendItem({
     required this.color,
     required this.label,
     required this.value,
+    required this.isDark,
   });
 
   @override
@@ -140,19 +140,19 @@ class _LegendItem extends StatelessWidget {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14.5,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF4F4F4F),
+              color: isDark ? Colors.white70 : const Color(0xFF4F4F4F),
             ),
           ),
         ),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w800,
-            color: Colors.black87,
+            color: isDark ? Colors.white : Colors.black87,
           ),
         ),
       ],

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:releaf_app/WelcomeScreen.dart';
 import 'package:releaf_app/auth/SignUp.dart';
-import 'package:releaf_app/user/HomePageUser.dart';
+import 'package:releaf_app/auth/ForgotPasswordPage.dart';
+import 'package:releaf_app/user/Home/HomePageUser.dart';
 import 'package:releaf_app/services/firebase_service.dart';
 import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/widgets/auth_card.dart';
 import 'package:releaf_app/widgets/custom_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:releaf_app/main.dart';
 import 'package:releaf_app/admin/widgets/admin_background.dart';
 import '../admin/screens/home/AdminHomePage.dart';
 
@@ -59,6 +61,29 @@ class _LoginPageState extends State<LoginPage> {
   String get titleText {
     return widget.isAdminMode ? 'Admin Login' : 'User Login';
   }
+
+  bool get isDark =>
+      widget.isAdminMode && Theme.of(context).brightness == Brightness.dark;
+  Color get titleColor =>
+      isDark ? const Color(0xFF8BC99B) : const Color(0xFF498056);
+
+  Color get textColor =>
+      isDark ? const Color(0xFFE9EFEA) : const Color(0xFF2A2A2A);
+
+  Color get subTextColor =>
+      isDark ? const Color(0xFFB9C3BC) : const Color(0xFF675F5A);
+
+  Color get fieldFillColor =>
+      isDark ? const Color(0xFF2A332D) : const Color(0xFFFAFAFA);
+
+  Color get fieldBorderColor =>
+      isDark ? const Color(0xFF4A5A4F) : const Color(0xFFE0E0E0);
+
+  Color get primaryGreen =>
+      isDark ? const Color(0xFF7FC58E) : const Color(0xFF499A64);
+
+  Color get linkColor =>
+      isDark ? const Color(0xFF9CBFE6) : const Color(0xFF4676AE);
 
   @override
   void initState() {
@@ -201,7 +226,13 @@ class _LoginPageState extends State<LoginPage> {
 
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+      SnackBar(
+        backgroundColor: isDark ? const Color(0xFF2E3A32) : null,
+        content: Text(
+          message,
+          style: TextStyle(color: isDark ? Colors.white : null),
+        ),
+      ),
     );
   }
 
@@ -229,19 +260,21 @@ class _LoginPageState extends State<LoginPage> {
         obscureText: obscureText,
         keyboardType: keyboardType,
         onChanged: onChanged,
-        style: const TextStyle(
+        cursorColor: primaryGreen,
+        style: TextStyle(
           fontSize: 15,
           fontWeight: FontWeight.w500,
+          color: textColor,
         ),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(
-            color: Color(0xFF8A8A8A),
+          hintStyle: TextStyle(
+            color: isDark ? const Color(0xFF9DA9A1) : const Color(0xFF8A8A8A),
             fontSize: 15,
             fontWeight: FontWeight.w400,
           ),
           filled: true,
-          fillColor: const Color(0xFFFAFAFA),
+          fillColor: fieldFillColor,
           prefixIcon: prefixIcon,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
@@ -250,22 +283,22 @@ class _LoginPageState extends State<LoginPage> {
           suffixIcon: suffixIcon,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(
-              color: Color(0xFFE0E0E0),
+            borderSide: BorderSide(
+              color: fieldBorderColor,
               width: 1,
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(
-              color: Color(0xFFE0E0E0),
+            borderSide: BorderSide(
+              color: fieldBorderColor,
               width: 1,
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(
-              color: Color(0xFF499A64),
+            borderSide: BorderSide(
+              color: primaryGreen,
               width: 1.5,
             ),
           ),
@@ -275,50 +308,55 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildRememberMe() {
-    return InkWell(
-      onTap: () {
-        setState(() {
-          rememberMe = !rememberMe;
-        });
-      },
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color:
-                    rememberMe ? const Color(0xFF499A64) : Colors.transparent,
-                border: Border.all(
-                  color: rememberMe
-                      ? const Color(0xFF499A64)
-                      : const Color(0xFFBDBDBD),
-                  width: 2,
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            rememberMe = !rememberMe;
+          });
+        },
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: rememberMe ? primaryGreen : Colors.transparent,
+                  border: Border.all(
+                    color: rememberMe
+                        ? primaryGreen
+                        : isDark
+                            ? const Color(0xFF8A958D)
+                            : const Color(0xFFBDBDBD),
+                    width: 2,
+                  ),
+                ),
+                child: rememberMe
+                    ? const Icon(
+                        Icons.check,
+                        size: 14,
+                        color: Colors.white,
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                'Remember me',
+                style: TextStyle(
+                  color: subTextColor,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              child: rememberMe
-                  ? const Icon(
-                      Icons.check,
-                      size: 14,
-                      color: Colors.white,
-                    )
-                  : null,
-            ),
-            const SizedBox(width: 10),
-            const Text(
-              'Remember me',
-              style: TextStyle(
-                color: Color(0xFF675F5A),
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -344,18 +382,18 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   );
                 },
-                icon: const Icon(
+                icon: Icon(
                   Icons.arrow_back_ios_new_rounded,
                   size: 22,
-                  color: Color(0xFF2A2A2A),
+                  color: textColor,
                 ),
               ),
             ),
             const SizedBox(height: 4),
             Text(
               titleText,
-              style: const TextStyle(
-                color: Color(0xFF498056),
+              style: TextStyle(
+                color: titleColor,
                 fontSize: 30,
                 fontWeight: FontWeight.w700,
               ),
@@ -367,15 +405,16 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 70),
             AuthCard(
+              isDark: isDark,
               child: Column(
                 children: [
                   _buildTextField(
                     controller: emailController,
                     hintText: 'Email Address',
                     keyboardType: TextInputType.emailAddress,
-                    prefixIcon: const Icon(
+                    prefixIcon: Icon(
                       Icons.email_outlined,
-                      color: Color(0xFF499A64),
+                      color: primaryGreen,
                     ),
                     onChanged: (value) => _checkAdminName(value),
                   ),
@@ -383,16 +422,16 @@ class _LoginPageState extends State<LoginPage> {
                     controller: passwordController,
                     hintText: 'Password',
                     obscureText: obscurePassword,
-                    prefixIcon: const Icon(
+                    prefixIcon: Icon(
                       Icons.lock_outline,
-                      color: Color(0xFF499A64),
+                      color: primaryGreen,
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
                         obscurePassword
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,
-                        color: const Color(0xFF675F5A),
+                        color: subTextColor,
                       ),
                       onPressed: () {
                         setState(() {
@@ -409,8 +448,30 @@ class _LoginPageState extends State<LoginPage> {
                     isLoading: isLoading,
                     onTap: _signIn,
                   ),
+                  if (!widget.isAdminMode)
+                    Align(
+                      alignment: Alignment.center,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ForgotPasswordPage(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'Forgot Password?',
+                          style: TextStyle(
+                            color: linkColor,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
                   if (!widget.isAdminMode) ...[
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 8),
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -420,10 +481,10 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         );
                       },
-                      child: const Text(
+                      child: Text(
                         'Don’t have an account? Sign up',
                         style: TextStyle(
-                          color: Color(0xFF4676AE),
+                          color: linkColor,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -442,6 +503,8 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(
+        scaffoldBackgroundColor:
+            isDark ? const Color(0xFF1F2A23) : Colors.white,
         textTheme: Theme.of(context).textTheme.apply(),
       ),
       child: Scaffold(
@@ -456,7 +519,9 @@ class _LoginPageState extends State<LoginPage> {
                   child: ClipPath(
                     clipper: BottomWaveClipper(),
                     child: Container(
-                      color: const Color(0xFFB7D98A),
+                      color: isDark
+                          ? const Color(0xFF3E5A42)
+                          : const Color(0xFFB7D98A),
                     ),
                   ),
                 ),

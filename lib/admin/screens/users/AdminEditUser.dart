@@ -10,6 +10,7 @@ class AdminEditUser extends StatefulWidget {
   final Map<String, dynamic>? user;
 
   const AdminEditUser({super.key, this.user});
+
   @override
   State<AdminEditUser> createState() => _AdminEditUserState();
 }
@@ -26,12 +27,24 @@ class _AdminEditUserState extends State<AdminEditUser> {
   bool isSaving = false;
   bool isBlocking = false;
 
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get cardBg => isDark ? const Color(0xFF1F2D28) : AdminTheme.card;
+  Color get borderColor => isDark ? Colors.white10 : AdminTheme.border;
+  Color get titleColor => isDark ? Colors.white : AdminTheme.textDark;
+  Color get subTextColor => isDark ? Colors.white70 : AdminTheme.textMuted;
+  Color get hintColor => isDark ? Colors.white54 : const Color(0xFF8A8A8A);
+  Color get avatarBg => isDark ? const Color(0xFF31443B) : Colors.white;
+  Color get topBarStart =>
+      isDark ? const Color(0xFF1F2D28) : AdminTheme.primary;
+  Color get topBarEnd =>
+      isDark ? const Color(0xFF31443B) : AdminTheme.secondary;
+
   @override
   void initState() {
     super.initState();
 
     final currentUser = widget.user ?? {};
-    final bool showBackButton;
 
     final fullName = currentUser['name']?.toString() ?? '';
     final nameParts = fullName.split(' ');
@@ -132,17 +145,28 @@ class _AdminEditUserState extends State<AdminEditUser> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: cardBg,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(18),
           ),
-          title: const Text('Confirm Action'),
+          title: Text(
+            'Confirm Action',
+            style: TextStyle(
+              color: titleColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           content: Text(
             'Are you sure you want to $actionText $displayName?',
+            style: TextStyle(color: subTextColor),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: subTextColor),
+              ),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
@@ -210,6 +234,140 @@ class _AdminEditUserState extends State<AdminEditUser> {
     }
   }
 
+  Widget _buildAvatar() {
+    return Container(
+      width: 128,
+      height: 128,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: avatarBg,
+        border: Border.all(
+          color: isDark ? Colors.white24 : Colors.white,
+          width: 5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.25 : 0.10),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Icon(
+        Icons.person,
+        size: 82,
+        color: isDark ? Colors.white : AdminTheme.secondary,
+      ),
+    );
+  }
+
+  Widget _buildField({
+    required TextEditingController controller,
+    required String hintText,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14, left: 40, right: 40),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        border: Border.all(color: borderColor),
+        color: cardBg,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.20 : 0.04),
+            blurRadius: 7,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: TextField(
+        controller: controller,
+        style: TextStyle(
+          color: titleColor,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: TextStyle(
+            color: hintColor,
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
+          border: InputBorder.none,
+        ),
+      ),
+    );
+  }
+
+  Widget _buttonsRow() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40),
+      child: Row(
+        children: [
+          Expanded(
+            child: ElevatedButton(
+              onPressed: isSaving ? null : saveUserChanges,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AdminTheme.primary,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: isSaving
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2.5,
+                      ),
+                    )
+                  : const Text(
+                      'Save',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: ElevatedButton(
+              onPressed: isBlocking ? null : _confirmBlockUser,
+              style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    status == 'Blocked' ? Colors.grey : AdminTheme.error,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              child: isBlocking
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2.5,
+                      ),
+                    )
+                  : Text(
+                      status == 'Blocked' ? 'Unblock' : 'Block',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final fullName =
@@ -229,26 +387,18 @@ class _AdminEditUserState extends State<AdminEditUser> {
                   icon: Icons.person,
                   showBackButton: true,
                   showNotifications: false,
-                  gradientColors: const [
-                    AdminTheme.primary,
-                    AdminTheme.secondary,
+                  gradientColors: [
+                    topBarStart,
+                    topBarEnd,
                   ],
                 ),
                 const SizedBox(height: 10),
-                const CircleAvatar(
-                  radius: 64,
-                  backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.person,
-                    size: 82,
-                    color: AdminTheme.secondary,
-                  ),
-                ),
+                _buildAvatar(),
                 const SizedBox(height: 16),
                 Text(
                   fullName.isEmpty ? 'User Profile' : fullName,
-                  style: const TextStyle(
-                    color: AdminTheme.textDark,
+                  style: TextStyle(
+                    color: titleColor,
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
@@ -271,103 +421,12 @@ class _AdminEditUserState extends State<AdminEditUser> {
                   hintText: 'Email',
                 ),
                 const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: isSaving ? null : saveUserChanges,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AdminTheme.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          child: isSaving
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2.5,
-                                  ),
-                                )
-                              : const Text(
-                                  'Save',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: isBlocking ? null : _confirmBlockUser,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: status == 'Blocked'
-                                ? Colors.grey
-                                : AdminTheme.error,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          child: isBlocking
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2.5,
-                                  ),
-                                )
-                              : Text(
-                                  status == 'Blocked' ? 'Unblock' : 'Block',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                _buttonsRow(),
               ],
             ),
           ),
         ),
         bottomNavigationBar: const AdminBar(selectedIndex: 1),
-      ),
-    );
-  }
-
-  Widget _buildField({
-    required TextEditingController controller,
-    required String hintText,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14, left: 40, right: 40),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        border: Border.all(color: AdminTheme.border),
-        color: AdminTheme.card,
-      ),
-      child: TextField(
-        controller: controller,
-        style: const TextStyle(
-          color: AdminTheme.textDark,
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
-        decoration: InputDecoration(
-          hintText: hintText,
-          border: InputBorder.none,
-        ),
       ),
     );
   }

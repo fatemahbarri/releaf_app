@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:releaf_app/admin/screens/reports/AdminReportIssue.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
 
 import '../../theme/admin_theme.dart';
@@ -46,6 +47,13 @@ class _AdminHomePageState extends State<AdminHomePage> {
   static const Color secondary = Color(0xFF5E9C76);
   static const Color textDark = Color(0xFF2F5D50);
 
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get titleColor => isDark ? Colors.white : textDark;
+  Color get subTextColor => isDark ? Colors.white70 : AdminTheme.textMuted;
+  Color get topBarStart => isDark ? const Color(0xFF1F2D28) : primary;
+  Color get topBarEnd => isDark ? const Color(0xFF31443B) : secondary;
+
   @override
   void initState() {
     super.initState();
@@ -69,7 +77,11 @@ class _AdminHomePageState extends State<AdminHomePage> {
             .get(),
         _firestore.collection('bins').get(),
         _firestore.collection('issues').get(),
-        _firestore.collection('issues').where('status', isEqualTo: 'unread').get(),      ];
+        _firestore
+            .collection('issues')
+            .where('status', isEqualTo: 'unread')
+            .get(),
+      ];
 
       DocumentSnapshot? currentAdminDoc;
 
@@ -173,7 +185,10 @@ class _AdminHomePageState extends State<AdminHomePage> {
                 icon: Icons.dashboard_rounded,
                 showNotifications: true,
                 notifications: newNotifications,
-                gradientColors: const [primary, secondary],
+                gradientColors: [
+                  topBarStart,
+                  topBarEnd,
+                ],
                 onNotificationTap: () {
                   Navigator.of(context).push(
                     PageRouteBuilder(
@@ -217,12 +232,12 @@ class _AdminHomePageState extends State<AdminHomePage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
+                                  Text(
                                     'Dashboard',
                                     style: TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,
-                                      color: textDark,
+                                      color: titleColor,
                                     ),
                                   ),
                                   const SizedBox(height: 16),
@@ -282,12 +297,23 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                       ),
                                       const SizedBox(width: 16),
                                       Expanded(
-                                        child: DashboardCard(
-                                          title: 'Reported Issues',
-                                          value: reportedIssues.toString(),
-                                          icon: Icons.report_problem_outlined,
-                                          startColor: const Color(0xFFB85C38),
-                                          endColor: const Color(0xFFD97A4A),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) =>
+                                                    const AdminReportIssue(),
+                                              ),
+                                            );
+                                          },
+                                          child: DashboardCard(
+                                            title: 'Reported Issues',
+                                            value: reportedIssues.toString(),
+                                            icon: Icons.report_problem_outlined,
+                                            startColor: const Color(0xFFB85C38),
+                                            endColor: const Color(0xFFD97A4A),
+                                          ),
                                         ),
                                       ),
                                     ],

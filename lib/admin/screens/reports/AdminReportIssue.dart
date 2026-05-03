@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../widgets/AdminBar.dart';
+import '../../widgets/admin_background.dart';
 
 class AdminReportIssue extends StatefulWidget {
   const AdminReportIssue({super.key});
@@ -19,12 +20,24 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
 
   static const Color primary = Color(0xFF7FB77E);
   static const Color secondary = Color(0xFF5E9C76);
-  static const Color background = Color(0xFFF7FBF2);
   static const Color lightGreen = Color(0xFFEAF6E3);
   static const Color border = Color(0xFFDCE8D7);
   static const Color textDark = Color(0xFF2F5D50);
   static const Color textMedium = Color(0xFF4E6A57);
-  static const Color error = Color(0xFFE85A5A);
+
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get cardBg => isDark ? const Color(0xFF1F2D28) : Colors.white;
+  Color get inputBg =>
+      isDark ? const Color(0xFF17211C) : const Color(0xFFF7FBF2);
+  Color get chipBg => isDark ? const Color(0xFF263A32) : Colors.white;
+  Color get iconBoxBg => isDark ? const Color(0xFF31443B) : lightGreen;
+  Color get borderColor => isDark ? Colors.white10 : border;
+  Color get titleColor => isDark ? Colors.white : textDark;
+  Color get subTextColor => isDark ? Colors.white70 : textMedium;
+  Color get hintColor => isDark ? Colors.white54 : textMedium;
+  Color get topBarStart => isDark ? const Color(0xFF1F2D28) : primary;
+  Color get topBarEnd => isDark ? const Color(0xFF31443B) : secondary;
 
   Stream<QuerySnapshot<Map<String, dynamic>>> _getIssuesStream() {
     return FirebaseFirestore.instance
@@ -34,9 +47,9 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
   }
 
   String _formatDate(dynamic timestamp) {
-    if (timestamp == null) return '';
+    if (timestamp == null || timestamp is! Timestamp) return '';
 
-    final date = (timestamp as Timestamp).toDate();
+    final date = timestamp.toDate();
 
     return '${date.day}/${date.month}/${date.year}  ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
   }
@@ -78,7 +91,10 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
     });
 
     if (status == 'unread') {
-      await FirebaseFirestore.instance.collection('issues').doc(issueId).update({
+      await FirebaseFirestore.instance
+          .collection('issues')
+          .doc(issueId)
+          .update({
         'status': 'read',
         'readAt': FieldValue.serverTimestamp(),
       });
@@ -109,13 +125,13 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
   Widget _topBar() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [primary, secondary],
+          colors: [topBarStart, topBarEnd],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.vertical(
+        borderRadius: const BorderRadius.vertical(
           bottom: Radius.circular(24),
         ),
       ),
@@ -175,14 +191,14 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
         decoration: BoxDecoration(
-          color: selected ? primary.withOpacity(0.25) : Colors.white,
+          color: selected ? primary.withOpacity(0.25) : chipBg,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: selected ? primary : border,
+            color: selected ? primary : borderColor,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withOpacity(isDark ? 0.18 : 0.04),
               blurRadius: 6,
               offset: const Offset(0, 3),
             ),
@@ -191,7 +207,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
         child: Text(
           text,
           style: TextStyle(
-            color: selected ? textDark : textMedium,
+            color: selected ? primary : subTextColor,
             fontSize: 12,
             fontWeight: selected ? FontWeight.bold : FontWeight.w600,
           ),
@@ -223,12 +239,12 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: cardBg,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: border),
+          border: Border.all(color: borderColor),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withOpacity(isDark ? 0.22 : 0.05),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -243,13 +259,13 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: lightGreen,
+                    color: iconBoxBg,
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.report_problem_outlined,
                     size: 24,
-                    color: textDark,
+                    color: isDark ? Colors.white : textDark,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -258,18 +274,18 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        issue['type'] ?? '',
-                        style: const TextStyle(
-                          color: textDark,
+                        issue['type']?.toString() ?? '',
+                        style: TextStyle(
+                          color: titleColor,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        issue['details'] ?? '',
-                        style: const TextStyle(
-                          color: textMedium,
+                        issue['details']?.toString() ?? '',
+                        style: TextStyle(
+                          color: subTextColor,
                           fontSize: 13.5,
                           height: 1.4,
                         ),
@@ -277,17 +293,17 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.person_outline,
                             size: 15,
-                            color: textMedium,
+                            color: subTextColor,
                           ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              issue['userName'] ?? '',
-                              style: const TextStyle(
-                                color: textMedium,
+                              issue['userName']?.toString() ?? '',
+                              style: TextStyle(
+                                color: subTextColor,
                                 fontSize: 12,
                               ),
                             ),
@@ -297,16 +313,16 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.access_time,
                             size: 14,
-                            color: textMedium,
+                            color: subTextColor,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             _formatDate(issue['createdAt']),
-                            style: const TextStyle(
-                              color: textMedium,
+                            style: TextStyle(
+                              color: subTextColor,
                               fontSize: 11,
                             ),
                           ),
@@ -318,26 +334,28 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                 _buildStatusBadge(status),
               ],
             ),
-
             if (isExpanded) ...[
               const SizedBox(height: 16),
-
               TextField(
                 controller: _commentControllers[issueId],
                 maxLines: 4,
+                style: TextStyle(
+                  color: titleColor,
+                  fontWeight: FontWeight.w600,
+                ),
                 decoration: InputDecoration(
                   hintText: 'Add admin comment...',
-                  hintStyle: const TextStyle(color: textMedium),
+                  hintStyle: TextStyle(color: hintColor),
                   filled: true,
-                  fillColor: background,
+                  fillColor: inputBg,
                   contentPadding: const EdgeInsets.all(14),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: border),
+                    borderSide: BorderSide(color: borderColor),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: border),
+                    borderSide: BorderSide(color: borderColor),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -345,24 +363,24 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 10),
-
               Row(
                 children: [
                   Checkbox(
                     value: _fixedValues[issueId] ?? false,
                     activeColor: secondary,
+                    checkColor: Colors.white,
+                    side: BorderSide(color: subTextColor),
                     onChanged: (value) {
                       setState(() {
                         _fixedValues[issueId] = value ?? false;
                       });
                     },
                   ),
-                  const Text(
+                  Text(
                     'Fixed',
                     style: TextStyle(
-                      color: textDark,
+                      color: titleColor,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -408,14 +426,17 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
         color: isFixed
             ? primary.withOpacity(0.25)
             : isUnread
-                ? lightGreen
+                ? (isDark ? Colors.white10 : lightGreen)
                 : primary.withOpacity(0.18),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? Colors.white10 : Colors.transparent,
+        ),
       ),
       child: Text(
         status,
         style: TextStyle(
-          color: isFixed ? secondary : textDark,
+          color: isFixed ? primary : titleColor,
           fontSize: 10,
           fontWeight: FontWeight.bold,
         ),
@@ -433,93 +454,95 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: background,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            _topBar(),
-
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 18, 16, 12),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildFilterChip('All'),
-                        _buildFilterChip('Unread'),
-                        _buildFilterChip('Read'),
-                        _buildFilterChip('Fixed'),
-                      ],
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    Expanded(
-                      child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                        stream: _getIssuesStream(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(
-                                color: secondary,
-                              ),
-                            );
-                          }
-
-                          if (snapshot.hasError) {
-                            return const Center(
-                              child: Text(
-                                'Failed to load issue reports',
-                                style: TextStyle(
-                                  color: textMedium,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            );
-                          }
-
-                          final issues = _filterIssues(snapshot.data?.docs ?? []);
-
-                          if (issues.isEmpty) {
-                            return const Center(
-                              child: Text(
-                                'No issue reports found',
-                                style: TextStyle(
-                                  color: textMedium,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            );
-                          }
-
-                          return ListView.builder(
-                            itemCount: issues.length,
-                            itemBuilder: (context, index) {
-                              final doc = issues[index];
-                              return _buildIssueCard(
-                                doc.id,
-                                doc.data(),
-                              );
-                            },
-                          );
-                        },
+    return AdminBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              _topBar(),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 18, 16, 12),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildFilterChip('All'),
+                          _buildFilterChip('Unread'),
+                          _buildFilterChip('Read'),
+                          _buildFilterChip('Fixed'),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 18),
+                      Expanded(
+                        child:
+                            StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                          stream: _getIssuesStream(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                child: CircularProgressIndicator(
+                                  color: secondary,
+                                ),
+                              );
+                            }
+
+                            if (snapshot.hasError) {
+                              return Center(
+                                child: Text(
+                                  'Failed to load issue reports',
+                                  style: TextStyle(
+                                    color: subTextColor,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            }
+
+                            final issues =
+                                _filterIssues(snapshot.data?.docs ?? []);
+
+                            if (issues.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  'No issue reports found',
+                                  style: TextStyle(
+                                    color: subTextColor,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            }
+
+                            return ListView.builder(
+                              itemCount: issues.length,
+                              itemBuilder: (context, index) {
+                                final doc = issues[index];
+
+                                return _buildIssueCard(
+                                  doc.id,
+                                  doc.data(),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        bottomNavigationBar: const AdminBar(selectedIndex: 3),
       ),
-      bottomNavigationBar: const AdminBar(selectedIndex: 3),
     );
   }
 }

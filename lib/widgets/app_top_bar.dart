@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 
 class AppTopBar extends StatelessWidget {
   final String title;
+  final String? subtitle;
+
+  final double titleSize; // 👈 تحكم بحجم العنوان
+  final double subtitleSize; // 👈 تحكم بحجم الساب تايتل
+
   final IconData icon;
   final int? notifications;
   final bool showNotifications;
@@ -12,6 +17,10 @@ class AppTopBar extends StatelessWidget {
   const AppTopBar({
     super.key,
     required this.title,
+    this.subtitle,
+    this.titleSize = 20, // 👈 الافتراضي لكل التطبيق
+    this.subtitleSize = 13, // 👈 الافتراضي
+
     this.icon = Icons.eco,
     this.notifications,
     this.showNotifications = false,
@@ -35,6 +44,7 @@ class AppTopBar extends StatelessWidget {
         ),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           GestureDetector(
             onTap: showBackButton ? () => Navigator.pop(context) : null,
@@ -52,17 +62,42 @@ class AppTopBar extends StatelessWidget {
               ),
             ),
           ),
+
           const SizedBox(width: 12),
+
+          /// 👇 Title + Subtitle
           Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: titleSize, // 👈 هنا التحكم
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: subtitleSize, // 👈 هنا التحكم
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
+
           if (showNotifications)
             GestureDetector(
               onTap: onNotificationTap,

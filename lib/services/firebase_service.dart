@@ -104,7 +104,7 @@ class FirebaseService {
     return querySnapshot.docs.first.data();
   }
 
-  // ================= BINS =================
+// ================= BINS =================
 
   Future<void> addBin({
     required String binName,
@@ -114,6 +114,7 @@ class FirebaseService {
     required String city,
     required double latitude,
     required double longitude,
+    required bool isActive,
   }) async {
     await _firestore.collection('bins').add({
       'binName': binName,
@@ -121,12 +122,14 @@ class FirebaseService {
       'Description': description,
       'Region': region,
       'city': city,
-      'isActive': 'Active',
+      'isActive': isActive,
       'latitude': latitude,
       'longitude': longitude,
+      'createdAt': FieldValue.serverTimestamp(),
     });
   }
 
+// ✏️ UPDATE BIN
   Future<void> updateBin({
     required String id,
     required String binName,
@@ -136,9 +139,9 @@ class FirebaseService {
     required String city,
     required double latitude,
     required double longitude,
-    required String isActive,
+    required bool isActive, // ✅ صار bool
   }) async {
-    await FirebaseFirestore.instance.collection('bins').doc(id).update({
+    await _firestore.collection('bins').doc(id).update({
       'binName': binName,
       'binType': binType,
       'Description': description,
@@ -151,6 +154,7 @@ class FirebaseService {
     });
   }
 
+// 📥 GET ALL BINS
   Future<List<Map<String, dynamic>>> getBins() async {
     final snapshot = await _firestore.collection('bins').get();
 
@@ -161,10 +165,11 @@ class FirebaseService {
     }).toList();
   }
 
-  Future<List<Map<String, dynamic>>> getBinsByType(String category) async {
+// 📥 GET ACTIVE BINS
+  Future<List<Map<String, dynamic>>> getActiveBins() async {
     final snapshot = await _firestore
         .collection('bins')
-        .where('binType', isEqualTo: category)
+        .where('isActive', isEqualTo: true)
         .get();
 
     return snapshot.docs.map((doc) {
@@ -174,10 +179,54 @@ class FirebaseService {
     }).toList();
   }
 
+// 📥 GET INACTIVE BINS
+  Future<List<Map<String, dynamic>>> getInactiveBins() async {
+    final snapshot = await _firestore
+        .collection('bins')
+        .where('isActive', isEqualTo: false)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return data;
+    }).toList();
+  }
+
+// GET BINS BY TYPE (WITH STATUS)
+  Future<List<Map<String, dynamic>>> getBinsByType({
+    required String category,
+    required bool isActive,
+  }) async {
+    final snapshot = await _firestore
+        .collection('bins')
+        .where('binType', isEqualTo: category)
+        .where('isActive', isEqualTo: isActive)
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return data;
+    }).toList();
+  }
+
+// 🔁 TOGGLE ACTIVE / INACTIVE
+  Future<void> toggleBinStatus({
+    required String id,
+    required bool currentStatus,
+  }) async {
+    await _firestore.collection('bins').doc(id).update({
+      'isActive': !currentStatus,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+// DELETE BIN
   Future<void> deleteBin(String id) async {
     await _firestore.collection('bins').doc(id).delete();
   }
-  // ================= ISSUES =================
+// ================= ISSUES =================
 
   Future<void> addIssue({
     required String type,
@@ -190,56 +239,66 @@ class FirebaseService {
     }
 
     final userDoc = await _firestore.collection('users').doc(user.uid).get();
-
     final userData = userDoc.data();
 
+    final snapshot = await _firestore
+        .collection('issues')
+        .where('userId', isEqualTo: user.uid)
+        .get();
+
+    final nextNumber = snapshot.docs.length + 1;
+    final issueNumber = nextNumber.toString().padLeft(5, '0');
+
     await _firestore.collection('issues').add({
+      'issueNumber': issueNumber,
       'type': type,
       'details': details,
       'userName': userData?['name'] ?? 'Unknown',
       'userEmail': user.email ?? '',
       'userId': user.uid,
-      'status': 'unread',
-      'isRead': false,
+      'status': 'pending',
+      'adminReply': '',
+      'isReadByUser': false,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
+  }
 
-    Future<List<Map<String, dynamic>>> getIssues() async {
-      final snapshot = await _firestore
-          .collection('issues')
-          .orderBy('createdAt', descending: true)
-          .get();
+  Future<List<Map<String, dynamic>>> getIssues() async {
+    final snapshot = await _firestore
+        .collection('issues')
+        .orderBy('createdAt', descending: true)
+        .get();
 
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
-        return data;
-      }).toList();
-    }
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return data;
+    }).toList();
+  }
 
-    Future<List<Map<String, dynamic>>> getIssuesByStatus(String status) async {
-      final snapshot = await _firestore
-          .collection('issues')
-          .where('status', isEqualTo: status)
-          .orderBy('createdAt', descending: true)
-          .get();
+  Future<List<Map<String, dynamic>>> getIssuesByStatus(String status) async {
+    final snapshot = await _firestore
+        .collection('issues')
+        .where('status', isEqualTo: status)
+        .orderBy('createdAt', descending: true)
+        .get();
 
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
-        return data;
-      }).toList();
-    }
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return data;
+    }).toList();
+  }
 
-    Future<void> updateIssueStatus({
-      required String issueId,
-      required String status,
-    }) async {
-      await _firestore.collection('issues').doc(issueId).update({
-        'status': status,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
-    }
+  Future<void> updateIssueStatus({
+    required String issueId,
+    required String status,
+  }) async {
+    await _firestore.collection('issues').doc(issueId).update({
+      'status': status,
+      'updatedAt': FieldValue.serverTimestamp(),
+      'isReadByUser': false,
+    });
   }
 }

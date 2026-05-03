@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:releaf_app/user/HomePageUser.dart';
-import 'package:releaf_app/user/Profile.dart';
-import 'package:releaf_app/user/LocationPage.dart';
-import 'package:releaf_app/classification/image_classifier_screen.dart';
+import 'package:releaf_app/user/Home/HomePageUser.dart';
+import 'package:releaf_app/user/profile/Profile.dart';
+import 'package:releaf_app/user/Bins/LocationPage.dart';
+import 'package:releaf_app/user/classification/image_classifier_screen.dart';
 
 class UserBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -13,17 +13,40 @@ class UserBottomNav extends StatelessWidget {
     required this.currentIndex,
   });
 
+  static const Color primary = Color(0xFF7FB77E);
+  static const Color lightGreen = Color(0xFFEAF6E3);
+  static const Color textDark = Color(0xFF2F5D50);
+  static const Color textMedium = Color(0xFF4E6A57);
+
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final Color navBg = isDark ? const Color(0xFF1A2520) : lightGreen;
+
     return Container(
       width: double.infinity,
       height: 88,
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-      decoration: const BoxDecoration(
-        color: const Color(0xFFF3FFE2),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: navBg,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(26),
+        ),
+        border: Border(
+          top: BorderSide(
+            color: isDark ? const Color(0xFF355246) : Colors.transparent,
+          ),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.30 : 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, -2),
+          ),
+        ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _buildNavItem(
             context: context,
@@ -37,7 +60,7 @@ class UserBottomNav extends StatelessWidget {
             index: 1,
             icon: Icons.camera_alt_outlined,
             selectedIcon: Icons.camera_alt_rounded,
-            label: 'Camera',
+            label: 'Classify',
           ),
           _buildNavItem(
             context: context,
@@ -65,69 +88,75 @@ class UserBottomNav extends StatelessWidget {
     required IconData selectedIcon,
     required String label,
   }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final bool isSelected = currentIndex == index;
 
-    return GestureDetector(
-      onTap: () {
-        if (index == currentIndex) return;
+    final Color selectedBg = isDark
+        ? const Color(0xFF2F5D50).withOpacity(0.45)
+        : primary.withOpacity(0.25);
 
-        late final Widget page;
+    final Color selectedColor = isDark ? Colors.white : textDark;
 
-        switch (index) {
-          case 0:
-            page = const HomePageUser();
-            break;
-          case 1:
-            page = const ImageClassifierScreen();
-            break;
-          case 2:
-            page = const LocationPage();
-            break;
-          case 3:
-            page = const Profile(
-              name: '',
-              email: '',
-            );
-            break;
-          default:
-            page = const HomePageUser();
-        }
+    final Color unselectedColor = isDark ? const Color(0xFFB7C8BC) : textMedium;
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => page),
-        );
-      },
-      child: SizedBox(
-        width: 64,
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          if (index == currentIndex) return;
+
+          late final Widget page;
+
+          switch (index) {
+            case 0:
+              page = const HomePageUser();
+              break;
+            case 1:
+              page = const ImageClassifierScreen();
+              break;
+            case 2:
+              page = const LocationPage();
+              break;
+            case 3:
+              page = const Profile(
+                name: '',
+                email: '',
+              );
+              break;
+            default:
+              page = const HomePageUser();
+          }
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => page),
+          );
+        },
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 58,
-              height: 34,
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
               decoration: BoxDecoration(
-                color:
-                    isSelected ? const Color(0xFFAED8A5) : Colors.transparent,
+                color: isSelected ? selectedBg : Colors.transparent,
                 borderRadius: BorderRadius.circular(22),
               ),
               child: Icon(
                 isSelected ? selectedIcon : icon,
-                size: 27,
-                color: const Color(0xFF2F4F35),
+                size: 26,
+                color: isSelected ? selectedColor : unselectedColor,
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Text(
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 10.5,
-                fontWeight: FontWeight.w600,
-                color: isSelected
-                    ? const Color(0xFF2F6B45)
-                    : const Color(0xFF49454F),
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                color: isSelected ? selectedColor : unselectedColor,
               ),
             ),
           ],

@@ -12,6 +12,14 @@ class AdminNotificationsOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    Color cardBg = isDark ? const Color(0xFF1F2D28) : Colors.white;
+    Color containerBg =
+        isDark ? const Color(0xFF17211C) : AdminTheme.backgroundDark;
+    Color titleColor = isDark ? Colors.white : AdminTheme.textDark;
+    Color subText = isDark ? Colors.white70 : AdminTheme.textMedium;
+
     return Material(
       color: Colors.black.withOpacity(0.35),
       child: SafeArea(
@@ -22,11 +30,14 @@ class AdminNotificationsOverlay extends StatelessWidget {
             margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AdminTheme.backgroundDark,
+              color: containerBg,
               borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: isDark ? Colors.white10 : Colors.transparent,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.25),
+                  color: Colors.black.withOpacity(isDark ? 0.35 : 0.25),
                   blurRadius: 15,
                 ),
               ],
@@ -34,22 +45,20 @@ class AdminNotificationsOverlay extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                /// 🔝 Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
-                      children: const [
-                        Icon(
-                          Icons.notifications,
-                          color: AdminTheme.textDark,
-                        ),
-                        SizedBox(width: 8),
+                      children: [
+                        Icon(Icons.notifications, color: titleColor),
+                        const SizedBox(width: 8),
                         Text(
                           "Notifications",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: AdminTheme.textDark,
+                            color: titleColor,
                           ),
                         ),
                       ],
@@ -59,13 +68,15 @@ class AdminNotificationsOverlay extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.1),
+                          color: isDark
+                              ? Colors.white10
+                              : Colors.black.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.close,
                           size: 20,
-                          color: AdminTheme.textDark,
+                          color: titleColor,
                         ),
                       ),
                     ),
@@ -74,21 +85,23 @@ class AdminNotificationsOverlay extends StatelessWidget {
 
                 const SizedBox(height: 10),
 
+                /// 🔔 Subtitle
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
                     newNotifications == 0
                         ? 'No new issues'
                         : 'You have $newNotifications new issue(s)',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AdminTheme.textMedium,
+                      color: subText,
                     ),
                   ),
                 ),
 
                 const SizedBox(height: 16),
 
+                /// 📩 List
                 StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                   stream: FirebaseFirestore.instance
                       .collection('issues')
@@ -124,8 +137,12 @@ class AdminNotificationsOverlay extends StatelessWidget {
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: cardBg,
                             borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color:
+                                  isDark ? Colors.white10 : Colors.transparent,
+                            ),
                           ),
                           child: Row(
                             children: [
@@ -145,8 +162,8 @@ class AdminNotificationsOverlay extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   title,
-                                  style: const TextStyle(
-                                    color: AdminTheme.textDark,
+                                  style: TextStyle(
+                                    color: titleColor,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
                                   ),

@@ -1,66 +1,110 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../ChangePasswordPage.dart';
+import 'package:releaf_app/main.dart';
 import '../../widgets/AdminBar.dart';
 import '../../widgets/admin_background.dart';
 import '../../theme/admin_theme.dart';
 import 'AdminProfileEdit.dart';
 import '../../../auth/Login.dart';
+import 'package:releaf_app/widgets/app_top_bar.dart';
+
+import 'package:releaf_app/AboutReLeafPage.dart';
 
 class AdminProfile extends StatefulWidget {
   const AdminProfile({super.key});
 
   @override
-  AdminProfileState createState() => AdminProfileState();
+  State<AdminProfile> createState() => _AdminProfileState();
 }
 
-class AdminProfileState extends State<AdminProfile> {
+class _AdminProfileState extends State<AdminProfile> {
   String adminName = 'Admin';
   String adminEmail = '';
-  String adminPassword = '**************';
-
   bool isLoading = true;
+  bool isDarkMode = false;
 
-  static const Color primary = Color(0xFF7FB77E);
   static const Color secondary = Color(0xFF5E9C76);
-  static const Color lightGreen = Color(0xFFEAF6E3);
-  static const Color border = Color(0xFFDCE8D7);
   static const Color textDark = Color(0xFF2F5D50);
   static const Color textMedium = Color(0xFF4E6A57);
+
+  Color get pageOverlay =>
+      isDarkMode ? Colors.black.withOpacity(0.28) : Colors.transparent;
+
+  Color get cardBg =>
+      isDarkMode ? const Color(0xFF1F2D28) : Colors.white.withOpacity(0.96);
+
+  Color get titleColor => isDarkMode ? Colors.white : textDark;
+
+  Color get subtitleColor => isDarkMode ? Colors.white70 : Colors.black54;
+
+  Color get iconBoxBg =>
+      isDarkMode ? const Color(0xFF31443B) : const Color(0xFFEAF6E3);
+
+  Color get dividerColor => isDarkMode
+      ? Colors.white.withOpacity(0.10)
+      : Colors.black.withOpacity(0.07);
 
   @override
   void initState() {
     super.initState();
     _loadAdminData();
+    _loadTheme();
+  }
+
+  Future<void> _loadTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+
+    setState(() {
+      isDarkMode = prefs.getBool('dark_mode') ?? false;
+    });
+  }
+
+  Future<void> _saveTheme(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('dark_mode', value);
   }
 
   Future<void> _loadAdminData() async {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
+      if (!mounted) return;
       setState(() => isLoading = false);
       return;
     }
 
     adminEmail = user.email ?? '';
 
-    final doc = await FirebaseFirestore.instance
-        .collection('admins')
-        .doc(user.uid)
-        .get();
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('admins')
+          .doc(user.uid)
+          .get();
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (doc.exists) {
-      final data = doc.data();
+      if (doc.exists) {
+        final data = doc.data();
 
-      setState(() {
-        adminName = data?['name'] ?? 'Admin';
-        adminEmail = data?['email'] ?? adminEmail;
-        isLoading = false;
-      });
-    } else {
+        setState(() {
+          adminName = data?['name'] ?? 'Admin';
+          adminEmail = data?['email'] ?? adminEmail;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          adminName = 'Admin';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+
       setState(() {
         adminName = 'Admin';
         isLoading = false;
@@ -75,7 +119,6 @@ class AdminProfileState extends State<AdminProfile> {
         builder: (_) => AdminProfileEdit(
           currentName: adminName,
           currentEmail: adminEmail,
-          currentPassword: adminPassword,
         ),
       ),
     );
@@ -84,7 +127,6 @@ class AdminProfileState extends State<AdminProfile> {
       setState(() {
         adminName = result['name'] ?? adminName;
         adminEmail = result['email'] ?? adminEmail;
-        adminPassword = result['password'] ?? adminPassword;
       });
 
       final user = FirebaseAuth.instance.currentUser;
@@ -117,102 +159,318 @@ class AdminProfileState extends State<AdminProfile> {
     );
   }
 
-  Widget _topBar() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [primary, secondary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(24),
-        ),
+  void _showComingSoon(String title) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$title will be available soon'),
+        backgroundColor: secondary,
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.18),
-              borderRadius: BorderRadius.circular(14),
+    );
+  }
+
+  Widget _profileHeader() {
+    return Column(
+      children: [
+        const SizedBox(height: 10),
+        Container(
+          width: 108,
+          height: 108,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              colors: isDarkMode
+                  ? [
+                      const Color(0xFF2F5D50),
+                      const Color(0xFF17211D),
+                    ]
+                  : [
+                      secondary,
+                      textDark,
+                    ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-            child: const Icon(
-              Icons.person_outline,
-              color: Colors.white,
-              size: 28,
+            border: Border.all(
+              color: isDarkMode ? const Color(0xFF31443B) : Colors.white,
+              width: 6,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDarkMode ? 0.25 : 0.12),
+                blurRadius: 12,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.person_rounded,
+            size: 68,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 14),
+        Text(
+          adminName,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: titleColor,
+            fontSize: 26,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          adminEmail,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: subtitleColor,
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _sectionCard({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 18),
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 10),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: isDarkMode
+              ? Colors.white.withOpacity(0.08)
+              : Colors.white.withOpacity(0.8),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDarkMode ? 0.18 : 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: titleColor,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Admin Profile',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+          const SizedBox(height: 12),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _divider() {
+    return Container(
+      margin: const EdgeInsets.only(left: 78),
+      height: 1,
+      color: dividerColor,
+    );
+  }
+
+  Widget _iconBox(IconData icon) {
+    return Container(
+      width: 52,
+      height: 52,
+      decoration: BoxDecoration(
+        color: iconBoxBg,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Icon(
+        icon,
+        color: isDarkMode ? Colors.white : secondary,
+        size: 27,
+      ),
+    );
+  }
+
+  Widget _menuItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          children: [
+            _iconBox(icon),
+            const SizedBox(width: 18),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: titleColor,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
                 ),
-                SizedBox(height: 2),
-                Text(
-                  'View and manage your account',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
+              ),
             ),
+            Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: isDarkMode ? Colors.white54 : textMedium,
+              size: 18,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _switchItem({
+    required IconData icon,
+    required String title,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          _iconBox(icon),
+          const SizedBox(width: 18),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(
+                color: titleColor,
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Switch(
+            value: value,
+            activeThumbColor: Colors.white,
+            activeTrackColor: secondary,
+            inactiveThumbColor: Colors.white,
+            inactiveTrackColor: Colors.grey.shade300,
+            onChanged: onChanged,
           ),
         ],
       ),
     );
   }
 
-  Widget _gradientButton({
-    required String text,
-    required IconData icon,
-    required VoidCallback onTap,
-    Color? overrideColor,
-  }) {
+  Widget _accountSection() {
+    return _sectionCard(
+      title: 'Account',
+      children: [
+        _menuItem(
+          icon: Icons.person_rounded,
+          title: 'Edit Profile',
+          onTap: _openEditPage,
+        ),
+        _divider(),
+        _menuItem(
+          icon: Icons.lock_rounded,
+          title: 'Change Password',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ChangePasswordPage(isAdmin: true),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _settingsSection() {
+    return _sectionCard(
+      title: 'Settings',
+      children: [
+        _menuItem(
+          icon: Icons.language_rounded,
+          title: 'Language',
+          onTap: () => _showComingSoon('Language'),
+        ),
+        _divider(),
+        _switchItem(
+          icon: Icons.dark_mode_rounded,
+          title: 'Dark Mode',
+          value: isDarkMode,
+          onChanged: (value) async {
+            setState(() {
+              isDarkMode = value;
+            });
+            await updateTheme(value);
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _supportSection() {
+    return _sectionCard(
+      title: 'Support',
+      children: [
+        _menuItem(
+          icon: Icons.info_rounded,
+          title: 'About ReLeaf',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const AboutReLeafPage(isAdmin: true),
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _logoutButton() {
     return GestureDetector(
-      onTap: onTap,
+      onTap: _logout,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 13),
+        width: double.infinity,
+        height: 66,
+        margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
-          color: overrideColor,
-          gradient: overrideColor == null
-              ? const LinearGradient(
-                  colors: [primary, secondary],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
-              : null,
-          borderRadius: BorderRadius.circular(26),
+          color: cardBg,
+          borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: (overrideColor ?? primary).withOpacity(0.28),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
+              color: Colors.black.withOpacity(isDarkMode ? 0.18 : 0.06),
+              blurRadius: 12,
+              offset: const Offset(0, 5),
             ),
           ],
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: Colors.white, size: 20),
-            const SizedBox(width: 8),
+            Icon(
+              Icons.logout_rounded,
+              color: AdminTheme.error,
+              size: 27,
+            ),
+            SizedBox(width: 10),
             Text(
-              text,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 17,
+              'Logout',
+              style: TextStyle(
+                color: AdminTheme.error,
+                fontSize: 19,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -225,254 +483,59 @@ class AdminProfileState extends State<AdminProfile> {
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Scaffold(
-        body: AdminBackground(
-          child: Center(
+      return const AdminBackground(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Center(
             child: CircularProgressIndicator(),
           ),
         ),
-        bottomNavigationBar: AdminBar(selectedIndex: 4),
       );
     }
 
-    return Scaffold(
-      body: AdminBackground(
-        child: SafeArea(
-          bottom: false,
-          child: Column(
-            children: [
-              _topBar(),
-
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 20),
-                  child: Column(
-                    children: [
-                      Stack(
-                        clipBehavior: Clip.none,
+    return AdminBackground(
+      child: Stack(
+        children: [
+          Container(color: pageOverlay),
+          Scaffold(
+            backgroundColor: Colors.transparent,
+            body: SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  AppTopBar(
+                    title: 'My Account',
+                    icon: Icons.person_rounded,
+                    showBackButton: false,
+                    gradientColors: isDarkMode
+                        ? const [
+                            Color(0xFF1F2D28),
+                            Color(0xFF31443B),
+                          ]
+                        : const [
+                            Color(0xFF7FB77E),
+                            Color(0xFF5E9C76),
+                          ],
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 18),
+                      child: Column(
                         children: [
-                          Container(
-                            width: 135,
-                            height: 135,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: lightGreen,
-                              border: Border.all(
-                                color: primary,
-                                width: 3,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.08),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: const Icon(
-                              Icons.person,
-                              size: 82,
-                              color: textDark,
-                            ),
-                          ),
-                          Positioned(
-                            right: -2,
-                            bottom: 8,
-                            child: GestureDetector(
-                              onTap: _openEditPage,
-                              child: Container(
-                                width: 42,
-                                height: 42,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: secondary,
-                                  border: Border.all(
-                                    color: AdminTheme.background,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: const Icon(
-                                  Icons.edit,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-                          ),
+                          _profileHeader(),
+                          const SizedBox(height: 20),
+                          _accountSection(),
+                          _settingsSection(),
+                          _supportSection(),
+                          _logoutButton(),
                         ],
                       ),
-
-                      const SizedBox(height: 18),
-
-                      Text(
-                        adminName,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: textDark,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-
-                      const SizedBox(height: 28),
-
-                      _infoCard(
-                        icon: Icons.email_outlined,
-                        title: 'Email',
-                        value: adminEmail,
-                      ),
-
-                      const SizedBox(height: 14),
-
-                      _passwordCard(),
-
-                      const SizedBox(height: 30),
-
-                      _gradientButton(
-                        text: 'Log Out',
-                        icon: Icons.logout_rounded,
-                        onTap: _logout,
-                        overrideColor: AdminTheme.error,
-                      ),
-
-                      const SizedBox(height: 24),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: const AdminBar(selectedIndex: 4),
-    );
-  }
-
-  Widget _infoCard({
-    required IconData icon,
-    required String title,
-    required String value,
-  }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: lightGreen,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: textDark,
-            size: 28,
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: textDark,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    color: textMedium,
-                    fontSize: 15,
-                    height: 1.3,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _passwordCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: lightGreen,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.lock_outline,
-            color: textDark,
-            size: 28,
-          ),
-          const SizedBox(width: 14),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Password',
-                  style: TextStyle(
-                    color: textDark,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 6),
-                Text(
-                  '**************',
-                  style: TextStyle(
-                    color: textMedium,
-                    fontSize: 15,
-                    height: 1.3,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          GestureDetector(
-            onTap: _openEditPage,
-            child: Container(
-              width: 42,
-              height: 36,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [primary, secondary],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(18),
-              ),
-              child: const Icon(
-                Icons.edit_outlined,
-                color: Colors.white,
-                size: 20,
+                ],
               ),
             ),
+            bottomNavigationBar: const AdminBar(selectedIndex: 4),
           ),
         ],
       ),

@@ -17,6 +17,8 @@ class DonutChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SizedBox(
       width: 120,
       height: 120,
@@ -25,7 +27,8 @@ class DonutChart extends StatelessWidget {
           activePercentage: activePercentage,
           blockedPercentage: blockedPercentage,
           activeColor: const Color(0xFF22B573),
-          inactiveColor: const Color(0xFFD8D8D8),
+          inactiveColor:
+              isDark ? Colors.white.withOpacity(0.18) : const Color(0xFFD8D8D8),
           blockedColor: const Color(0xFFE53935),
         ),
         child: Center(
@@ -34,18 +37,18 @@ class DonutChart extends StatelessWidget {
             children: [
               Text(
                 centerTopText,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
-                  color: Colors.black87,
+                  color: isDark ? Colors.white : Colors.black87,
                 ),
               ),
               Text(
                 centerBottomText,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF777777),
+                  color: isDark ? Colors.white70 : const Color(0xFF777777),
                 ),
               ),
             ],
@@ -118,6 +121,7 @@ class _DonutChartPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _DonutChartPainter oldDelegate) {
     return oldDelegate.activePercentage != activePercentage ||
-        oldDelegate.blockedPercentage != blockedPercentage;
+        oldDelegate.blockedPercentage != blockedPercentage ||
+        oldDelegate.inactiveColor != inactiveColor;
   }
 }

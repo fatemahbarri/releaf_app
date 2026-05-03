@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:releaf_app/services/firebase_service.dart';
 import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/widgets/auth_card.dart';
 import 'package:releaf_app/widgets/custom_button.dart';
+
+import 'package:releaf_app/auth/Login.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -57,9 +60,19 @@ class _SignUpState extends State<SignUp> {
     super.dispose();
   }
 
+  // ✅ تحقق من قوة الباسورد
+  bool _isStrongPassword(String password) {
+    return RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$').hasMatch(password);
+  }
+
+  // ✅ تحقق من الإيميل
+  bool _isValidEmail(String email) {
+    return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email);
+  }
+
   Future<void> _signUp() async {
     final fullName = fullNameController.text.trim();
-    final email = emailController.text.trim();
+    final email = emailController.text.trim().toLowerCase();
     final password = passwordController.text.trim();
     final confirmPassword = confirmPasswordController.text.trim();
 
@@ -81,28 +94,44 @@ class _SignUpState extends State<SignUp> {
       return;
     }
 
-    if (password.length < 6) {
-      _showMessage('Password must be at least 6 characters');
+    if (!_isStrongPassword(password)) {
+      _showMessage(
+        'Password must be at least 8 characters and include uppercase, lowercase, and numbers',
+      );
       return;
     }
 
     setState(() => isLoading = true);
 
     try {
+      // Register user once only
       await _firebaseService.registerUser(
         name: fullName,
         email: email,
         password: password,
       );
 
+      // Send verification email
+      final user = FirebaseAuth.instance.currentUser;
+      await user?.sendEmailVerification();
+
       if (!mounted) return;
 
-      _showMessage('Account created successfully');
+      _showMessage(
+        'Verification email sent. Please check your email before logging in.',
+      );
 
       fullNameController.clear();
       emailController.clear();
       passwordController.clear();
       confirmPasswordController.clear();
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const LoginPage(isAdminMode: false),
+        ),
+      );
     } catch (e) {
       if (!mounted) return;
       _showMessage(e.toString().replaceFirst('Exception: ', ''));
@@ -111,10 +140,6 @@ class _SignUpState extends State<SignUp> {
         setState(() => isLoading = false);
       }
     }
-  }
-
-  bool _isValidEmail(String email) {
-    return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email);
   }
 
   void _showMessage(String message) {

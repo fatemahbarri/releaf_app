@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../services/firebase_service.dart';
 import '../../theme/admin_theme.dart';
+import '../../widgets/admin_background.dart';
 import 'AddBin.dart';
 import '../home/AdminHomePage.dart';
 import '../users/AdminUserManagment.dart';
@@ -30,11 +31,22 @@ class _BinsByCategoryPageState extends State<BinsByCategoryPage> {
 
   static const Color primary = Color(0xFF7FB77E);
   static const Color secondary = Color(0xFF5E9C76);
-  static const Color background = Color(0xFFF7FBF2);
   static const Color lightGreen = Color(0xFFEAF6E3);
   static const Color border = Color(0xFFDCE8D7);
   static const Color textDark = Color(0xFF2F5D50);
   static const Color textMedium = Color(0xFF4E6A57);
+
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get cardBg => isDark ? const Color(0xFF1F2D28) : Colors.white;
+  Color get iconBoxBg => isDark ? const Color(0xFF31443B) : lightGreen;
+  Color get borderColor => isDark ? Colors.white10 : border;
+  Color get titleColor => isDark ? Colors.white : textDark;
+  Color get subTextColor => isDark ? Colors.white70 : textMedium;
+  Color get hintColor => isDark ? Colors.white54 : const Color(0xFF8A9A8C);
+  Color get bottomBarBg => isDark ? const Color(0xFF1F2D28) : lightGreen;
+  Color get selectedNavBg =>
+      isDark ? Colors.white.withOpacity(0.10) : primary.withOpacity(0.25);
 
   @override
   void initState() {
@@ -52,7 +64,10 @@ class _BinsByCategoryPageState extends State<BinsByCategoryPage> {
     setState(() => _isLoading = true);
 
     try {
-      final bins = await _firebaseService.getBinsByType(widget.category);
+      final bins = await _firebaseService.getBinsByType(
+        category: widget.category,
+        isActive: true,
+      );
 
       if (!mounted) return;
 
@@ -86,17 +101,17 @@ class _BinsByCategoryPageState extends State<BinsByCategoryPage> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: background,
-        title: const Text(
+        backgroundColor: cardBg,
+        title: Text(
           'Delete Bin',
           style: TextStyle(
-            color: textDark,
+            color: titleColor,
             fontWeight: FontWeight.bold,
           ),
         ),
         content: Text(
           'Delete "${bin['binName']}"?',
-          style: const TextStyle(color: textMedium),
+          style: TextStyle(color: subTextColor),
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
@@ -104,7 +119,10 @@ class _BinsByCategoryPageState extends State<BinsByCategoryPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: subTextColor),
+            ),
           ),
           ElevatedButton.icon(
             onPressed: () => Navigator.pop(context, true),
@@ -168,37 +186,128 @@ class _BinsByCategoryPageState extends State<BinsByCategoryPage> {
         context,
         MaterialPageRoute(builder: (_) => const AdminBinsPage()),
       );
-    }
-
-    if (index == 0) {
+    } else if (index == 0) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (_) => const AdminHomePage(adminName: 'Admin'),
         ),
       );
-    }
-
-    if (index == 1) {
+    } else if (index == 1) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const AdminUserManagment()),
       );
-    }
-
-    if (index == 3) {
+    } else if (index == 3) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const AdminReportIssue()),
       );
-    }
-
-    if (index == 4) {
+    } else if (index == 4) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const AdminProfile()),
       );
     }
+  }
+
+  Widget _topBar() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isDark
+              ? const [
+                  Color(0xFF1F2D28),
+                  Color(0xFF31443B),
+                ]
+              : const [
+                  primary,
+                  secondary,
+                ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: const BorderRadius.vertical(
+          bottom: Radius.circular(24),
+        ),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.white,
+            ),
+          ),
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.18),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: const Icon(
+              Icons.location_on_rounded,
+              color: Colors.white,
+              size: 28,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              '${widget.category} Bins',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _searchField() {
+    return TextField(
+      controller: _searchController,
+      onChanged: (_) => setState(() {}),
+      style: TextStyle(
+        color: titleColor,
+        fontWeight: FontWeight.w600,
+      ),
+      decoration: InputDecoration(
+        hintText: 'Search Location',
+        hintStyle: TextStyle(color: hintColor),
+        prefixIcon: Icon(
+          Icons.search,
+          color: subTextColor,
+        ),
+        filled: true,
+        fillColor: cardBg,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(22),
+          borderSide: BorderSide(color: borderColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(22),
+          borderSide: BorderSide(color: borderColor),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(22),
+          borderSide: const BorderSide(
+            color: primary,
+            width: 1.4,
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildBinCard(Map<String, dynamic> bin) {
@@ -209,12 +318,12 @@ class _BinsByCategoryPageState extends State<BinsByCategoryPage> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: border),
+        border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(isDark ? 0.20 : 0.05),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -226,36 +335,34 @@ class _BinsByCategoryPageState extends State<BinsByCategoryPage> {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: lightGreen,
+              color: iconBoxBg,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.location_on_outlined,
-              color: textDark,
+              color: isDark ? Colors.white : textDark,
               size: 26,
             ),
           ),
-
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   bin['binName']?.toString() ?? '',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: textDark,
+                    color: titleColor,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13.5,
-                    color: textMedium,
+                    color: subTextColor,
                     height: 1.3,
                   ),
                 ),
@@ -264,18 +371,16 @@ class _BinsByCategoryPageState extends State<BinsByCategoryPage> {
                   bin['Description']?.toString() ?? '',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12.5,
-                    color: textMedium,
+                    color: subTextColor,
                     height: 1.3,
                   ),
                 ),
               ],
             ),
           ),
-
           const SizedBox(width: 8),
-
           Column(
             children: [
               _smallActionButton(
@@ -342,15 +447,17 @@ class _BinsByCategoryPageState extends State<BinsByCategoryPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
-                  color: selected ? primary.withOpacity(0.25) : Colors.transparent,
+                  color: selected ? selectedNavBg : Colors.transparent,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Icon(
                   icon,
-                  color: selected ? textDark : textMedium,
+                  color: selected ? titleColor : subTextColor,
                   size: 27,
                 ),
               ),
@@ -359,7 +466,7 @@ class _BinsByCategoryPageState extends State<BinsByCategoryPage> {
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  color: selected ? textDark : textMedium,
+                  color: selected ? titleColor : subTextColor,
                   fontWeight: selected ? FontWeight.bold : FontWeight.w500,
                 ),
               ),
@@ -376,7 +483,7 @@ class _BinsByCategoryPageState extends State<BinsByCategoryPage> {
         top: Radius.circular(22),
       ),
       child: Container(
-        color: lightGreen,
+        color: bottomBarBg,
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
         child: Row(
           children: [
@@ -420,189 +527,107 @@ class _BinsByCategoryPageState extends State<BinsByCategoryPage> {
   Widget build(BuildContext context) {
     final list = filtered;
 
-    return Scaffold(
-      backgroundColor: background,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [primary, secondary],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(24),
-                ),
-              ),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new,
-                      color: Colors.white,
-                    ),
-                  ),
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.18),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Icon(
-                      Icons.location_on_rounded,
-                      color: Colors.white,
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      '${widget.category} Bins',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 18, 16, 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextField(
-                      controller: _searchController,
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        hintText: 'Search Location',
-                        hintStyle: const TextStyle(color: Color(0xFF8A9A8C)),
-                        prefixIcon: const Icon(
-                          Icons.search,
-                          color: textMedium,
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(22),
-                          borderSide: const BorderSide(color: border),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(22),
-                          borderSide: const BorderSide(color: border),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(22),
-                          borderSide: const BorderSide(
-                            color: primary,
-                            width: 1.4,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Nearby Locations',
-                          style: TextStyle(
-                            color: textDark,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: _add,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 10,
+    return AdminBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              _topBar(),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 18, 16, 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _searchField(),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Nearby Locations',
+                            style: TextStyle(
+                              color: titleColor,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
                             ),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [primary, secondary],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+                          ),
+                          GestureDetector(
+                            onTap: _add,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 10,
                               ),
-                              borderRadius: BorderRadius.circular(22),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: primary.withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 3),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [primary, secondary],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
-                              ],
-                            ),
-                            child: const Row(
-                              children: [
-                                Icon(
-                                  Icons.add,
-                                  color: Colors.white,
-                                  size: 18,
-                                ),
-                                SizedBox(width: 6),
-                                Text(
-                                  'Add Bin',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
+                                borderRadius: BorderRadius.circular(22),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: primary.withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 3),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    Expanded(
-                      child: _isLoading
-                          ? const Center(
-                              child: CircularProgressIndicator(
-                                color: secondary,
+                                ],
                               ),
-                            )
-                          : list.isEmpty
-                              ? const Center(
-                                  child: Text(
-                                    'No locations found',
+                              child: const Row(
+                                children: [
+                                  Icon(
+                                    Icons.add,
+                                    color: Colors.white,
+                                    size: 18,
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'Add Bin',
                                     style: TextStyle(
-                                      fontSize: 16,
-                                      color: textMedium,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                )
-                              : ListView(
-                                  children: list.map(_buildBinCard).toList(),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Expanded(
+                        child: _isLoading
+                            ? const Center(
+                                child: CircularProgressIndicator(
+                                  color: secondary,
                                 ),
-                    ),
-                  ],
+                              )
+                            : list.isEmpty
+                                ? Center(
+                                    child: Text(
+                                      'No locations found',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: subTextColor,
+                                      ),
+                                    ),
+                                  )
+                                : ListView(
+                                    children: list.map(_buildBinCard).toList(),
+                                  ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
+        bottomNavigationBar: _buildBottomBar(),
       ),
-      bottomNavigationBar: _buildBottomBar(),
     );
   }
 }

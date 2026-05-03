@@ -14,19 +14,29 @@ class AdminBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final navBg = isDark ? const Color(0xFF1F2D28) : AdminTheme.navBar;
+    final selectedBg = isDark
+        ? Colors.white.withOpacity(0.10)
+        : AdminTheme.primary.withOpacity(0.25);
+    final selectedColor = isDark ? Colors.white : AdminTheme.primary;
+    final unselectedColor = isDark ? Colors.white60 : AdminTheme.textMuted;
+
     return Container(
       decoration: BoxDecoration(
-        color: AdminTheme.navBar,
-
-        // ✅ Rounded like user bar
+        color: navBg,
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(22),
         ),
-
-        // ✅ Shadow like user bar
+        border: Border(
+          top: BorderSide(
+            color: isDark ? Colors.white10 : Colors.transparent,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withOpacity(isDark ? 0.28 : 0.08),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -41,6 +51,9 @@ class AdminBar extends StatelessWidget {
             icon: Icons.home_outlined,
             selectedIcon: Icons.home_rounded,
             label: 'Home',
+            selectedBg: selectedBg,
+            selectedColor: selectedColor,
+            unselectedColor: unselectedColor,
           ),
           _buildNavItem(
             context: context,
@@ -48,6 +61,9 @@ class AdminBar extends StatelessWidget {
             icon: Icons.group_outlined,
             selectedIcon: Icons.group,
             label: 'Users',
+            selectedBg: selectedBg,
+            selectedColor: selectedColor,
+            unselectedColor: unselectedColor,
           ),
           _buildNavItem(
             context: context,
@@ -55,6 +71,9 @@ class AdminBar extends StatelessWidget {
             icon: Icons.location_on_outlined,
             selectedIcon: Icons.location_on,
             label: 'Bins',
+            selectedBg: selectedBg,
+            selectedColor: selectedColor,
+            unselectedColor: unselectedColor,
           ),
           _buildNavItem(
             context: context,
@@ -62,6 +81,9 @@ class AdminBar extends StatelessWidget {
             icon: Icons.report_problem_outlined,
             selectedIcon: Icons.report_problem,
             label: 'Issues',
+            selectedBg: selectedBg,
+            selectedColor: selectedColor,
+            unselectedColor: unselectedColor,
           ),
           _buildNavItem(
             context: context,
@@ -69,6 +91,9 @@ class AdminBar extends StatelessWidget {
             icon: Icons.settings_outlined,
             selectedIcon: Icons.settings,
             label: 'Profile',
+            selectedBg: selectedBg,
+            selectedColor: selectedColor,
+            unselectedColor: unselectedColor,
           ),
         ],
       ),
@@ -81,6 +106,9 @@ class AdminBar extends StatelessWidget {
     required IconData icon,
     required IconData selectedIcon,
     required String label,
+    required Color selectedBg,
+    required Color selectedColor,
+    required Color unselectedColor,
   }) {
     final bool isSelected = selectedIndex == index;
 
@@ -116,44 +144,33 @@ class AdminBar extends StatelessWidget {
             MaterialPageRoute(builder: (_) => page),
           );
         },
-
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // ✅ Same pill design as user bar
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 18,
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? AdminTheme.primary.withOpacity(0.25)
-                      : Colors.transparent,
+                  color: isSelected ? selectedBg : Colors.transparent,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Icon(
                   isSelected ? selectedIcon : icon,
                   size: 26,
-                  color: isSelected
-                      ? AdminTheme.primary
-                      : AdminTheme.textMuted,
+                  color: isSelected ? selectedColor : unselectedColor,
                 ),
               ),
-
               const SizedBox(height: 4),
-
               Text(
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  color: isSelected
-                      ? AdminTheme.primary
-                      : AdminTheme.textMuted,
-                  fontWeight:
-                      isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected ? selectedColor : unselectedColor,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 ),
               ),
             ],

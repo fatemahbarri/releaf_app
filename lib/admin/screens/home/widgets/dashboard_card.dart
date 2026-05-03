@@ -18,20 +18,30 @@ class DashboardCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       height: 170,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [startColor, endColor],
+          colors: isDark
+              ? [
+                  startColor.withOpacity(0.75), // 👈 تهدئة اللون
+                  endColor.withOpacity(0.75),
+                ]
+              : [
+                  startColor,
+                  endColor,
+                ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(26),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x1F000000),
+            color: Colors.black.withOpacity(isDark ? 0.35 : 0.12),
             blurRadius: 14,
-            offset: Offset(0, 8),
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -44,7 +54,9 @@ class DashboardCard extends StatelessWidget {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.22),
+                color: isDark
+                    ? Colors.black.withOpacity(0.25) // 👈 دارك
+                    : Colors.white.withOpacity(0.22),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(

@@ -30,6 +30,19 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
   bool isLoading = true;
   String? errorMessage;
 
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get cardBg => isDark ? const Color(0xFF1F2D28) : AdminTheme.card;
+  Color get borderColor => isDark ? Colors.white10 : AdminTheme.border;
+  Color get titleColor => isDark ? Colors.white : AdminTheme.textDark;
+  Color get subTextColor => isDark ? Colors.white70 : AdminTheme.textMuted;
+  Color get iconColor => isDark ? Colors.white70 : AdminTheme.textDark;
+  Color get hintColor => isDark ? Colors.white54 : const Color(0xFF8A8A8A);
+  Color get topBarStart =>
+      isDark ? const Color(0xFF1F2D28) : AdminTheme.primary;
+  Color get topBarEnd =>
+      isDark ? const Color(0xFF31443B) : AdminTheme.secondary;
+
   @override
   void initState() {
     super.initState();
@@ -131,6 +144,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
 
     final selected = await showMenu<String>(
       context: context,
+      color: cardBg,
       position: RelativeRect.fromRect(
         Rect.fromPoints(
           button.localToGlobal(Offset.zero, ancestor: overlay),
@@ -162,7 +176,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
       child: Text(
         value,
         style: TextStyle(
-          color: isSelected ? AdminTheme.primary : AdminTheme.textDark,
+          color: isSelected ? AdminTheme.primary : titleColor,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
         ),
       ),
@@ -185,6 +199,220 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
     return const Color(0xFF9E9E9E);
   }
 
+  Widget _searchAndFilterSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 10),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 48,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: cardBg,
+                    border: Border.all(color: borderColor),
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(isDark ? 0.18 : 0.03),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.search,
+                        color: hintColor,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextField(
+                          controller: searchController,
+                          onChanged: searchUsers,
+                          style: TextStyle(
+                            color: titleColor,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Search User',
+                            hintStyle: TextStyle(
+                              color: hintColor,
+                              fontSize: 16,
+                            ),
+                            border: InputBorder.none,
+                            isDense: true,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Builder(
+                builder: (filterContext) {
+                  return InkWell(
+                    onTap: () => showFilterMenu(filterContext),
+                    borderRadius: BorderRadius.circular(20),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(
+                        Icons.tune_rounded,
+                        size: 24,
+                        color: iconColor,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Filter: $selectedFilter',
+              style: TextStyle(
+                color: subTextColor,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUserCard(Map<String, dynamic> user) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: SizedBox(
+        height: 108,
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                decoration: BoxDecoration(
+                  color: cardBg,
+                  border: Border.all(
+                    color: borderColor,
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(isDark ? 0.22 : 0.12),
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            user['name'] ?? '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: titleColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            user['email'] ?? '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: subTextColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    _buildStatusButton(user['status'] ?? 'Active'),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            InkWell(
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AdminEditUser(user: user),
+                  ),
+                );
+
+                await fetchUsers();
+              },
+              child: SizedBox(
+                width: 24,
+                child: Center(
+                  child: Icon(
+                    Icons.edit_outlined,
+                    size: 24,
+                    color: iconColor,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusButton(String status) {
+    return Container(
+      width: 92,
+      height: 42,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: _statusColor(status),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.22 : 0.12),
+            blurRadius: 4,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Text(
+        status,
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AdminBackground(
@@ -198,95 +426,15 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                 title: 'Users Management',
                 icon: Icons.group_rounded,
                 showNotifications: false,
-                gradientColors: const [
-                  AdminTheme.primary,
-                  AdminTheme.secondary,
+                gradientColors: [
+                  topBarStart,
+                  topBarEnd,
                 ],
               ),
               Expanded(
                 child: Column(
                   children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(16, 18, 16, 10),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  height: 48,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: AdminTheme.card,
-                                    border: Border.all(
-                                      color: AdminTheme.border,
-                                    ),
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.search,
-                                        color: Color(0xFF8A8A8A),
-                                        size: 20,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: TextField(
-                                          controller: searchController,
-                                          onChanged: searchUsers,
-                                          decoration: const InputDecoration(
-                                            hintText: 'Search User',
-                                            hintStyle: TextStyle(
-                                              color: Color(0xFF8A8A8A),
-                                              fontSize: 16,
-                                            ),
-                                            border: InputBorder.none,
-                                            isDense: true,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Builder(
-                                builder: (filterContext) {
-                                  return InkWell(
-                                    onTap: () => showFilterMenu(filterContext),
-                                    borderRadius: BorderRadius.circular(20),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(4),
-                                      child: Icon(
-                                        Icons.tune_rounded,
-                                        size: 24,
-                                        color: AdminTheme.textDark,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              'Filter: $selectedFilter',
-                              style: const TextStyle(
-                                color: AdminTheme.textMuted,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    _searchAndFilterSection(),
                     Expanded(
                       child: isLoading
                           ? const Center(
@@ -310,15 +458,15 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                                   onRefresh: refreshUsers,
                                   child: filteredUsers.isEmpty
                                       ? ListView(
-                                          children: const [
-                                            SizedBox(height: 180),
+                                          children: [
+                                            const SizedBox(height: 180),
                                             Center(
                                               child: Text(
                                                 'No users found',
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w600,
-                                                  color: AdminTheme.textMuted,
+                                                  color: subTextColor,
                                                 ),
                                               ),
                                             ),
@@ -346,129 +494,6 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
           ),
         ),
         bottomNavigationBar: const AdminBar(selectedIndex: 1),
-      ),
-    );
-  }
-
-  Widget _buildUserCard(Map<String, dynamic> user) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: SizedBox(
-        height: 108,
-        child: Row(
-          children: [
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
-                ),
-                decoration: BoxDecoration(
-                  color: AdminTheme.card,
-                  border: Border.all(
-                    color: AdminTheme.border,
-                    width: 1,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x22000000),
-                      blurRadius: 5,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            user['name'] ?? '',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AdminTheme.textDark,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            user['email'] ?? '',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AdminTheme.textDark,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    _buildStatusButton(user['status'] ?? 'Active'),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            InkWell(
-              onTap: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => AdminEditUser(user: user),
-                  ),
-                );
-
-                await fetchUsers();
-              },
-              child: const SizedBox(
-                width: 24,
-                child: Center(
-                  child: Icon(
-                    Icons.edit_outlined,
-                    size: 24,
-                    color: AdminTheme.textDark,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatusButton(String status) {
-    return Container(
-      width: 92,
-      height: 42,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: _statusColor(status),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x22000000),
-            blurRadius: 4,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Text(
-        status,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-        ),
       ),
     );
   }

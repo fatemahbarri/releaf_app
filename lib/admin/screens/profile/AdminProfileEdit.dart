@@ -7,13 +7,11 @@ import '../../widgets/admin_background.dart';
 class AdminProfileEdit extends StatefulWidget {
   final String currentName;
   final String currentEmail;
-  final String currentPassword;
 
   const AdminProfileEdit({
     super.key,
     required this.currentName,
     required this.currentEmail,
-    required this.currentPassword,
   });
 
   @override
@@ -23,44 +21,39 @@ class AdminProfileEdit extends StatefulWidget {
 class _AdminProfileEditState extends State<AdminProfileEdit> {
   late final TextEditingController _nameController;
   late final TextEditingController _emailController;
-  late final TextEditingController _passwordController;
-  late final TextEditingController _confirmPasswordController;
 
   bool _isLoading = false;
 
   static const Color primary = Color(0xFF7FB77E);
   static const Color secondary = Color(0xFF5E9C76);
-  static const Color background = Color(0xFFF7FBF2);
   static const Color lightGreen = Color(0xFFEAF6E3);
   static const Color border = Color(0xFFDCE8D7);
   static const Color textDark = Color(0xFF2F5D50);
   static const Color textMedium = Color(0xFF4E6A57);
+
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get cardBg => isDark ? const Color(0xFF1F2D28) : Colors.white;
+  Color get inputBorder => isDark ? Colors.white10 : border;
+  Color get textColor => isDark ? Colors.white : textDark;
+  Color get hintColor => isDark ? Colors.white54 : const Color(0xFF8A9A8C);
+  Color get iconColor => isDark ? Colors.white70 : textMedium;
+  Color get avatarBg => isDark ? const Color(0xFF31443B) : lightGreen;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.currentName);
     _emailController = TextEditingController(text: widget.currentEmail);
-    _passwordController = TextEditingController();
-    _confirmPasswordController = TextEditingController();
   }
 
   Future<void> _saveChanges() async {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-    final confirmPassword = _confirmPasswordController.text.trim();
 
     if (name.isEmpty || email.isEmpty) {
       _showMessage('Please fill the required fields');
       return;
-    }
-
-    if (password.isNotEmpty || confirmPassword.isNotEmpty) {
-      if (password != confirmPassword) {
-        _showMessage('Passwords do not match');
-        return;
-      }
     }
 
     setState(() => _isLoading = true);
@@ -81,44 +74,50 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      if (email != user.email) {
-        await user.updateEmail(email);
-      }
-
-      if (password.isNotEmpty) {
-        await user.updatePassword(password);
-      }
-
       if (!mounted) return;
 
       Navigator.pop(context, {
         'name': name,
         'email': email,
-        'password': password.isNotEmpty ? password : widget.currentPassword,
       });
     } catch (_) {
       _showMessage('Failed to update profile');
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
   void _showMessage(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: secondary,
+      ),
+    );
   }
 
   Widget _topBar() {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [primary, secondary],
+          colors: isDark
+              ? const [
+                  Color(0xFF1F2D28),
+                  Color(0xFF31443B),
+                ]
+              : const [
+                  primary,
+                  secondary,
+                ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.vertical(
+        borderRadius: const BorderRadius.vertical(
           bottom: Radius.circular(24),
         ),
       ),
@@ -126,7 +125,10 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
         children: [
           IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back_ios_new,
+              color: Colors.white,
+            ),
           ),
           Container(
             width: 48,
@@ -166,12 +168,12 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: border),
+        color: cardBg,
+        border: Border.all(color: inputBorder),
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withOpacity(isDark ? 0.22 : 0.05),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -180,18 +182,20 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
       child: TextField(
         controller: controller,
         obscureText: obscureText,
-        style: const TextStyle(
-          color: textDark,
+        style: TextStyle(
+          color: textColor,
           fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Color(0xFF8A9A8C)),
-          prefixIcon: icon != null ? Icon(icon, color: textMedium) : null,
+          hintStyle: TextStyle(color: hintColor),
+          prefixIcon: icon != null ? Icon(icon, color: iconColor) : null,
           border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 16,
+          ),
         ),
       ),
     );
@@ -231,17 +235,15 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: background,
-      body: AdminBackground(
-        child: SafeArea(
+    return AdminBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
           bottom: false,
           child: Column(
             children: [
@@ -251,18 +253,31 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
+                      const SizedBox(height: 10),
                       Container(
                         width: 130,
                         height: 130,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: lightGreen,
-                          border: Border.all(color: primary, width: 3),
+                          color: avatarBg,
+                          border: Border.all(
+                            color: isDark ? Colors.white24 : primary,
+                            width: 3,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(
+                                isDark ? 0.25 : 0.08,
+                              ),
+                              blurRadius: 12,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.person,
                           size: 80,
-                          color: textDark,
+                          color: isDark ? Colors.white : textDark,
                         ),
                       ),
                       const SizedBox(height: 28),
@@ -275,18 +290,6 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
                         controller: _emailController,
                         hint: 'Email',
                         icon: Icons.email_outlined,
-                      ),
-                      _buildInputField(
-                        controller: _passwordController,
-                        hint: 'New Password',
-                        obscureText: true,
-                        icon: Icons.lock_outline,
-                      ),
-                      _buildInputField(
-                        controller: _confirmPasswordController,
-                        hint: 'Confirm Password',
-                        obscureText: true,
-                        icon: Icons.lock_reset_outlined,
                       ),
                       const SizedBox(height: 16),
                       _saveButton(),

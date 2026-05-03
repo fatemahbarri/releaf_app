@@ -64,6 +64,8 @@ class ReLeafHeader extends StatelessWidget {
   final IconData icon;
   final bool showBackButton;
   final VoidCallback? onBack;
+  final TextStyle? titleStyle;
+  final TextStyle? subtitleStyle;
 
   const ReLeafHeader({
     super.key,
@@ -71,6 +73,8 @@ class ReLeafHeader extends StatelessWidget {
     required this.subtitle,
     this.icon = Icons.eco_rounded,
     this.showBackButton = false,
+    this.titleStyle,
+    this.subtitleStyle,
     this.onBack,
   });
 
@@ -84,14 +88,19 @@ class ReLeafHeader extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(24),
+        ),
       ),
       child: Row(
         children: [
           if (showBackButton) ...[
             IconButton(
               onPressed: onBack ?? () => Navigator.pop(context),
-              icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                color: Colors.white,
+              ),
             ),
           ],
           Container(
@@ -101,7 +110,11 @@ class ReLeafHeader extends StatelessWidget {
               color: Colors.white.withOpacity(0.18),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(icon, color: Colors.white, size: 28),
+            child: Icon(
+              icon,
+              color: Colors.white,
+              size: 26,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -110,14 +123,24 @@ class ReLeafHeader extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: ReLeafTextStyles.title.copyWith(color: Colors.white),
+                  style: titleStyle ??
+                      ReLeafTextStyles.title.copyWith(
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
                   subtitle,
-                  style: ReLeafTextStyles.subtitle.copyWith(
-                    color: Colors.white70,
-                  ),
+                  style: subtitleStyle ??
+                      ReLeafTextStyles.subtitle.copyWith(
+                        color: Colors.white70,
+                        fontSize: 13,
+                      ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -353,14 +376,13 @@ class ReLeafBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: double.infinity,
+      margin: EdgeInsets.zero,
       decoration: BoxDecoration(
         color: ReLeafColors.lightGreen,
-
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(22),
         ),
-
-        // ✨ optional shadow (makes it look modern)
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
@@ -369,7 +391,12 @@ class ReLeafBottomBar extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: EdgeInsets.only(
+        left: 10,
+        right: 10,
+        top: 8,
+        bottom: 8,
+      ),
       child: Row(
         children: [
           _buildItem(icon: Icons.home_outlined, label: 'Home', index: 0),

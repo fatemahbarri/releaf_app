@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
 
 import '../../widgets/AdminBar.dart';
 import '../../widgets/admin_background.dart';
 import '../../theme/admin_theme.dart';
-import 'BinsByCategoryPage.dart';
+import 'AddBin.dart';
 
 class AdminBinsPage extends StatefulWidget {
   const AdminBinsPage({super.key});
@@ -18,12 +15,8 @@ class AdminBinsPage extends StatefulWidget {
 }
 
 class _AdminBinsPageState extends State<AdminBinsPage> {
-  final TextEditingController _searchController = TextEditingController();
-  final MapController _mapController = MapController();
-
-  LatLng _currentCenter = const LatLng(26.385046, 50.189002);
-  bool _isSearching = false;
-  List<Marker> _markers = [];
+  String _selectedFilter = 'All';
+  String _selectedStatus = 'Active';
 
   static const Color primary = AdminTheme.primary;
   static const Color secondary = AdminTheme.secondary;
@@ -32,198 +25,395 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
   static const Color textDark = AdminTheme.textDark;
   static const Color textMedium = AdminTheme.textMedium;
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get cardBg => isDark ? const Color(0xFF1F2D28) : Colors.white;
+  Color get chipBg => isDark ? const Color(0xFF263A32) : Colors.white;
+  Color get iconBoxBg => isDark ? const Color(0xFF31443B) : lightGreen;
+  Color get borderColor => isDark ? Colors.white10 : border;
+  Color get titleColor => isDark ? Colors.white : textDark;
+  Color get subTextColor => isDark ? Colors.white70 : textMedium;
+  Color get topBarStart => isDark ? const Color(0xFF1F2D28) : primary;
+  Color get topBarEnd => isDark ? const Color(0xFF31443B) : secondary;
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> _getBinsStream() {
+    return FirebaseFirestore.instance.collection('bins').snapshots();
   }
 
-  Future<void> _getCurrentLocation() async {
-    try {
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) return;
-
-      var permission = await Geolocator.checkPermission();
-
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) return;
-      }
-
-      if (permission == LocationPermission.deniedForever) return;
-
-      final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best,
-      );
-
-      final userLocation = LatLng(position.latitude, position.longitude);
-
-      if (!mounted) return;
-
-      setState(() {
-        _currentCenter = userLocation;
-        _markers = [
-          Marker(
-            point: userLocation,
-            width: 50,
-            height: 50,
-            child: const Icon(
-              Icons.my_location,
-              size: 36,
-              color: Colors.blue,
-            ),
-          ),
-        ];
-      });
-
-      _mapController.move(userLocation, 16);
-    } catch (e) {
-      debugPrint('Location error: $e');
-    }
-  }
-
-  Future<void> _searchLocation() async {
-    final query = _searchController.text.trim();
-    if (query.isEmpty) return;
-
-    setState(() => _isSearching = true);
-
-    try {
-      final results = await locationFromAddress(query);
-      if (results.isEmpty) return;
-
-      final place = results.first;
-      final searchedLocation = LatLng(place.latitude, place.longitude);
-
-      if (!mounted) return;
-
-      setState(() {
-        _currentCenter = searchedLocation;
-        _markers = [
-          Marker(
-            point: searchedLocation,
-            width: 50,
-            height: 50,
-            child: const Icon(
-              Icons.location_on,
-              color: AdminTheme.error,
-              size: 40,
-            ),
-          ),
-        ];
-      });
-
-      _mapController.move(searchedLocation, 16);
-    } catch (e) {
-      debugPrint('Search location error: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _isSearching = false);
+  String _getValue(
+    Map<String, dynamic> data,
+    List<String> keys, {
+    String fallback = '',
+  }) {
+    for (final key in keys) {
+      if (data.containsKey(key) && data[key] != null) {
+        final value = data[key].toString().trim();
+        if (value.isNotEmpty) return value;
       }
     }
+    return fallback;
   }
 
-  void _openCategoryPage(String category) {
-    Navigator.push(
+  bool _isActiveBin(Map<String, dynamic> data) {
+    final value = data['isActive'];
+
+    if (value is bool) return value;
+
+    if (value is String) {
+      return value.toLowerCase() == 'active';
+    }
+
+    return true;
+  }
+
+  List<QueryDocumentSnapshot<Map<String, dynamic>>> _filterBins(
+    List<QueryDocumentSnapshot<Map<String, dynamic>>> bins,
+  ) {
+    return bins.where((doc) {
+      final data = doc.data();
+
+      final isActive = _isActiveBin(data);
+      if (_selectedStatus == 'Active' && !isActive) return false;
+      if (_selectedStatus == 'Inactive' && isActive) return false;
+
+      if (_selectedFilter == 'All') return true;
+
+      final type = _getValue(
+        data,
+        ['type', 'category', 'material', 'binType'],
+      ).toLowerCase();
+
+      return type == _selectedFilter.toLowerCase();
+    }).toList();
+  }
+
+  Future<void> _editBin(String binId, Map<String, dynamic> bin) async {
+    final type = _getValue(
+      bin,
+      ['type', 'category', 'material', 'binType'],
+      fallback: 'Plastic',
+    );
+
+    await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => BinsByCategoryPage(category: category),
-      ),
-    );
-  }
-
-  Widget _buildCategoryButton(String title, IconData icon) {
-    final isTrash = title == 'Trash';
-
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        child: SizedBox(
-          height: 110,
-          child: InkWell(
-            onTap: () => _openCategoryPage(title),
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-              decoration: BoxDecoration(
-                color: lightGreen,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: border),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(icon, color: textDark, size: 28),
-                  const SizedBox(height: 6),
-                  Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: textDark,
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  SizedBox(
-                    height: 14,
-                    child: isTrash
-                        ? const Text(
-                            'non-recyclables',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: textMedium,
-                              fontSize: 10,
-                            ),
-                          )
-                        : null,
-                  ),
-                ],
-              ),
-            ),
-          ),
+        builder: (_) => AddBin(
+          category: type,
+          initialData: {
+            'id': binId,
+            ...bin,
+          },
         ),
       ),
     );
   }
 
-  Widget _buildRoundIconButton({
-    required IconData icon,
-    required VoidCallback? onPressed,
-    Widget? child,
-  }) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Opacity(
-        opacity: onPressed == null ? 0.55 : 1,
+  Future<void> _deleteBin(String binId, String binName) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: cardBg,
+        title: Text(
+          'Delete Bin',
+          style: TextStyle(
+            color: titleColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          'Delete "$binName"?',
+          style: TextStyle(color: subTextColor),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: subTextColor),
+            ),
+          ),
+          ElevatedButton.icon(
+            onPressed: () => Navigator.pop(context, true),
+            icon: const Icon(Icons.delete, color: Colors.white),
+            label: const Text('Delete'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AdminTheme.error,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    await FirebaseFirestore.instance.collection('bins').doc(binId).delete();
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Bin deleted successfully')),
+    );
+  }
+
+  Widget _buildStatusTab(String text) {
+    final selected = _selectedStatus == text;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedStatus = text;
+          });
+        },
         child: Container(
-          width: 44,
           height: 44,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [primary, secondary],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+            color: selected ? primary : chipBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: selected ? primary : borderColor,
             ),
-            borderRadius: BorderRadius.circular(18),
             boxShadow: [
-              BoxShadow(
-                color: primary.withOpacity(0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 3),
+              if (!selected)
+                BoxShadow(
+                  color: Colors.black.withOpacity(isDark ? 0.18 : 0.04),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                ),
+            ],
+          ),
+          child: Text(
+            text == 'Active' ? 'Active Bins' : 'Inactive Bins',
+            style: TextStyle(
+              color: selected ? Colors.white : subTextColor,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterButton(String text) {
+    final selected = _selectedFilter == text;
+
+    return GestureDetector(
+      onTap: () => setState(() => _selectedFilter = text),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+        decoration: BoxDecoration(
+          color: selected ? primary : chipBg,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: selected ? primary : borderColor,
+          ),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: selected ? Colors.white : subTextColor,
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBinIcon(String type) {
+    final t = type.toLowerCase();
+
+    String? imagePath;
+
+    if (t == 'plastic') {
+      imagePath = 'assets/images/plastic-bottle.png';
+    } else if (t == 'metal') {
+      imagePath = 'assets/images/can.png';
+    } else if (t == 'paper') {
+      imagePath = 'assets/images/paper.png';
+    } else if (t == 'glass') {
+      imagePath = 'assets/images/glass.png';
+    } else if (t == 'cardboard') {
+      imagePath = 'assets/images/cardboard.png';
+    } else if (t == 'trash') {
+      imagePath = 'assets/images/trash.png';
+    }
+
+    if (imagePath != null) {
+      return Image.asset(
+        imagePath,
+        width: 27,
+        height: 27,
+        fit: BoxFit.contain,
+      );
+    }
+
+    return Icon(
+      Icons.delete_outline,
+      color: titleColor,
+      size: 24,
+    );
+  }
+
+  Widget _actionButton({
+    required IconData icon,
+    required VoidCallback onTap,
+    required Color color,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 37,
+        height: 37,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(18.5),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.25),
+              blurRadius: 7,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Icon(icon, color: Colors.white, size: 19),
+      ),
+    );
+  }
+
+  Widget _buildBinCard(String binId, Map<String, dynamic> bin) {
+    final name = _getValue(
+      bin,
+      ['name', 'binName', 'title', 'locationName'],
+      fallback: 'Recycling Bin',
+    );
+
+    final type = _getValue(
+      bin,
+      ['type', 'category', 'material', 'binType'],
+      fallback: 'Unknown',
+    );
+
+    final city = _getValue(
+      bin,
+      ['city', 'area', 'location', 'address'],
+    );
+
+    final province = _getValue(
+      bin,
+      ['province', 'region'],
+    );
+
+    final materials = _getValue(
+      bin,
+      ['acceptedMaterials', 'materials', 'accepted'],
+    );
+
+    final locationText = [
+      city,
+      province,
+    ].where((e) => e.trim().isNotEmpty).join(' - ');
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.20 : 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 45,
+            height: 45,
+            decoration: BoxDecoration(
+              color: iconBoxBg,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Center(child: _buildBinIcon(type)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: titleColor,
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                if (locationText.isNotEmpty)
+                  Text(
+                    locationText,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: subTextColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                if (materials.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    materials,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: subTextColor,
+                      fontSize: 11.5,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Column(
+            children: [
+              _actionButton(
+                icon: Icons.edit,
+                onTap: () => _editBin(binId, bin),
+                color: secondary,
+              ),
+              const SizedBox(height: 8),
+              _actionButton(
+                icon: Icons.delete_outline,
+                onTap: () => _deleteBin(binId, name),
+                color: AdminTheme.error,
               ),
             ],
           ),
-          child: child ?? Icon(icon, color: Colors.white, size: 18),
-        ),
+        ],
+      ),
+    );
+  }
+
+  void _addNewBin() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const AddBin(category: 'Plastic'),
       ),
     );
   }
@@ -233,170 +423,140 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
     return AdminBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
+        floatingActionButton: GestureDetector(
+          onTap: _addNewBin,
+          child: Container(
+            width: 58,
+            height: 58,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [primary, secondary],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: primary.withOpacity(0.4),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.add,
+              color: Colors.white,
+              size: 30,
+            ),
+          ),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         body: SafeArea(
           bottom: false,
           child: Column(
             children: [
               AppTopBar(
-                title: 'Bins Management',
+                title: 'Bins',
                 icon: Icons.location_on_rounded,
                 showNotifications: false,
-                gradientColors: const [
-                  AdminTheme.primary,
-                  AdminTheme.secondary,
+                gradientColors: [
+                  topBarStart,
+                  topBarEnd,
                 ],
               ),
               Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _searchController,
-                              onSubmitted: (_) => _searchLocation(),
-                              decoration: InputDecoration(
-                                hintText: 'Search Location',
-                                hintStyle: const TextStyle(
-                                  color: Color(0xFF8A9A8C),
-                                ),
-                                prefixIcon: const Icon(
-                                  Icons.search,
-                                  color: textMedium,
-                                ),
-                                filled: true,
-                                fillColor: Colors.white,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 14,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(22),
-                                  borderSide: const BorderSide(color: border),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(22),
-                                  borderSide: const BorderSide(color: border),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(22),
-                                  borderSide: const BorderSide(
-                                    color: primary,
-                                    width: 1.4,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                          _buildStatusTab('Active'),
                           const SizedBox(width: 10),
-                          _buildRoundIconButton(
-                            icon: Icons.search,
-                            onPressed: _isSearching ? null : _searchLocation,
-                            child: _isSearching
-                                ? const SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : null,
-                          ),
-                          const SizedBox(width: 8),
-                          _buildRoundIconButton(
-                            icon: Icons.my_location,
-                            onPressed: _getCurrentLocation,
-                          ),
+                          _buildStatusTab('Inactive'),
                         ],
-                      ),
-                      const SizedBox(height: 18),
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: border),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(18),
-                          child: SizedBox(
-                            height: 250,
-                            child: FlutterMap(
-                              mapController: _mapController,
-                              options: MapOptions(
-                                initialCenter: _currentCenter,
-                                initialZoom: 15,
-                              ),
-                              children: [
-                                TileLayer(
-                                  urlTemplate:
-                                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                  subdomains: const ['a', 'b', 'c'],
-                                  userAgentPackageName:
-                                      'com.example.releaf_app',
-                                  tileProvider: NetworkTileProvider(),
-                                ),
-                                MarkerLayer(markers: _markers),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        'Bins Category',
-                        style: TextStyle(
-                          color: textDark,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
                       ),
                       const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          _buildCategoryButton(
-                            'Cardboard',
-                            Icons.inventory_2_outlined,
-                          ),
-                          _buildCategoryButton(
-                            'Glass',
-                            Icons.wine_bar_outlined,
-                          ),
-                          _buildCategoryButton(
-                            'Metal',
-                            Icons.settings_outlined,
-                          ),
-                        ],
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildFilterButton('All'),
+                            const SizedBox(width: 8),
+                            _buildFilterButton('Plastic'),
+                            const SizedBox(width: 8),
+                            _buildFilterButton('Paper'),
+                            const SizedBox(width: 8),
+                            _buildFilterButton('Metal'),
+                            const SizedBox(width: 8),
+                            _buildFilterButton('Glass'),
+                            const SizedBox(width: 8),
+                            _buildFilterButton('Cardboard'),
+                            const SizedBox(width: 8),
+                            _buildFilterButton('Trash'),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          _buildCategoryButton(
-                            'Paper',
-                            Icons.description_outlined,
-                          ),
-                          _buildCategoryButton(
-                            'Plastic',
-                            Icons.local_drink_outlined,
-                          ),
-                          _buildCategoryButton(
-                            'Trash',
-                            Icons.delete_outline,
-                          ),
-                        ],
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child:
+                            StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                          stream: _getBinsStream(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Center(
+                                child: CircularProgressIndicator(
+                                  color: secondary,
+                                ),
+                              );
+                            }
+
+                            if (snapshot.hasError) {
+                              return Center(
+                                child: Text(
+                                  'Failed to load bins',
+                                  style: TextStyle(
+                                    color: subTextColor,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            }
+
+                            final bins = _filterBins(snapshot.data?.docs ?? []);
+
+                            if (bins.isEmpty) {
+                              return Center(
+                                child: Text(
+                                  _selectedStatus == 'Active'
+                                      ? 'No active bins found'
+                                      : 'No inactive bins found',
+                                  style: TextStyle(
+                                    color: subTextColor,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            }
+
+                            return ListView.builder(
+                              itemCount: bins.length,
+                              itemBuilder: (context, index) {
+                                final doc = bins[index];
+
+                                return _buildBinCard(
+                                  doc.id,
+                                  doc.data(),
+                                );
+                              },
+                            );
+                          },
+                        ),
                       ),
-                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
