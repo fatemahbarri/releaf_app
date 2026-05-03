@@ -398,12 +398,6 @@ class _AdminProfileState extends State<AdminProfile> {
     return _sectionCard(
       title: 'Settings',
       children: [
-        _menuItem(
-          icon: Icons.language_rounded,
-          title: 'Language',
-          onTap: () => _showComingSoon('Language'),
-        ),
-        _divider(),
         _switchItem(
           icon: Icons.dark_mode_rounded,
           title: 'Dark Mode',

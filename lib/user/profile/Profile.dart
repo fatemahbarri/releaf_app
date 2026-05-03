@@ -577,12 +577,6 @@ class _ProfileState extends State<Profile> {
     return _sectionCard(
       title: 'Settings',
       children: [
-        _menuItem(
-          icon: Icons.language_rounded,
-          title: 'Language',
-          onTap: () => _showComingSoon('Language'),
-        ),
-        _divider(),
         _switchItem(
           icon: isDarkMode ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
           title: 'Dark Mode',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/widgets/releaf_ui.dart';
@@ -370,7 +371,15 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
       ),
       child: Row(
         children: [
-          Icon(_getItemIcon(item), color: ReLeafColors.primary),
+          SvgPicture.asset(
+            _getItemSvg(item),
+            width: 26,
+            height: 26,
+            colorFilter: const ColorFilter.mode(
+              ReLeafColors.primary,
+              BlendMode.srcIn,
+            ),
+          ),          
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -515,10 +524,14 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
               width: isWinner ? 3 : 2,
             ),
           ),
-          child: Icon(
-            _getItemIcon(itemName),
-            color: ReLeafColors.primary,
-            size: isWinner ? 32 : 28,
+          child: SvgPicture.asset(
+            _getItemSvg(itemName),
+            width: isWinner ? 32 : 28,
+            height: isWinner ? 32 : 28,
+            colorFilter: const ColorFilter.mode(
+              ReLeafColors.primary,
+              BlendMode.srcIn,
+            ),
           ),
         ),
         const SizedBox(height: 8),
@@ -659,10 +672,14 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            _getItemIcon(itemName),
-            color: ReLeafColors.primary,
-            size: 32,
+          SvgPicture.asset(
+            _getItemSvg(itemName),
+            width: 32,
+            height: 32,
+            colorFilter: const ColorFilter.mode(
+              ReLeafColors.primary,
+              BlendMode.srcIn,
+            ),
           ),
           const SizedBox(height: 10),
           Text(
@@ -756,16 +773,17 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
         return 'Keep recycling to grow your plant.';
     }
   }
-
-  IconData _getItemIcon(String itemName) {
+  String _getItemSvg(String itemName) {
     final item = itemName.toLowerCase();
 
-    if (item.contains('plastic')) return Icons.local_drink_rounded;
-    if (item.contains('glass')) return Icons.wine_bar_rounded;
-    if (item.contains('paper')) return Icons.description_rounded;
-    if (item.contains('metal')) return Icons.inventory_2_rounded;
-    if (item.contains('cardboard')) return Icons.archive_rounded;
-    if (item.contains('trash')) return Icons.delete_outline_rounded;
-    return Icons.recycling_rounded;
+    if (item.contains('plastic')) return 'assets/icons/plastic.svg';
+    if (item.contains('glass')) return 'assets/icons/glass.svg';
+    if (item.contains('paper')) return 'assets/icons/paper.svg';
+    if (item.contains('metal')) return 'assets/icons/metal.svg';
+    if (item.contains('cardboard')) return 'assets/icons/cardboard.svg';
+    if (item.contains('trash')) return 'assets/icons/trash.svg';
+
+    return 'assets/icons/recycling.svg';
   }
+
 }

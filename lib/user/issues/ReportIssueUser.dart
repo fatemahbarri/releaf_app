@@ -73,8 +73,9 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
       'userName': user.email ?? 'User',
       'userEmail': user.email ?? '',
       'userId': user.uid,
-      'status': 'Pending',
-      'adminReply': '',
+      'status': 'unread',
+      'isRead': false,
+      'adminComment': '',
       'isReadByUser': false,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
@@ -425,10 +426,9 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
             final title = data['title']?.toString() ?? 'Complaint';
             final details = data['details']?.toString() ?? '';
             final status = data['status']?.toString() ?? 'Pending';
-            final adminReply = data['adminReply']?.toString() ?? '';
+            final adminReply = data['adminComment']?.toString() ?? '';
 
-            final isCompleted = status.toLowerCase() == 'completed' ||
-                status.toLowerCase() == 'answered' ||
+            final isCompleted = status.toLowerCase() == 'fixed' ||
                 adminReply.isNotEmpty;
 
             return GestureDetector(

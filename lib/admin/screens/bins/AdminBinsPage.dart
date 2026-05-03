@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../widgets/AdminBar.dart';
 import '../../widgets/admin_background.dart';
@@ -227,38 +228,28 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
   }
 
   Widget _buildBinIcon(String type) {
-    final t = type.toLowerCase();
+  return SvgPicture.asset(
+    _getItemSvg(type),
+    width: 24,
+    height: 24,
+    colorFilter: ColorFilter.mode(
+      titleColor,
+      BlendMode.srcIn,
+    ),
+  );
+}
 
-    String? imagePath;
+  String _getItemSvg(String itemName) {
+    final item = itemName.toLowerCase();
 
-    if (t == 'plastic') {
-      imagePath = 'assets/images/plastic-bottle.png';
-    } else if (t == 'metal') {
-      imagePath = 'assets/images/can.png';
-    } else if (t == 'paper') {
-      imagePath = 'assets/images/paper.png';
-    } else if (t == 'glass') {
-      imagePath = 'assets/images/glass.png';
-    } else if (t == 'cardboard') {
-      imagePath = 'assets/images/cardboard.png';
-    } else if (t == 'trash') {
-      imagePath = 'assets/images/trash.png';
-    }
+    if (item.contains('plastic')) return 'assets/icons/plastic.svg';
+    if (item.contains('glass')) return 'assets/icons/glass.svg';
+    if (item.contains('paper')) return 'assets/icons/paper.svg';
+    if (item.contains('metal')) return 'assets/icons/metal.svg';
+    if (item.contains('cardboard')) return 'assets/icons/cardboard.svg';
+    if (item.contains('trash')) return 'assets/icons/trash.svg';
 
-    if (imagePath != null) {
-      return Image.asset(
-        imagePath,
-        width: 27,
-        height: 27,
-        fit: BoxFit.contain,
-      );
-    }
-
-    return Icon(
-      Icons.delete_outline,
-      color: titleColor,
-      size: 24,
-    );
+    return 'assets/icons/recycling.svg';
   }
 
   Widget _actionButton({

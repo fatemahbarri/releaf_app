@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../services/firebase_service.dart';
 import 'locations_data.dart';
 import '../../widgets/AdminBar.dart';
 import '../../widgets/admin_background.dart';
+
 
 class AddBin extends StatefulWidget {
   final String category;
@@ -224,36 +226,30 @@ class _AddBinState extends State<AddBin> {
   }
 
   Widget _categoryIcon(String type, {Color? color}) {
-    final iconColor = color ?? subTextColor;
-    Widget icon;
+  final iconColor = color ?? subTextColor;
 
-    switch (type.toLowerCase()) {
-      case 'plastic':
-        icon = Image.asset('assets/images/plastic-bottle.png', width: 24);
-        break;
-      case 'metal':
-        icon = Image.asset('assets/images/can.png', width: 24);
-        break;
-      case 'paper':
-        icon = Image.asset('assets/images/paper.png', width: 24);
-        break;
-      case 'glass':
-        icon = Image.asset('assets/images/glass.png', width: 24);
-        break;
-      case 'cardboard':
-        icon = Image.asset('assets/images/cardboard.png', width: 24);
-        break;
-      case 'trash':
-        icon = Image.asset('assets/images/trash.png', width: 24);
-        break;
-      default:
-        return Icon(Icons.recycling, color: iconColor);
-    }
+  return SvgPicture.asset(
+    _getItemSvg(type),
+    width: 24,
+    height: 24,
+    colorFilter: ColorFilter.mode(
+      iconColor,
+      BlendMode.srcIn,
+    ),
+  );
+}
 
-    return ColorFiltered(
-      colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
-      child: icon,
-    );
+  String _getItemSvg(String itemName) {
+    final item = itemName.toLowerCase();
+
+    if (item.contains('plastic')) return 'assets/icons/plastic.svg';
+    if (item.contains('glass')) return 'assets/icons/glass.svg';
+    if (item.contains('paper')) return 'assets/icons/paper.svg';
+    if (item.contains('metal')) return 'assets/icons/metal.svg';
+    if (item.contains('cardboard')) return 'assets/icons/cardboard.svg';
+    if (item.contains('trash')) return 'assets/icons/trash.svg';
+
+    return 'assets/icons/recycling.svg';
   }
 
   Widget _topBar() {

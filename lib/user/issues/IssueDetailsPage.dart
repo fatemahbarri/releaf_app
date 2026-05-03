@@ -23,11 +23,8 @@ class IssueDetailsPage extends StatelessWidget {
 
   int _getStep(Map<String, dynamic> data) {
     final status = data['status']?.toString().toLowerCase() ?? 'pending';
-    final adminReply = data['adminReply']?.toString() ?? '';
-
-    if (adminReply.isNotEmpty ||
-        status == 'completed' ||
-        status == 'answered') {
+    final adminReply = data['adminComment']?.toString() ?? '';
+    if (adminReply.isNotEmpty || status == 'fixed') {
       return 2;
     }
 
@@ -78,8 +75,7 @@ class IssueDetailsPage extends StatelessWidget {
               final title = data['title']?.toString() ?? 'Complaint';
               final details = data['details']?.toString() ?? '';
               final status = data['status']?.toString() ?? 'Pending';
-              final adminReply = data['adminReply']?.toString() ?? '';
-              final currentStep = _getStep(data);
+              final adminReply = data['adminComment']?.toString() ?? '';              final currentStep = _getStep(data);
 
               return Column(
                 children: [

@@ -105,7 +105,7 @@ class AdminNotificationsOverlay extends StatelessWidget {
                 StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                   stream: FirebaseFirestore.instance
                       .collection('issues')
-                      .where('status', isEqualTo: 'unread')
+                      .where('isRead', isEqualTo: 'false')
                       .orderBy('createdAt', descending: true)
                       .snapshots(),
                   builder: (context, snapshot) {

@@ -19,11 +19,13 @@ class SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
+    final int visibleUsers = activeUsers + blockedUsers;
+
     final double activePercentage =
-        totalUsers == 0 ? 0 : activeUsers / totalUsers;
+        visibleUsers == 0 ? 0 : activeUsers / visibleUsers;
 
     final double blockedPercentage =
-        totalUsers == 0 ? 0 : blockedUsers / totalUsers;
+        visibleUsers == 0 ? 0 : blockedUsers / visibleUsers;
 
     return Container(
       width: double.infinity,
@@ -74,7 +76,7 @@ class SummaryCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'A quick overview of active, inactive and blocked users.',
+                  'A quick overview of active and blocked users.',
                   style: TextStyle(
                     fontSize: 13.5,
                     height: 1.4,
@@ -89,13 +91,7 @@ class SummaryCard extends StatelessWidget {
                   isDark: isDark,
                 ),
                 const SizedBox(height: 8),
-                _LegendItem(
-                  color: isDark ? Colors.white24 : const Color(0xFFD8D8D8),
-                  label: 'Inactive Users',
-                  value: inactiveUsers.toString(),
-                  isDark: isDark,
-                ),
-                const SizedBox(height: 8),
+               
                 _LegendItem(
                   color: const Color(0xFFE53935),
                   label: 'Blocked Users',

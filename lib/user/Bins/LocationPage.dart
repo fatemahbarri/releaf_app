@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:releaf_app/user/UserWidgets/UserBottomNav.dart';
 import 'package:releaf_app/widgets/app_background.dart';
@@ -330,8 +331,8 @@ class _LocationPageState extends State<LocationPage> {
       ),
     );
   }
-
-  Widget _buildCategoryButton(String title, String imagePath) {
+  
+  Widget _buildCategoryButton(String title) {
     final isTrash = title == 'Trash';
 
     return Expanded(
@@ -351,12 +352,15 @@ class _LocationPageState extends State<LocationPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(
-                    imagePath,
+                  SvgPicture.asset(
+                    _getItemSvg(title),
                     width: 30,
                     height: 30,
-                    fit: BoxFit.contain,
-                  ),
+                    colorFilter: ColorFilter.mode(
+                      mainTextColor,
+                      BlendMode.srcIn,
+                      ),
+                    ),
                   const SizedBox(height: 6),
                   Flexible(
                     child: Text(
@@ -430,7 +434,18 @@ class _LocationPageState extends State<LocationPage> {
       );
     }
   }
+  String _getItemSvg(String itemName) {
+    final item = itemName.toLowerCase();
 
+    if (item.contains('plastic')) return 'assets/icons/plastic.svg';
+    if (item.contains('glass')) return 'assets/icons/glass.svg';
+    if (item.contains('paper')) return 'assets/icons/paper.svg';
+    if (item.contains('metal')) return 'assets/icons/metal.svg';
+    if (item.contains('cardboard')) return 'assets/icons/cardboard.svg';
+    if (item.contains('trash')) return 'assets/icons/trash.svg';
+
+    return 'assets/icons/recycling.svg';
+  }
   @override
   Widget build(BuildContext context) {
     return AppBackground(
@@ -554,35 +569,17 @@ class _LocationPageState extends State<LocationPage> {
                       const SizedBox(height: 14),
                       Row(
                         children: [
-                          _buildCategoryButton(
-                            'Cardboard',
-                            'assets/images/cardboard.png',
-                          ),
-                          _buildCategoryButton(
-                            'Glass',
-                            'assets/images/glass.png',
-                          ),
-                          _buildCategoryButton(
-                            'Metal',
-                            'assets/images/can.png',
-                          ),
+                          _buildCategoryButton('Cardboard'),
+                          _buildCategoryButton('Glass'),
+                          _buildCategoryButton('Metal'),
                         ],
                       ),
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          _buildCategoryButton(
-                            'Paper',
-                            'assets/images/paper.png',
-                          ),
-                          _buildCategoryButton(
-                            'Plastic',
-                            'assets/images/plastic-bottle.png',
-                          ),
-                          _buildCategoryButton(
-                            'Trash',
-                            'assets/images/trash.png',
-                          ),
+                          _buildCategoryButton('Paper'),
+                          _buildCategoryButton('Plastic',),
+                          _buildCategoryButton('Trash'),
                         ],
                       ),
                       const SizedBox(height: 24),

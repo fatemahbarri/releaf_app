@@ -27,8 +27,8 @@ class DonutChart extends StatelessWidget {
           activePercentage: activePercentage,
           blockedPercentage: blockedPercentage,
           activeColor: const Color(0xFF22B573),
-          inactiveColor:
-              isDark ? Colors.white.withOpacity(0.18) : const Color(0xFFD8D8D8),
+          trackColor:
+          isDark ? Colors.white.withOpacity(0.18) : const Color(0xFFD8D8D8),
           blockedColor: const Color(0xFFE53935),
         ),
         child: Center(
@@ -63,14 +63,14 @@ class _DonutChartPainter extends CustomPainter {
   final double activePercentage;
   final double blockedPercentage;
   final Color activeColor;
-  final Color inactiveColor;
+  final Color trackColor;
   final Color blockedColor;
 
   _DonutChartPainter({
     required this.activePercentage,
     required this.blockedPercentage,
     required this.activeColor,
-    required this.inactiveColor,
+    required this.trackColor,
     required this.blockedColor,
   });
 
@@ -81,8 +81,8 @@ class _DonutChartPainter extends CustomPainter {
     final radius = (size.width / 2) - strokeWidth;
     final rect = Rect.fromCircle(center: center, radius: radius);
 
-    final inactivePaint = Paint()
-      ..color = inactiveColor
+    final trackPaint = Paint()
+      ..color = trackColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
@@ -99,7 +99,7 @@ class _DonutChartPainter extends CustomPainter {
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawCircle(center, radius, inactivePaint);
+    canvas.drawCircle(center, radius, trackPaint);
 
     final active = activePercentage.clamp(0.0, 1.0);
     final blocked = blockedPercentage.clamp(0.0, 1.0 - active);
@@ -122,6 +122,6 @@ class _DonutChartPainter extends CustomPainter {
   bool shouldRepaint(covariant _DonutChartPainter oldDelegate) {
     return oldDelegate.activePercentage != activePercentage ||
         oldDelegate.blockedPercentage != blockedPercentage ||
-        oldDelegate.inactiveColor != inactiveColor;
+        oldDelegate.trackColor != trackColor;
   }
 }
