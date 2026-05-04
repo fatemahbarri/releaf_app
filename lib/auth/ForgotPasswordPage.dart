@@ -118,68 +118,81 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: AppBackground(
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            child: Column(
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+    return Theme(
+      data: ThemeData.light().copyWith(
+        scaffoldBackgroundColor: Colors.transparent,
+        iconTheme: const IconThemeData(
+          color: Color(0xFF498056),
+        ),
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: Color(0xFF499A64),
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: AppBackground(
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 30),
-                Image.asset(
-                  'assets/images/Releaf_logo.png',
-                  height: 120,
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Forgot Password?',
-                  style: TextStyle(
-                    color: Color(0xFF498056),
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
+                  const SizedBox(height: 30),
+                  Image.asset(
+                    'assets/images/Releaf_logo.png',
+                    height: 120,
                   ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Enter your email to receive a reset link',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Color(0xFF675F5A),
-                    fontSize: 14,
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Forgot Password?',
+                    style: TextStyle(
+                      color: Color(0xFF498056),
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 35),
-                AuthCard(
-                  child: Column(
-                    children: [
-                      _buildTextField(
-                        controller: emailController,
-                        hintText: 'Email Address',
-                        keyboardType: TextInputType.emailAddress,
-                        prefixIcon: const Icon(
-                          Icons.email_outlined,
-                          color: Color(0xFF499A64),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Enter your email to receive a reset link',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Color(0xFF675F5A),
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 35),
+                  AuthCard(
+                    isDark: false,
+                    child: Column(
+                      children: [
+                        _buildTextField(
+                          controller: emailController,
+                          hintText: 'Email Address',
+                          keyboardType: TextInputType.emailAddress,
+                          prefixIcon: const Icon(
+                            Icons.email_outlined,
+                            color: Color(0xFF499A64),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 12),
-                      CustomButton(
-                        text: 'Send Reset Link',
-                        isLoading: isLoading,
-                        onTap: _resetPassword,
-                      ),
-                    ],
+                        const SizedBox(height: 12),
+                        CustomButton(
+                          text: 'Send Reset Link',
+                          isLoading: isLoading,
+                          onTap: _resetPassword,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

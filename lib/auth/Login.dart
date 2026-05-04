@@ -8,7 +8,8 @@ import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/widgets/auth_card.dart';
 import 'package:releaf_app/widgets/custom_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:releaf_app/main.dart';
 import 'package:releaf_app/admin/widgets/admin_background.dart';
 import '../admin/screens/home/AdminHomePage.dart';
@@ -62,8 +63,7 @@ class _LoginPageState extends State<LoginPage> {
     return widget.isAdminMode ? 'Admin Login' : 'User Login';
   }
 
-  bool get isDark =>
-      widget.isAdminMode && Theme.of(context).brightness == Brightness.dark;
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
   Color get titleColor =>
       isDark ? const Color(0xFF8BC99B) : const Color(0xFF498056);
 
@@ -96,6 +96,17 @@ class _LoginPageState extends State<LoginPage> {
     emailController.dispose();
     passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> openWhatsAppSupport() async {
+    final Uri url = Uri.parse(
+      'https://wa.me/966555229836?text=Hello%20ReLeaf%20Support,%20my%20account%20is%20blocked.',
+    );
+
+    await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    );
   }
 
   Future<void> _loadRememberedEmail() async {
@@ -180,6 +191,36 @@ class _LoginPageState extends State<LoginPage> {
 
       if (!mounted) return;
 
+      final status =
+          (userData['accountStatus'] ?? 'active').toString().toLowerCase();
+
+      if (status == 'blocked') {
+        await FirebaseAuth.instance.signOut();
+        if (!mounted) return;
+
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('Account Blocked'),
+            content: const Text(
+              'Your account has been blocked.\nPlease contact support via WhatsApp.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: openWhatsAppSupport,
+                child: const Text('WhatsApp'),
+              ),
+            ],
+          ),
+        );
+
+        return;
+      }
+
       final role = (userData['role'] ?? '').toString().toLowerCase();
       final name = (userData['name'] ?? '').toString();
 
@@ -218,30 +259,6 @@ class _LoginPageState extends State<LoginPage> {
         setState(() => isLoading = false);
       }
     }
-  }
-
-  bool _isValidEmail(String email) {
-    return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email);
-  }
-
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: isDark ? const Color(0xFF2E3A32) : null,
-        content: Text(
-          message,
-          style: TextStyle(color: isDark ? Colors.white : null),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBackground({required Widget child}) {
-    if (widget.isAdminMode) {
-      return AdminBackground(child: child);
-    }
-
-    return AppBackground(child: child);
   }
 
   Widget _buildTextField({
@@ -362,6 +379,27 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  bool _isValidEmail(String email) {
+    return RegExp(r'^[\w\.-]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Widget _buildBackground({required Widget child}) {
+    if (widget.isAdminMode) {
+      return AdminBackground(child: child);
+    }
+
+    return AppBackground(child: child);
+  }
+
   Widget _buildLoginContent() {
     return SafeArea(
       child: SingleChildScrollView(
@@ -405,7 +443,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 70),
             AuthCard(
-              isDark: isDark,
               child: Column(
                 children: [
                   _buildTextField(

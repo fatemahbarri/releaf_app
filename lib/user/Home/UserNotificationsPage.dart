@@ -12,7 +12,6 @@ class UserNotificationsPage extends StatelessWidget {
 
   String _formatIssueNumber(dynamic number) {
     if (number == null) return '00001';
-
     final intValue = int.tryParse(number.toString()) ?? 1;
     return intValue.toString().padLeft(5, '0');
   }
@@ -21,6 +20,11 @@ class UserNotificationsPage extends StatelessWidget {
     await FirebaseFirestore.instance.collection('issues').doc(docId).update({
       'isReadByUser': true,
     });
+  }
+
+  bool _isResolved(String status) {
+    final s = status.toLowerCase().trim();
+    return s == 'resolved' || s == 'completed' || s == 'fixed' || s == 'solved';
   }
 
   @override
@@ -77,23 +81,10 @@ class UserNotificationsPage extends StatelessWidget {
                         builder: (context, snapshot) {
                           if (snapshot.hasError) {
                             return Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Text(
-                                  'Error loading notifications:\n${snapshot.error}',
-                                  textAlign: TextAlign.center,
-                                  style: ReLeafTextStyles.body.copyWith(
-                                    color: Colors.redAccent,
-                                  ),
-                                ),
+                              child: Text(
+                                'Error: ${snapshot.error}',
+                                style: TextStyle(color: Colors.red),
                               ),
-                            );
-                          }
-
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
                             );
                           }
 
@@ -111,95 +102,80 @@ class UserNotificationsPage extends StatelessWidget {
 
                           final issues = snapshot.data!.docs;
 
-                          issues.sort((a, b) {
-                            final aData = a.data() as Map<String, dynamic>;
-                            final bData = b.data() as Map<String, dynamic>;
+                          // 🔥 هنا السحر: نحول كل شكوى إلى إشعارين
+                          final List<Map<String, dynamic>> notifications = [];
 
-                            final aTime = aData['createdAt'];
-                            final bTime = bData['createdAt'];
+                          for (var doc in issues) {
+                            final data = doc.data() as Map<String, dynamic>;
+                            final status =
+                                data['status']?.toString() ?? 'pending';
 
-                            if (aTime is Timestamp && bTime is Timestamp) {
-                              return bTime.compareTo(aTime);
+                            // إشعار الاستلام
+                            notifications.add({
+                              'docId': doc.id,
+                              'data': data,
+                              'type': 'received',
+                            });
+
+                            // إشعار الحل (إذا انحلت)
+                            if (_isResolved(status)) {
+                              notifications.add({
+                                'docId': doc.id,
+                                'data': data,
+                                'type': 'resolved',
+                              });
                             }
-
-                            return 0;
-                          });
+                          }
 
                           return ListView.separated(
                             padding: const EdgeInsets.fromLTRB(16, 12, 16, 100),
-                            itemCount: issues.length,
+                            itemCount: notifications.length,
                             separatorBuilder: (_, __) =>
                                 const SizedBox(height: 12),
                             itemBuilder: (context, index) {
-                              final doc = issues[index];
-                              final data = doc.data() as Map<String, dynamic>;
+                              final item = notifications[index];
+                              final data = item['data'] as Map<String, dynamic>;
 
                               final issueNumber =
                                   _formatIssueNumber(data['issueNumber']);
-                              final status =
-                                  data['status']?.toString() ?? 'Pending';
                               final title =
                                   data['title']?.toString() ?? 'Complaint';
                               final reply =
                                   data['adminReply']?.toString() ?? '';
-                              final isRead = data['isReadByUser'] == true;
+                              final type = item['type'];
 
-                              final isCompleted =
-                                  status.toLowerCase() == 'completed' ||
-                                      status.toLowerCase() == 'answered' ||
-                                      reply.isNotEmpty;
+                              final isResolved = type == 'resolved';
 
-                              final message = isCompleted
-                                  ? 'Your complaint #$issueNumber has been answered.'
-                                  : 'Your complaint has been received successfully. Complaint number: #$issueNumber. We will respond to you soon.';
+                              final message = isResolved
+                                  ? 'Your complaint #$issueNumber has been resolved successfully.'
+                                  : 'Your complaint #$issueNumber has been received successfully.';
+
+                              final color = isResolved
+                                  ? const Color(0xFF66BB6A)
+                                  : const Color(0xFFFFB74D);
+
+                              final icon = isResolved
+                                  ? Icons.check_circle_outline
+                                  : Icons.notifications_active_outlined;
 
                               return GestureDetector(
-                                onTap: () => _markAsRead(doc.id),
+                                onTap: () => _markAsRead(item['docId']),
                                 child: Container(
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
                                     color: cardColor,
                                     borderRadius: BorderRadius.circular(22),
-                                    border: Border.all(
-                                      color: isRead
-                                          ? borderColor.withOpacity(
-                                              isDark ? 0.6 : 0.4,
-                                            )
-                                          : ReLeafColors.primary.withOpacity(
-                                              isDark ? 0.8 : 0.45,
-                                            ),
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(
-                                          isDark ? 0.30 : 0.06,
-                                        ),
-                                        blurRadius: 12,
-                                        offset: const Offset(0, 5),
-                                      ),
-                                    ],
+                                    border: Border.all(color: borderColor),
                                   ),
                                   child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
                                     children: [
                                       Container(
                                         padding: const EdgeInsets.all(10),
                                         decoration: BoxDecoration(
-                                          color: ReLeafColors.primary
-                                              .withOpacity(
-                                                  isDark ? 0.22 : 0.12),
+                                          color: color.withOpacity(0.15),
                                           shape: BoxShape.circle,
                                         ),
-                                        child: Icon(
-                                          isCompleted
-                                              ? Icons.mark_email_read_outlined
-                                              : Icons
-                                                  .notifications_active_outlined,
-                                          color: isDark
-                                              ? Colors.white
-                                              : ReLeafColors.primary,
-                                        ),
+                                        child: Icon(icon, color: color),
                                       ),
                                       const SizedBox(width: 12),
                                       Expanded(
@@ -208,72 +184,41 @@ class UserNotificationsPage extends StatelessWidget {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              'Complaint #$issueNumber',
-                                              style: ReLeafTextStyles.title
-                                                  .copyWith(
-                                                fontSize: 17,
+                                              isResolved
+                                                  ? 'Resolved #$issueNumber'
+                                                  : 'Received #$issueNumber',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
                                                 color: textColor,
                                               ),
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
                                               title,
-                                              style: ReLeafTextStyles.body
-                                                  .copyWith(
-                                                fontSize: 13,
-                                                color: subTextColor,
-                                              ),
+                                              style: TextStyle(
+                                                  color: subTextColor),
                                             ),
-                                            const SizedBox(height: 8),
+                                            const SizedBox(height: 6),
                                             Text(
                                               message,
-                                              style: ReLeafTextStyles.body
-                                                  .copyWith(
-                                                fontSize: 13,
-                                                color: isCompleted
-                                                    ? const Color(0xFF66BB6A)
-                                                    : const Color(0xFFFFB74D),
+                                              style: TextStyle(
+                                                color: color,
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),
-                                            if (reply.isNotEmpty) ...[
-                                              const SizedBox(height: 8),
-                                              Container(
-                                                width: double.infinity,
-                                                padding:
-                                                    const EdgeInsets.all(12),
-                                                decoration: BoxDecoration(
-                                                  color: isDark
-                                                      ? const Color(0xFF101814)
-                                                      : const Color(0xFFF4F8EF),
-                                                  borderRadius:
-                                                      BorderRadius.circular(14),
-                                                  border: Border.all(
-                                                    color: borderColor,
-                                                  ),
-                                                ),
+                                            if (isResolved && reply.isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 6),
                                                 child: Text(
-                                                  'Admin reply: $reply',
-                                                  style: ReLeafTextStyles.body
-                                                      .copyWith(
-                                                    fontSize: 13,
-                                                    color: subTextColor,
-                                                  ),
+                                                  'Admin: $reply',
+                                                  style: TextStyle(
+                                                      color: subTextColor),
                                                 ),
                                               ),
-                                            ],
                                           ],
                                         ),
                                       ),
-                                      if (!isRead)
-                                        Container(
-                                          width: 10,
-                                          height: 10,
-                                          decoration: const BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ),
                                     ],
                                   ),
                                 ),
@@ -286,9 +231,7 @@ class UserNotificationsPage extends StatelessWidget {
             ],
           ),
         ),
-        bottomNavigationBar: const UserBottomNav(
-          currentIndex: 0,
-        ),
+        bottomNavigationBar: const UserBottomNav(currentIndex: 0),
       ),
     );
   }

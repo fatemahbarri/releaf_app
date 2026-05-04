@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
-import 'package:releaf_app/user/Home/HomePageUser.dart';
+
+import 'package:releaf_app/widgets/app_top_bar.dart';
 
 class Chatbot extends StatefulWidget {
   const Chatbot({super.key});
@@ -120,12 +121,30 @@ class _ChatbotState extends State<Chatbot> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FBF2),
+      backgroundColor:
+          isDark ? const Color(0xFF101815) : const Color(0xFFF7FBF2),
       body: SafeArea(
         child: Column(
           children: [
-            _buildTopHeader(),
+            AppTopBar(
+              title: 'ReLeaf Chatbot',
+              subtitle: 'Your recycling assistant',
+              icon: Icons.eco_rounded,
+              showBackButton: true,
+              showNotifications: false,
+              gradientColors: isDark
+                  ? const [
+                      Color(0xFF1B3A31),
+                      Color(0xFF2F5D50),
+                    ]
+                  : const [
+                      Color(0xFF7FB77E),
+                      Color(0xFF5E9C76),
+                    ],
+            ),
             Expanded(
               child: ListView(
                 controller: _scrollController,
@@ -148,101 +167,27 @@ class _ChatbotState extends State<Chatbot> {
     );
   }
 
-  Widget _buildTopHeader() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF7FB77E), Color(0xFF5E9C76)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.vertical(
-          bottom: Radius.circular(24),
-        ),
-      ),
-      child: Row(
-        children: [
-          // 🔙 زر الرجوع
-          IconButton(
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const HomePageUser(),
-                ),
-                (route) => false,
-              );
-            },
-            icon: const Icon(
-              Icons.arrow_back_ios_new,
-              color: Colors.white,
-            ),
-          ),
-
-          const SizedBox(width: 8),
-
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.18),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(
-              Icons.eco_rounded,
-              color: Colors.white,
-              size: 28,
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'ReLeaf Chatbot',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 2),
-                Text(
-                  'Your recycling assistant',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildWelcomeCard() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFEAF6E3),
+        color: isDark ? const Color(0xFF1C2A24) : const Color(0xFFEAF6E3),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFD6EBCF)),
+        border: Border.all(
+          color: isDark ? const Color(0xFF2F5D50) : const Color(0xFFD6EBCF),
+        ),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
+          const CircleAvatar(
             radius: 22,
             backgroundColor: Color(0xFF7FB77E),
             child: Icon(Icons.smart_toy_outlined, color: Colors.white),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,15 +197,15 @@ class _ChatbotState extends State<Chatbot> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2F5D50),
+                    color: isDark ? Colors.white : const Color(0xFF2F5D50),
                   ),
                 ),
-                SizedBox(height: 6),
+                const SizedBox(height: 6),
                 Text(
                   'Ask me how to sort waste, what materials can be recycled, or where an item should go.',
                   style: TextStyle(
                     fontSize: 13.5,
-                    color: Color(0xFF4E6A57),
+                    color: isDark ? Colors.white70 : const Color(0xFF4E6A57),
                     height: 1.4,
                   ),
                 ),
@@ -273,15 +218,17 @@ class _ChatbotState extends State<Chatbot> {
   }
 
   Widget _buildQuickQuestions() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Try asking',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF4D6655),
+            color: isDark ? Colors.white70 : const Color(0xFF4D6655),
           ),
         ),
         const SizedBox(height: 10),
@@ -296,12 +243,16 @@ class _ChatbotState extends State<Chatbot> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? const Color(0xFF1C2A24) : Colors.white,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFD9E7D2)),
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF2F5D50)
+                        : const Color(0xFFD9E7D2),
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
+                      color: Colors.black.withOpacity(isDark ? 0.18 : 0.03),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
@@ -309,9 +260,9 @@ class _ChatbotState extends State<Chatbot> {
                 ),
                 child: Text(
                   question,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12.5,
-                    color: Color(0xFF41614C),
+                    color: isDark ? Colors.white70 : const Color(0xFF41614C),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -324,7 +275,15 @@ class _ChatbotState extends State<Chatbot> {
   }
 
   Widget _buildMessageBubble(ChatMessage message) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final bool isUser = message.isUser;
+
+    final Color botBubbleColor = message.isError
+        ? (isDark ? const Color(0xFF3A2020) : const Color(0xFFFFEEEE))
+        : (isDark ? const Color(0xFF1C2A24) : Colors.white);
+
+    final Color botTextColor =
+        isDark ? Colors.white.withOpacity(0.9) : const Color(0xFF263328);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -338,13 +297,15 @@ class _ChatbotState extends State<Chatbot> {
               radius: 16,
               backgroundColor: message.isError
                   ? const Color(0xFFFFD6D6)
-                  : const Color(0xFFCEE8C9),
+                  : isDark
+                      ? const Color(0xFF244337)
+                      : const Color(0xFFCEE8C9),
               child: Icon(
                 message.isError ? Icons.error_outline : Icons.eco,
                 size: 17,
                 color: message.isError
                     ? Colors.redAccent
-                    : const Color(0xFF4A7A52),
+                    : const Color(0xFF7FB77E),
               ),
             ),
             const SizedBox(width: 8),
@@ -353,11 +314,7 @@ class _ChatbotState extends State<Chatbot> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
-                color: isUser
-                    ? const Color(0xFF7FB77E)
-                    : message.isError
-                        ? const Color(0xFFFFEEEE)
-                        : Colors.white,
+                color: isUser ? const Color(0xFF7FB77E) : botBubbleColor,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(18),
                   topRight: const Radius.circular(18),
@@ -366,7 +323,7 @@ class _ChatbotState extends State<Chatbot> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withOpacity(isDark ? 0.18 : 0.05),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -386,40 +343,43 @@ class _ChatbotState extends State<Chatbot> {
                       selectable: true,
                       shrinkWrap: true,
                       styleSheet: MarkdownStyleSheet(
-                        p: const TextStyle(
-                          color: Color(0xFF263328),
+                        p: TextStyle(
+                          color: botTextColor,
                           fontSize: 14.5,
                           height: 1.45,
                         ),
-                        strong: const TextStyle(
-                          color: Color(0xFF263328),
+                        strong: TextStyle(
+                          color: botTextColor,
                           fontSize: 14.5,
                           height: 1.45,
                           fontWeight: FontWeight.bold,
                         ),
-                        em: const TextStyle(
-                          color: Color(0xFF263328),
+                        em: TextStyle(
+                          color: botTextColor,
                           fontSize: 14.5,
                           height: 1.45,
                           fontStyle: FontStyle.italic,
                         ),
-                        listBullet: const TextStyle(
-                          color: Color(0xFF263328),
+                        listBullet: TextStyle(
+                          color: botTextColor,
                           fontSize: 14.5,
                           height: 1.45,
                         ),
-                        h1: const TextStyle(
-                          color: Color(0xFF2F5D50),
+                        h1: TextStyle(
+                          color:
+                              isDark ? Colors.white : const Color(0xFF2F5D50),
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
-                        h2: const TextStyle(
-                          color: Color(0xFF2F5D50),
+                        h2: TextStyle(
+                          color:
+                              isDark ? Colors.white : const Color(0xFF2F5D50),
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
-                        h3: const TextStyle(
-                          color: Color(0xFF2F5D50),
+                        h3: TextStyle(
+                          color:
+                              isDark ? Colors.white : const Color(0xFF2F5D50),
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
@@ -431,13 +391,14 @@ class _ChatbotState extends State<Chatbot> {
           ),
           if (isUser) ...[
             const SizedBox(width: 8),
-            const CircleAvatar(
+            CircleAvatar(
               radius: 16,
-              backgroundColor: Color(0xFFDDEFD7),
-              child: Icon(
+              backgroundColor:
+                  isDark ? const Color(0xFF244337) : const Color(0xFFDDEFD7),
+              child: const Icon(
                 Icons.person,
                 size: 17,
-                color: Color(0xFF4A7A52),
+                color: Color(0xFF7FB77E),
               ),
             ),
           ],
@@ -447,47 +408,50 @@ class _ChatbotState extends State<Chatbot> {
   }
 
   Widget _buildTypingBubble() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 16,
-            backgroundColor: Color(0xFFCEE8C9),
-            child: Icon(
+            backgroundColor:
+                isDark ? const Color(0xFF244337) : const Color(0xFFCEE8C9),
+            child: const Icon(
               Icons.eco,
               size: 17,
-              color: Color(0xFF4A7A52),
+              color: Color(0xFF7FB77E),
             ),
           ),
           const SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? const Color(0xFF1C2A24) : Colors.white,
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withOpacity(isDark ? 0.18 : 0.05),
                   blurRadius: 8,
                   offset: const Offset(0, 3),
                 ),
               ],
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 16,
                   height: 16,
                   child: CircularProgressIndicator(strokeWidth: 2.2),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Text(
                   'ReLeaf is thinking...',
                   style: TextStyle(
                     fontSize: 13.5,
-                    color: Color(0xFF4E6A57),
+                    color: isDark ? Colors.white70 : const Color(0xFF4E6A57),
                   ),
                 ),
               ],
@@ -499,13 +463,15 @@ class _ChatbotState extends State<Chatbot> {
   }
 
   Widget _buildInputArea() {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isDark ? const Color(0xFF18221E) : Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withOpacity(isDark ? 0.22 : 0.06),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -520,23 +486,32 @@ class _ChatbotState extends State<Chatbot> {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: const Color(0xFFF5F7F2),
+                color:
+                    isDark ? const Color(0xFF101815) : const Color(0xFFF5F7F2),
                 borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: const Color(0xFFDCE8D7)),
+                border: Border.all(
+                  color: isDark
+                      ? const Color(0xFF2F5D50)
+                      : const Color(0xFFDCE8D7),
+                ),
               ),
               child: TextField(
                 controller: _messageController,
                 minLines: 1,
                 maxLines: 4,
+                style: TextStyle(
+                  color: isDark ? Colors.white : const Color(0xFF263328),
+                  fontSize: 14,
+                ),
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => _sendMessage(),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Ask about recycling or waste sorting...',
                   hintStyle: TextStyle(
-                    color: Color(0xFF8A9A8C),
+                    color: isDark ? Colors.white38 : const Color(0xFF8A9A8C),
                     fontSize: 13.5,
                   ),
-                  contentPadding: EdgeInsets.symmetric(
+                  contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 13,
                   ),

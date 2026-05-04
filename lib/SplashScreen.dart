@@ -61,46 +61,46 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: AppBackground(
-        child: SafeArea(
-          child: Stack(
-            children: [
-              // Bottom wave
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: SizedBox(
-                  height: 280,
-                  width: double.infinity,
-                  child: ClipPath(
-                    clipper: BottomWaveClipper(),
-                    child: Container(
-                      color: const Color(0xFFB7D98A),
+    return Theme(
+      data: ThemeData.light(),
+      child: Scaffold(
+        body: AppBackground(
+          child: SafeArea(
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SizedBox(
+                    height: 280,
+                    width: double.infinity,
+                    child: ClipPath(
+                      clipper: BottomWaveClipper(),
+                      child: Container(
+                        color: const Color(0xFFB7D98A),
+                      ),
                     ),
                   ),
                 ),
-              ),
-
-              // Logo (moved up)
-              Align(
-                alignment: const Alignment(0, -0.3), // <-- هنا رفعناه
-                child: AnimatedBuilder(
-                  animation: _scale,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: _scale.value,
-                      child: child,
-                    );
-                  },
-                  child: Image.asset(
-                    'assets/images/Releaf_logo.png',
-                    width: 180,
-                    height: 180,
-                    fit: BoxFit.contain,
+                Align(
+                  alignment: const Alignment(0, -0.3),
+                  child: AnimatedBuilder(
+                    animation: _scale,
+                    builder: (context, child) {
+                      return Transform.scale(
+                        scale: _scale.value,
+                        child: child,
+                      );
+                    },
+                    child: Image.asset(
+                      'assets/images/Releaf_logo.png',
+                      width: 180,
+                      height: 180,
+                      fit: BoxFit.contain,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

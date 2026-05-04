@@ -2,31 +2,37 @@ import 'package:flutter/material.dart';
 
 class AuthCard extends StatelessWidget {
   final Widget child;
-  final bool isDark;
+  final bool? isDark;
 
   const AuthCard({
     super.key,
     required this.child,
-    this.isDark = false,
+    this.isDark,
   });
 
   @override
   Widget build(BuildContext context) {
+    final bool dark = isDark ?? Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E2A23) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: dark
+            ? const Color(0xFF18221E) // 🔥 أغمق شوي
+            : Colors.white,
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: isDark ? const Color(0xFF3A4A40) : const Color(0xFFEAEAEA),
+          color: dark
+              ? const Color(0xFF2F5D50) // نفس لون الثيم
+              : const Color(0xFFEAEAEA),
         ),
         boxShadow: [
           BoxShadow(
-            color: isDark
-                ? Colors.black.withOpacity(0.30)
+            color: dark
+                ? Colors.black.withOpacity(0.45) // 🔥 أوضح في الدارك
                 : Colors.black.withOpacity(0.08),
-            blurRadius: 18,
+            blurRadius: 20,
             offset: const Offset(0, 8),
           ),
         ],

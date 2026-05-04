@@ -197,160 +197,175 @@ class _SignUpState extends State<SignUp> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: SizedBox(
-              height: 280,
-              width: double.infinity,
-              child: ClipPath(
-                clipper: BottomWaveClipper(),
-                child: Container(
-                  color: const Color(0xFFB7D98A),
+    return Theme(
+      data: ThemeData.light(),
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                height: 280,
+                width: double.infinity,
+                child: ClipPath(
+                  clipper: BottomWaveClipper(),
+                  child: Container(
+                    color: const Color(0xFFB7D98A),
+                  ),
                 ),
               ),
             ),
-          ),
-          AppBackground(
-            child: SafeArea(
-              child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: IconButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            AppBackground(
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(
+                            Icons.arrow_back_ios_new_rounded,
+                            color: Color(0xFF2A2A2A),
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Image.asset(
-                      'assets/images/Releaf_logo.png',
-                      height: 120,
-                    ),
-                    const SizedBox(height: 14),
-                    const Text(
-                      'Create Account',
-                      style: TextStyle(
-                        color: Color(0xFF498056),
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
+                      const SizedBox(height: 8),
+                      Image.asset(
+                        'assets/images/Releaf_logo.png',
+                        height: 120,
                       ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text('Sign up to get started'),
-                    const SizedBox(height: 28),
-                    AuthCard(
-                      child: Column(
-                        children: [
-                          _buildTextField(
-                            controller: fullNameController,
-                            hintText: 'Full Name',
-                            prefixIcon: const Icon(
-                              Icons.person_outline,
-                              color: Color(0xFF499A64),
-                            ),
-                          ),
-                          _buildTextField(
-                            controller: emailController,
-                            hintText: 'Email Address',
-                            keyboardType: TextInputType.emailAddress,
-                            prefixIcon: const Icon(
-                              Icons.email_outlined,
-                              color: Color(0xFF499A64),
-                            ),
-                          ),
-                          _buildTextField(
-                            controller: passwordController,
-                            hintText: 'Password',
-                            obscureText: obscurePassword,
-                            prefixIcon: const Icon(
-                              Icons.lock_outline,
-                              color: Color(0xFF499A64),
-                            ),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                obscurePassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
+                      const SizedBox(height: 14),
+                      const Text(
+                        'Create Account',
+                        style: TextStyle(
+                          color: Color(0xFF498056),
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Sign up to get started',
+                        style: TextStyle(
+                          color: Color(0xFF2A2A2A),
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                      AuthCard(
+                        isDark: false,
+                        child: Column(
+                          children: [
+                            _buildTextField(
+                              controller: fullNameController,
+                              hintText: 'Full Name',
+                              prefixIcon: const Icon(
+                                Icons.person_outline,
+                                color: Color(0xFF499A64),
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  obscurePassword = !obscurePassword;
-                                });
-                              },
                             ),
-                          ),
-                          _buildTextField(
-                            controller: confirmPasswordController,
-                            hintText: 'Confirm Password',
-                            obscureText: obscureConfirmPassword,
-                            prefixIcon: const Icon(
-                              Icons.lock_outline,
-                              color: Color(0xFF499A64),
-                            ),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                obscureConfirmPassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
+                            _buildTextField(
+                              controller: emailController,
+                              hintText: 'Email Address',
+                              keyboardType: TextInputType.emailAddress,
+                              prefixIcon: const Icon(
+                                Icons.email_outlined,
+                                color: Color(0xFF499A64),
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  obscureConfirmPassword =
-                                      !obscureConfirmPassword;
-                                });
-                              },
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                          CustomButton(
-                            text: 'Sign up',
-                            isLoading: isLoading,
-                            onTap: _signUp,
-                          ),
-                          const SizedBox(height: 12),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: RichText(
-                              text: const TextSpan(
-                                text: 'Already have an account? ',
-                                style: TextStyle(
-                                  color: Color.fromARGB(255, 70, 68, 68),
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
+                            _buildTextField(
+                              controller: passwordController,
+                              hintText: 'Password',
+                              obscureText: obscurePassword,
+                              prefixIcon: const Icon(
+                                Icons.lock_outline,
+                                color: Color(0xFF499A64),
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  obscurePassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  color: Color(0xFF675F5A),
                                 ),
-                                children: [
-                                  TextSpan(
-                                    text: 'Log in',
-                                    style: TextStyle(
-                                      color: Color.fromARGB(255, 19, 72, 115),
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
+                                onPressed: () {
+                                  setState(() {
+                                    obscurePassword = !obscurePassword;
+                                  });
+                                },
                               ),
                             ),
-                          ),
-                        ],
+                            _buildTextField(
+                              controller: confirmPasswordController,
+                              hintText: 'Confirm Password',
+                              obscureText: obscureConfirmPassword,
+                              prefixIcon: const Icon(
+                                Icons.lock_outline,
+                                color: Color(0xFF499A64),
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  obscureConfirmPassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  color: Color(0xFF675F5A),
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    obscureConfirmPassword =
+                                        !obscureConfirmPassword;
+                                  });
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            CustomButton(
+                              text: 'Sign up',
+                              isLoading: isLoading,
+                              onTap: _signUp,
+                            ),
+                            const SizedBox(height: 12),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: RichText(
+                                text: const TextSpan(
+                                  text: 'Already have an account? ',
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 70, 68, 68),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                      text: 'Log in',
+                                      style: TextStyle(
+                                        color: Color.fromARGB(255, 19, 72, 115),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

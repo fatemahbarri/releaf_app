@@ -331,7 +331,7 @@ class _LocationPageState extends State<LocationPage> {
       ),
     );
   }
-  
+
   Widget _buildCategoryButton(String title) {
     final isTrash = title == 'Trash';
 
@@ -359,8 +359,8 @@ class _LocationPageState extends State<LocationPage> {
                     colorFilter: ColorFilter.mode(
                       mainTextColor,
                       BlendMode.srcIn,
-                      ),
                     ),
+                  ),
                   const SizedBox(height: 6),
                   Flexible(
                     child: Text(
@@ -434,6 +434,7 @@ class _LocationPageState extends State<LocationPage> {
       );
     }
   }
+
   String _getItemSvg(String itemName) {
     final item = itemName.toLowerCase();
 
@@ -446,6 +447,7 @@ class _LocationPageState extends State<LocationPage> {
 
     return 'assets/icons/recycling.svg';
   }
+
   @override
   Widget build(BuildContext context) {
     return AppBackground(
@@ -464,14 +466,6 @@ class _LocationPageState extends State<LocationPage> {
                 gradientColors: topBarGradient,
               ),
               const SizedBox(height: 6),
-              Text(
-                'Nearby recycling bins',
-                style: TextStyle(
-                  color: subTextColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(16, 18, 16, 100),
@@ -578,7 +572,9 @@ class _LocationPageState extends State<LocationPage> {
                       Row(
                         children: [
                           _buildCategoryButton('Paper'),
-                          _buildCategoryButton('Plastic',),
+                          _buildCategoryButton(
+                            'Plastic',
+                          ),
                           _buildCategoryButton('Trash'),
                         ],
                       ),
