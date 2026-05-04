@@ -379,7 +379,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
               ReLeafColors.primary,
               BlendMode.srcIn,
             ),
-          ),          
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -524,13 +524,18 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
               width: isWinner ? 3 : 2,
             ),
           ),
-          child: SvgPicture.asset(
-            _getItemSvg(itemName),
-            width: isWinner ? 32 : 28,
-            height: isWinner ? 32 : 28,
-            colorFilter: const ColorFilter.mode(
-              ReLeafColors.primary,
-              BlendMode.srcIn,
+          child: Center(
+            child: SizedBox(
+              width: isWinner ? 24 : 22,
+              height: isWinner ? 24 : 22,
+              child: SvgPicture.asset(
+                _getItemSvg(itemName),
+                fit: BoxFit.contain,
+                colorFilter: const ColorFilter.mode(
+                  ReLeafColors.primary,
+                  BlendMode.srcIn,
+                ),
+              ),
             ),
           ),
         ),
@@ -650,7 +655,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
               crossAxisCount: 2,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
-              childAspectRatio: 1.15,
+              childAspectRatio: 1.45,
               children: historyItems.map((entry) {
                 return _buildHistoryItemBox(entry.key, entry.value);
               }).toList(),
@@ -663,7 +668,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
 
   Widget _buildHistoryItemBox(String itemName, int count) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: _innerCardColor,
         borderRadius: BorderRadius.circular(22),
@@ -674,29 +679,33 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
         children: [
           SvgPicture.asset(
             _getItemSvg(itemName),
-            width: 32,
-            height: 32,
+            width: 18,
+            height: 18,
             colorFilter: const ColorFilter.mode(
               ReLeafColors.primary,
               BlendMode.srcIn,
             ),
           ),
-          const SizedBox(height: 10),
-          Text(
-            itemName,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: ReLeafTextStyles.title.copyWith(
-              fontSize: 15,
-              color: _textColor,
+          const SizedBox(height: 5),
+          Flexible(
+            child: Text(
+              itemName,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: ReLeafTextStyles.title.copyWith(
+                fontSize: 14,
+                height: 1.1,
+                color: _textColor,
+              ),
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
             '$count recycled',
             style: ReLeafTextStyles.body.copyWith(
-              fontSize: 13,
+              fontSize: 12,
+              height: 1.1,
               color: _bodyColor,
             ),
           ),
@@ -773,6 +782,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
         return 'Keep recycling to grow your plant.';
     }
   }
+
   String _getItemSvg(String itemName) {
     final item = itemName.toLowerCase();
 
@@ -785,5 +795,4 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
 
     return 'assets/icons/recycling.svg';
   }
-
 }

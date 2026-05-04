@@ -240,8 +240,8 @@ class _BinDetailsPageState extends State<BinDetailsPage> {
                         children: [
                           TileLayer(
                             urlTemplate:
-                                'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                            subdomains: const ['a', 'b', 'c'],
+                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                            userAgentPackageName: 'com.releaf.app',
                           ),
                           if (_routePoints.isNotEmpty)
                             PolylineLayer(

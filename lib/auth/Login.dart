@@ -10,7 +10,6 @@ import 'package:releaf_app/widgets/custom_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:releaf_app/main.dart';
 import 'package:releaf_app/admin/widgets/admin_background.dart';
 import '../admin/screens/home/AdminHomePage.dart';
 
@@ -188,6 +187,16 @@ class _LoginPageState extends State<LoginPage> {
         email: email,
         password: password,
       );
+
+      final user = FirebaseAuth.instance.currentUser;
+
+// Email verification is required for users only, not admins.
+      if (!widget.isAdminMode && user != null && !user.emailVerified) {
+        await FirebaseAuth.instance.signOut();
+
+        _showMessage('Please verify your email first');
+        return;
+      }
 
       if (!mounted) return;
 

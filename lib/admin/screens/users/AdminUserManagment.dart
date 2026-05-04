@@ -60,29 +60,38 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
     try {
       final snapshot = await _firestore.collection('users').get();
 
-      final users = snapshot.docs.map((doc) {
+      final List<Map<String, dynamic>> users = [];
+
+      for (final doc in snapshot.docs) {
         final data = doc.data();
+        final email = (data['email'] ?? '').toString().toLowerCase().trim();
+
+        if (email.endsWith('@releaf.com')) {
+          continue;
+        }
+
         final accountStatus =
             (data['accountStatus'] ?? 'inactive').toString().toLowerCase();
 
         String statusText;
+
         if (accountStatus == 'active') {
           statusText = 'Active';
         } else if (accountStatus == 'blocked') {
           statusText = 'Blocked';
         } else {
-          statusText = 'Inactive';
+          continue;
         }
 
-        return {
+        users.add({
           'docId': doc.id,
           'name': (data['name'] ?? '').toString(),
           'email': (data['email'] ?? '').toString(),
           'status': statusText,
           'accountStatus': accountStatus,
           'username': (data['username'] ?? '').toString(),
-        };
-      }).toList();
+        });
+      }
 
       if (!mounted) return;
 
@@ -158,7 +167,6 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
       items: [
         _buildFilterMenuItem('All Users'),
         _buildFilterMenuItem('Active'),
-        _buildFilterMenuItem('Inactive'),
         _buildFilterMenuItem('Blocked'),
       ],
     );

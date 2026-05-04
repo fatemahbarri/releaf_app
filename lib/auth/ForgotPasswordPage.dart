@@ -43,26 +43,25 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     setState(() => isLoading = true);
 
     try {
-      // 🔥 تحقق إذا الإيميل موجود
       final methods =
           await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
 
       if (methods.isEmpty) {
-        _showMessage('عذراً، هذا الإيميل غير متوفر');
+        _showMessage('Sorry, this email is not registered');
         return;
       }
 
-      // 🔥 إرسال رابط تغيير كلمة المرور
+      // 🔥 Send reset password email
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
 
       if (!mounted) return;
 
-      _showMessage('تم إرسال رابط تغيير كلمة المرور إلى بريدك الإلكتروني');
+      _showMessage('Password reset link has been sent to your email');
 
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
-      _showMessage('حدث خطأ، حاول مرة أخرى');
+      _showMessage('Something went wrong. Please try again');
     } finally {
       if (mounted) {
         setState(() => isLoading = false);

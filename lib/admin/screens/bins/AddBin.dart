@@ -632,7 +632,7 @@ class _AddBinState extends State<AddBin> {
           const SizedBox(width: 8),
           Switch(
             value: _isActive,
-            activeColor: primary,
+            activeThumbColor: primary,
             onChanged: (value) {
               setState(() {
                 _isActive = value;

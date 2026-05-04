@@ -60,12 +60,10 @@ class _SignUpState extends State<SignUp> {
     super.dispose();
   }
 
-  // ✅ تحقق من قوة الباسورد
   bool _isStrongPassword(String password) {
     return RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$').hasMatch(password);
   }
 
-  // ✅ تحقق من الإيميل
   bool _isValidEmail(String email) {
     return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email);
   }
