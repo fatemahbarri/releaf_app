@@ -19,6 +19,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
   int recyclePoints = 0;
   int recycleLevel = 1;
   bool isLoadingStats = true;
+  bool isAddingItems = false;
   bool showHistory = false;
 
   late AnimationController _plantAnimationController;
@@ -118,16 +119,8 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
       final totalItems =
           itemCounts.values.fold<int>(0, (sum, count) => sum + count);
 
-      int level = 1;
-      if (totalItems >= 200) {
-        level = 5;
-      } else if (totalItems >= 150) {
-        level = 4;
-      } else if (totalItems >= 100) {
-        level = 3;
-      } else if (totalItems >= 50) {
-        level = 2;
-      }
+      int level = (totalItems ~/ 50) + 1;
+      if (level > 10) level = 10;
 
       if (!mounted) return;
 
@@ -154,7 +147,16 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
     final totalAdded =
         selectedRecycleCounts.values.fold<int>(0, (sum, count) => sum + count);
 
-    if (user == null || totalAdded == 0) return;
+    if (totalAdded == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select at least one item first.')),
+      );
+      return;
+    }
+
+    if (user == null) return;
+
+    setState(() => isAddingItems = true);
 
     try {
       final oldLevel = recycleLevel;
@@ -205,6 +207,10 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
           content: Text('Could not add recycled items. Please try again.'),
         ),
       );
+    } finally {
+      if (mounted) {
+        setState(() => isAddingItems = false);
+      }
     }
   }
 
@@ -261,9 +267,12 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
                       SizedBox(
                         width: double.infinity,
                         child: ReLeafButton(
-                          text: 'Add Items',
-                          icon: Icons.add_rounded,
-                          onPressed: _addManualRecycledItems,
+                          text: isAddingItems ? 'Adding...' : 'Add Items',
+                          icon: isAddingItems
+                              ? Icons.hourglass_top_rounded
+                              : Icons.add_rounded,
+                          onPressed:
+                              isAddingItems ? null : _addManualRecycledItems,
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -432,7 +441,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
       ),
       child: Row(
         children: [
-          Icon(Icons.recycling_rounded, color: ReLeafColors.primary),
+          const Icon(Icons.recycling_rounded, color: ReLeafColors.primary),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -719,13 +728,22 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
       Icons.grass_rounded,
       Icons.local_florist_rounded,
       Icons.eco_rounded,
+      Icons.nature_rounded,
       Icons.park_rounded,
+      Icons.forest_rounded,
+      Icons.yard_rounded,
+      Icons.energy_savings_leaf_rounded,
+      Icons.spa_rounded,
       Icons.forest_rounded,
     ];
 
+    final safeLevel = level.clamp(1, 10);
+    final size = 100.0 + (safeLevel * 8);
+    final iconSize = 48.0 + (safeLevel * 4);
+
     return Container(
-      width: 120,
-      height: 120,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: _softColor,
@@ -736,8 +754,8 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
       ),
       child: Center(
         child: Icon(
-          icons[level - 1],
-          size: 64,
+          icons[safeLevel - 1],
+          size: iconSize,
           color: ReLeafColors.primary,
         ),
       ),
@@ -745,7 +763,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
   }
 
   double _getLevelProgress() {
-    if (recycleLevel == 5) return 1.0;
+    if (recycleLevel == 10) return 1.0;
 
     final currentLevelStart = (recycleLevel - 1) * 50;
     final nextLevel = recycleLevel * 50;
@@ -756,7 +774,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
   }
 
   String _getNextLevelText() {
-    if (recycleLevel == 5) {
+    if (recycleLevel == 10) {
       return 'You reached the highest level. Keep recycling!';
     }
 
@@ -773,10 +791,20 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
       case 2:
         return 'Your plant is sprouting.';
       case 3:
-        return 'Your eco habit is growing stronger.';
+        return 'Your first leaves are growing.';
       case 4:
-        return 'Your plant is becoming a healthy tree.';
+        return 'Your eco habit is getting stronger.';
       case 5:
+        return 'Your plant is becoming healthier.';
+      case 6:
+        return 'Your plant is growing into a small tree.';
+      case 7:
+        return 'Your tree is becoming stronger.';
+      case 8:
+        return 'Your green impact is clearly growing.';
+      case 9:
+        return 'You are close to becoming a recycling champion.';
+      case 10:
         return 'You are a ReLeaf recycling champion!';
       default:
         return 'Keep recycling to grow your plant.';
