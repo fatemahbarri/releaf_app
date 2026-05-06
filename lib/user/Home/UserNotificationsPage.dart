@@ -35,8 +35,13 @@ class UserNotificationsPage extends StatelessWidget {
     final Color textColor = isDark ? Colors.white : const Color(0xFF263328);
     final Color subTextColor =
         isDark ? Colors.white70 : const Color(0xFF4E6A57);
+
     final Color cardColor =
         isDark ? const Color(0xFF1A2520) : Colors.white.withOpacity(0.95);
+
+    final Color readCardColor =
+        isDark ? const Color(0xFF14201B) : Colors.white.withOpacity(0.65);
+
     final Color borderColor =
         isDark ? const Color(0xFF355246) : const Color(0xFFD6EBCF);
 
@@ -83,7 +88,7 @@ class UserNotificationsPage extends StatelessWidget {
                             return Center(
                               child: Text(
                                 'Error: ${snapshot.error}',
-                                style: TextStyle(color: Colors.red),
+                                style: const TextStyle(color: Colors.red),
                               ),
                             );
                           }
@@ -102,7 +107,6 @@ class UserNotificationsPage extends StatelessWidget {
 
                           final issues = snapshot.data!.docs;
 
-                          // 🔥 هنا السحر: نحول كل شكوى إلى إشعارين
                           final List<Map<String, dynamic>> notifications = [];
 
                           for (var doc in issues) {
@@ -110,14 +114,12 @@ class UserNotificationsPage extends StatelessWidget {
                             final status =
                                 data['status']?.toString() ?? 'pending';
 
-                            // إشعار الاستلام
                             notifications.add({
                               'docId': doc.id,
                               'data': data,
                               'type': 'received',
                             });
 
-                            // إشعار الحل (إذا انحلت)
                             if (_isResolved(status)) {
                               notifications.add({
                                 'docId': doc.id,
@@ -138,13 +140,17 @@ class UserNotificationsPage extends StatelessWidget {
 
                               final issueNumber =
                                   _formatIssueNumber(data['issueNumber']);
+
                               final title =
                                   data['title']?.toString() ?? 'Complaint';
+
                               final reply =
                                   data['adminReply']?.toString() ?? '';
-                              final type = item['type'];
 
+                              final type = item['type'];
                               final isResolved = type == 'resolved';
+
+                              final bool isRead = data['isReadByUser'] == true;
 
                               final message = isResolved
                                   ? 'Your complaint #$issueNumber has been resolved successfully.'
@@ -160,22 +166,36 @@ class UserNotificationsPage extends StatelessWidget {
 
                               return GestureDetector(
                                 onTap: () => _markAsRead(item['docId']),
-                                child: Container(
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
                                   padding: const EdgeInsets.all(16),
                                   decoration: BoxDecoration(
-                                    color: cardColor,
+                                    color: isRead ? readCardColor : cardColor,
                                     borderRadius: BorderRadius.circular(22),
-                                    border: Border.all(color: borderColor),
+                                    border: Border.all(
+                                      color: isRead
+                                          ? borderColor.withOpacity(0.6)
+                                          : borderColor,
+                                    ),
                                   ),
                                   child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Container(
                                         padding: const EdgeInsets.all(10),
                                         decoration: BoxDecoration(
-                                          color: color.withOpacity(0.15),
+                                          color: color.withOpacity(
+                                            isRead ? 0.08 : 0.15,
+                                          ),
                                           shape: BoxShape.circle,
                                         ),
-                                        child: Icon(icon, color: color),
+                                        child: Icon(
+                                          icon,
+                                          color: isRead
+                                              ? color.withOpacity(0.6)
+                                              : color,
+                                        ),
                                       ),
                                       const SizedBox(width: 12),
                                       Expanded(
@@ -188,36 +208,65 @@ class UserNotificationsPage extends StatelessWidget {
                                                   ? 'Resolved #$issueNumber'
                                                   : 'Received #$issueNumber',
                                               style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: textColor,
+                                                fontWeight: isRead
+                                                    ? FontWeight.w600
+                                                    : FontWeight.bold,
+                                                color: isRead
+                                                    ? textColor
+                                                        .withOpacity(0.65)
+                                                    : textColor,
                                               ),
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
                                               title,
                                               style: TextStyle(
-                                                  color: subTextColor),
+                                                color: isRead
+                                                    ? subTextColor
+                                                        .withOpacity(0.65)
+                                                    : subTextColor,
+                                                fontWeight: isRead
+                                                    ? FontWeight.normal
+                                                    : FontWeight.w600,
+                                              ),
                                             ),
                                             const SizedBox(height: 6),
                                             Text(
                                               message,
                                               style: TextStyle(
-                                                color: color,
+                                                color: isRead
+                                                    ? color.withOpacity(0.65)
+                                                    : color,
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),
                                             if (isResolved && reply.isNotEmpty)
                                               Padding(
                                                 padding: const EdgeInsets.only(
-                                                    top: 6),
+                                                  top: 6,
+                                                ),
                                                 child: Text(
                                                   'Admin: $reply',
                                                   style: TextStyle(
-                                                      color: subTextColor),
+                                                    color: isRead
+                                                        ? subTextColor
+                                                            .withOpacity(0.65)
+                                                        : subTextColor,
+                                                  ),
                                                 ),
                                               ),
                                           ],
                                         ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Icon(
+                                        isRead
+                                            ? Icons.done_all_rounded
+                                            : Icons.circle,
+                                        size: isRead ? 22 : 10,
+                                        color: isRead
+                                            ? const Color(0xFF66BB6A)
+                                            : color,
                                       ),
                                     ],
                                   ),

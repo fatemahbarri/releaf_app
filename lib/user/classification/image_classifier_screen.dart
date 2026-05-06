@@ -26,6 +26,8 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
   File? _image;
   String _result = 'No result yet';
   String _confidence = '';
+  double _confidenceValue = 0.0;
+
   bool _isLoading = false;
   bool _isModelLoaded = false;
 
@@ -65,6 +67,10 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
           Color(0xFF5E9C76),
         ];
 
+  bool get _isLowConfidence {
+    return _confidence.isNotEmpty && _confidenceValue < 0.55;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -87,21 +93,31 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
       _isLoading = true;
       _result = 'Classifying...';
       _confidence = '';
+      _confidenceValue = 0.0;
     });
 
     final result = await TFLiteHelper.classifyImage(file);
 
     if (!mounted) return;
 
+    final double confidenceValue =
+        double.tryParse(result['confidence'].toString()) ?? 0.0;
+
     setState(() {
       _result = result['label'].toString();
-      _confidence = '${(result['confidence'] * 100).toStringAsFixed(2)}%';
+      _confidenceValue = confidenceValue;
+      _confidence = '${(confidenceValue * 100).toStringAsFixed(2)}%';
       _isLoading = false;
     });
   }
 
   Future<void> _pickCamera() async {
-    final picked = await _picker.pickImage(source: ImageSource.camera);
+    final picked = await _picker.pickImage(
+      source: ImageSource.camera,
+      imageQuality: 70,
+      maxWidth: 900,
+      maxHeight: 900,
+    );
 
     if (picked != null) {
       final file = File(picked.path);
@@ -111,7 +127,12 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
   }
 
   Future<void> _pickGallery() async {
-    final picked = await _picker.pickImage(source: ImageSource.gallery);
+    final picked = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 70,
+      maxWidth: 900,
+      maxHeight: 900,
+    );
 
     if (picked != null) {
       final file = File(picked.path);
@@ -316,7 +337,11 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
                           vertical: 20,
                           horizontal: 16,
                         ),
-                        color: iconBoxColor,
+                        color: _isLowConfidence
+                            ? (isDarkMode
+                                ? const Color(0xFF3A2A1B)
+                                : const Color(0xFFFFF3E0))
+                            : iconBoxColor,
                         child: Column(
                           children: [
                             _isLoading
@@ -328,7 +353,9 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
                                     textAlign: TextAlign.center,
                                     style: ReLeafTextStyles.title.copyWith(
                                       fontSize: 20,
-                                      color: mainTextColor,
+                                      color: _isLowConfidence
+                                          ? const Color(0xFFE67E22)
+                                          : mainTextColor,
                                     ),
                                   ),
                             if (_confidence.isNotEmpty) ...[
@@ -336,14 +363,41 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
                               Text(
                                 'Confidence: $_confidence',
                                 style: ReLeafTextStyles.subtitle.copyWith(
-                                  color: subTextColor,
+                                  color: _isLowConfidence
+                                      ? const Color(0xFFE67E22)
+                                      : subTextColor,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
+                              if (_isLowConfidence) ...[
+                                const SizedBox(height: 10),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Icon(
+                                      Icons.warning_amber_rounded,
+                                      color: Color(0xFFE67E22),
+                                      size: 22,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'We are not fully sure about this result. Please retake the photo to confirm the waste type.',
+                                        textAlign: TextAlign.start,
+                                        style: ReLeafTextStyles.body.copyWith(
+                                          color: const Color(0xFFE67E22),
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ],
                           ],
                         ),
                       ),
-                      if (_hasResult) ...[
+                      if (_hasResult && !_isLowConfidence) ...[
                         const SizedBox(height: 16),
                         Center(
                           child: ReLeafButton(
