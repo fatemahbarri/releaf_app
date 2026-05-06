@@ -188,8 +188,13 @@ class _LoginPageState extends State<LoginPage> {
         password: password,
       );
 
-      final user = FirebaseAuth.instance.currentUser;
+      if (userData == null) {
+        await FirebaseAuth.instance.signOut();
+        _showMessage('User data not found. Please contact support.');
+        return;
+      }
 
+      final user = FirebaseAuth.instance.currentUser;
 // Email verification is required for users only, not admins.
       if (!widget.isAdminMode && user != null && !user.emailVerified) {
         await FirebaseAuth.instance.signOut();
