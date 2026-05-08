@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 
+import 'package:releaf_app/l10n/app_localizations.dart';
 import 'package:releaf_app/services/route_service.dart';
 import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/user/UserWidgets/UserBottomNav.dart';
@@ -37,7 +38,6 @@ class _BinDetailsPageState extends State<BinDetailsPage> {
   bool _isLoadingLocation = true;
   List<LatLng> _routePoints = [];
 
-  /// ✅ DARK MODE COLORS
   bool get isDarkMode => Theme.of(context).brightness == Brightness.dark;
 
   Color get cardColor =>
@@ -65,6 +65,25 @@ class _BinDetailsPageState extends State<BinDetailsPage> {
           Color(0xFF7FB77E),
           Color(0xFF5E9C76),
         ];
+
+  String _translateCategory(String category, AppLocalizations l) {
+    switch (category.toLowerCase()) {
+      case 'plastic':
+        return l.locationCategoryPlastic;
+      case 'glass':
+        return l.locationCategoryGlass;
+      case 'metal':
+        return l.locationCategoryMetal;
+      case 'paper':
+        return l.locationCategoryPaper;
+      case 'cardboard':
+        return l.locationCategoryCardboard;
+      case 'trash':
+        return l.locationCategoryTrash;
+      default:
+        return category;
+    }
+  }
 
   @override
   void initState() {
@@ -119,7 +138,6 @@ class _BinDetailsPageState extends State<BinDetailsPage> {
     }
   }
 
-  /// ✅ CUSTOM CARD
   Widget _customCard({required Widget child}) {
     return Container(
       width: double.infinity,
@@ -142,6 +160,7 @@ class _BinDetailsPageState extends State<BinDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final binLocation = LatLng(widget.latitude, widget.longitude);
 
     return AppBackground(
@@ -150,7 +169,6 @@ class _BinDetailsPageState extends State<BinDetailsPage> {
         body: SafeArea(
           child: Column(
             children: [
-              /// ✅ TOP BAR
               AppTopBar(
                 title: widget.locationName,
                 subtitle: widget.address,
@@ -160,8 +178,6 @@ class _BinDetailsPageState extends State<BinDetailsPage> {
                 showBackButton: true,
                 gradientColors: topBarGradient,
               ),
-
-              /// ✅ INFO CARDS
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                 child: Column(
@@ -178,7 +194,9 @@ class _BinDetailsPageState extends State<BinDetailsPage> {
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              'Category: ${widget.category}',
+                              l.binDetailsCategory(
+                                _translateCategory(widget.category, l),
+                              ),
                               style: TextStyle(
                                 color: mainTextColor,
                                 fontSize: 13,
@@ -202,10 +220,12 @@ class _BinDetailsPageState extends State<BinDetailsPage> {
                           Expanded(
                             child: Text(
                               _isLoadingLocation
-                                  ? 'Calculating route...'
+                                  ? l.binDetailsCalculating
                                   : _distanceKm == null
-                                      ? 'Location unavailable'
-                                      : 'Distance: ${_distanceKm!.toStringAsFixed(2)} km',
+                                      ? l.binDetailsLocationUnavailable
+                                      : l.binDetailsDistance(
+                                          _distanceKm!.toStringAsFixed(2),
+                                        ),
                               style: TextStyle(
                                 color: subTextColor,
                                 fontSize: 13,
@@ -218,8 +238,6 @@ class _BinDetailsPageState extends State<BinDetailsPage> {
                   ],
                 ),
               ),
-
-              /// ✅ MAP CARD
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(12),

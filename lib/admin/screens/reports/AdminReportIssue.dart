@@ -5,7 +5,12 @@ import '../../widgets/AdminBar.dart';
 import '../../widgets/admin_background.dart';
 
 class AdminReportIssue extends StatefulWidget {
-  const AdminReportIssue({super.key});
+  final String? selectedIssueId;
+
+  const AdminReportIssue({
+    super.key,
+    this.selectedIssueId,
+  });
 
   @override
   State<AdminReportIssue> createState() => _AdminReportIssueState();
@@ -13,7 +18,7 @@ class AdminReportIssue extends StatefulWidget {
 
 class _AdminReportIssueState extends State<AdminReportIssue> {
   String _selectedFilter = 'All';
-  String? _expandedIssueId;
+  late String? _expandedIssueId;
 
   final Map<String, TextEditingController> _commentControllers = {};
   final Map<String, bool> _fixedValues = {};
@@ -24,6 +29,12 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
   static const Color border = Color(0xFFDCE8D7);
   static const Color textDark = Color(0xFF2F5D50);
   static const Color textMedium = Color(0xFF4E6A57);
+
+  @override
+  void initState() {
+    super.initState();
+    _expandedIssueId = widget.selectedIssueId;
+  }
 
   bool get isDark => Theme.of(context).brightness == Brightness.dark;
 
@@ -97,6 +108,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
           .update({
         'status': 'read',
         'readAt': FieldValue.serverTimestamp(),
+        'isRead': 'true',
       });
     }
   }
@@ -109,6 +121,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
       'adminComment': comment,
       'isFixed': isFixed,
       'status': isFixed ? 'fixed' : 'read',
+      'isRead': 'true',
       'updatedAt': FieldValue.serverTimestamp(),
       if (isFixed) 'fixedAt': FieldValue.serverTimestamp(),
     });
@@ -241,7 +254,10 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
         decoration: BoxDecoration(
           color: cardBg,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: borderColor),
+          border: Border.all(
+            color: isExpanded ? primary : borderColor,
+            width: isExpanded ? 1.4 : 1,
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(isDark ? 0.22 : 0.05),
@@ -283,7 +299,9 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        issue['details']?.toString() ?? '',
+                        issue['details']?.toString() ??
+                            issue['description']?.toString() ??
+                            '',
                         style: TextStyle(
                           color: subTextColor,
                           fontSize: 13.5,

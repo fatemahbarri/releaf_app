@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:releaf_app/l10n/app_localizations.dart';
 import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/widgets/releaf_ui.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
@@ -27,7 +28,8 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
 
   Map<String, int> recycledItems = {};
 
-  final List<String> recycleOptions = [
+  // Keys used for Firestore — always English
+  final List<String> recycleKeys = [
     'Plastic',
     'Glass',
     'Paper',
@@ -56,6 +58,25 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
       _isDark ? const Color(0xFF355246) : ReLeafColors.lightGreen;
   Color get _textColor => _isDark ? Colors.white : ReLeafColors.textDark;
   Color get _bodyColor => _isDark ? Colors.white70 : ReLeafColors.textMedium;
+
+  String _translateKey(String key, AppLocalizations l) {
+    switch (key) {
+      case 'Plastic':
+        return l.progressItemPlastic;
+      case 'Glass':
+        return l.progressItemGlass;
+      case 'Paper':
+        return l.progressItemPaper;
+      case 'Metal':
+        return l.progressItemMetal;
+      case 'Cardboard':
+        return l.progressItemCardboard;
+      case 'Trash (non-recyclables)':
+        return l.progressItemTrash;
+      default:
+        return key;
+    }
+  }
 
   @override
   void initState() {
@@ -143,13 +164,14 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
   }
 
   Future<void> _addManualRecycledItems() async {
+    final l = AppLocalizations.of(context)!;
     final user = FirebaseAuth.instance.currentUser;
     final totalAdded =
         selectedRecycleCounts.values.fold<int>(0, (sum, count) => sum + count);
 
     if (totalAdded == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select at least one item first.')),
+        SnackBar(content: Text(l.progressSelectFirst)),
       );
       return;
     }
@@ -192,20 +214,18 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
       if (recycleLevel > oldLevel) {
         _plantAnimationController.forward(from: 0);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Level Up! Your plant grew! 🌱')),
+          SnackBar(content: Text(l.progressLevelUp)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Recycled items added successfully!')),
+          SnackBar(content: Text(l.progressSuccess)),
         );
       }
     } catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Could not add recycled items. Please try again.'),
-        ),
+        SnackBar(content: Text(l.progressFailed)),
       );
     } finally {
       if (mounted) {
@@ -216,6 +236,8 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     final sortedItems = recycledItems.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
@@ -227,8 +249,8 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
           child: Column(
             children: [
               AppTopBar(
-                title: 'Recycling Progress',
-                subtitle: 'Grow your plant by recycling more!',
+                title: l.progressTitle,
+                subtitle: l.progressSubtitle,
                 icon: Icons.eco_rounded,
                 showBackButton: true,
                 showNotifications: false,
@@ -248,10 +270,10 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildMainProgressCard(),
+                      _buildMainProgressCard(l),
                       const SizedBox(height: 20),
                       Text(
-                        'Add Recycled Items',
+                        l.progressAddItems,
                         style: ReLeafTextStyles.title.copyWith(
                           fontSize: 22,
                           color: _textColor,
@@ -259,15 +281,17 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
                       ),
                       const SizedBox(height: 12),
                       Column(
-                        children: recycleOptions.map((item) {
-                          return _buildRecycleCounterRow(item);
+                        children: recycleKeys.map((key) {
+                          return _buildRecycleCounterRow(key, l);
                         }).toList(),
                       ),
                       const SizedBox(height: 12),
                       SizedBox(
                         width: double.infinity,
                         child: ReLeafButton(
-                          text: isAddingItems ? 'Adding...' : 'Add Items',
+                          text: isAddingItems
+                              ? l.progressAdding
+                              : l.progressAddButton,
                           icon: isAddingItems
                               ? Icons.hourglass_top_rounded
                               : Icons.add_rounded,
@@ -277,7 +301,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Most Recycled Items',
+                        l.progressMostRecycled,
                         style: ReLeafTextStyles.title.copyWith(
                           fontSize: 22,
                           color: _textColor,
@@ -287,13 +311,14 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
                       if (isLoadingStats)
                         const Center(child: CircularProgressIndicator())
                       else if (sortedItems.isEmpty)
-                        _buildEmptyInfoBox()
+                        _buildEmptyInfoBox(l)
                       else
                         _buildRecycledItemsPodium(
                           sortedItems.take(3).toList(),
+                          l,
                         ),
                       const SizedBox(height: 24),
-                      _buildHistorySection(),
+                      _buildHistorySection(l),
                     ],
                   ),
                 ),
@@ -305,7 +330,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
     );
   }
 
-  Widget _buildMainProgressCard() {
+  Widget _buildMainProgressCard(AppLocalizations l) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(22),
@@ -329,7 +354,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
           ),
           const SizedBox(height: 12),
           Text(
-            'Level $recycleLevel',
+            l.progressLevel(recycleLevel),
             style: ReLeafTextStyles.title.copyWith(
               fontSize: 24,
               color: _textColor,
@@ -337,7 +362,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
           ),
           const SizedBox(height: 8),
           Text(
-            _getLevelMessage(recycleLevel),
+            _getLevelMessage(recycleLevel, l),
             textAlign: TextAlign.center,
             style: ReLeafTextStyles.body.copyWith(
               fontSize: 15,
@@ -356,7 +381,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
           ),
           const SizedBox(height: 8),
           Text(
-            _getNextLevelText(),
+            _getNextLevelText(l),
             style: ReLeafTextStyles.subtitle.copyWith(
               fontSize: 13,
               color: _bodyColor,
@@ -367,8 +392,8 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
     );
   }
 
-  Widget _buildRecycleCounterRow(String item) {
-    final count = selectedRecycleCounts[item] ?? 0;
+  Widget _buildRecycleCounterRow(String key, AppLocalizations l) {
+    final count = selectedRecycleCounts[key] ?? 0;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -381,7 +406,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
       child: Row(
         children: [
           SvgPicture.asset(
-            _getItemSvg(item),
+            _getItemSvg(key),
             width: 26,
             height: 26,
             colorFilter: const ColorFilter.mode(
@@ -392,7 +417,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              item,
+              _translateKey(key, l),
               style: ReLeafTextStyles.title.copyWith(
                 fontSize: 16,
                 color: _textColor,
@@ -404,7 +429,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
                 ? null
                 : () {
                     setState(() {
-                      selectedRecycleCounts[item] = count - 1;
+                      selectedRecycleCounts[key] = count - 1;
                     });
                   },
             icon: const Icon(Icons.remove_circle_outline),
@@ -420,7 +445,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
           IconButton(
             onPressed: () {
               setState(() {
-                selectedRecycleCounts[item] = count + 1;
+                selectedRecycleCounts[key] = count + 1;
               });
             },
             icon: const Icon(Icons.add_circle_outline),
@@ -431,7 +456,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
     );
   }
 
-  Widget _buildEmptyInfoBox() {
+  Widget _buildEmptyInfoBox(AppLocalizations l) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -445,7 +470,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'No recycled items yet. Add items above or scan from the Classify page.',
+              l.progressEmpty,
               style: ReLeafTextStyles.body.copyWith(
                 color: _bodyColor,
               ),
@@ -456,7 +481,10 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
     );
   }
 
-  Widget _buildRecycledItemsPodium(List<MapEntry<String, int>> topItems) {
+  Widget _buildRecycledItemsPodium(
+    List<MapEntry<String, int>> topItems,
+    AppLocalizations l,
+  ) {
     final first = topItems.isNotEmpty ? topItems[0] : null;
     final second = topItems.length > 1 ? topItems[1] : null;
     final third = topItems.length > 2 ? topItems[2] : null;
@@ -481,28 +509,17 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Expanded(
-              child: _buildPodiumColumn(
-                rank: 2,
-                item: second,
-                height: 115,
-              ),
+              child:
+                  _buildPodiumColumn(rank: 2, item: second, height: 115, l: l),
             ),
             const SizedBox(width: 8),
             Expanded(
               child: _buildPodiumColumn(
-                rank: 1,
-                item: first,
-                height: 135,
-                isWinner: true,
-              ),
+                  rank: 1, item: first, height: 135, isWinner: true, l: l),
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: _buildPodiumColumn(
-                rank: 3,
-                item: third,
-                height: 90,
-              ),
+              child: _buildPodiumColumn(rank: 3, item: third, height: 90, l: l),
             ),
           ],
         ),
@@ -514,9 +531,11 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
     required int rank,
     required MapEntry<String, int>? item,
     required double height,
+    required AppLocalizations l,
     bool isWinner = false,
   }) {
-    final itemName = item?.key ?? 'No item';
+    final itemKey = item?.key ?? '';
+    final itemLabel = itemKey.isEmpty ? '—' : _translateKey(itemKey, l);
     final count = item?.value ?? 0;
 
     return Column(
@@ -538,7 +557,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
               width: isWinner ? 24 : 22,
               height: isWinner ? 24 : 22,
               child: SvgPicture.asset(
-                _getItemSvg(itemName),
+                _getItemSvg(itemKey),
                 fit: BoxFit.contain,
                 colorFilter: const ColorFilter.mode(
                   ReLeafColors.primary,
@@ -550,7 +569,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
         ),
         const SizedBox(height: 8),
         Text(
-          itemName,
+          itemLabel,
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -568,7 +587,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
             border: Border.all(color: _borderColor),
           ),
           child: Text(
-            '$count recycled',
+            l.progressRecycledCount(count),
             style: ReLeafTextStyles.subtitle.copyWith(
               fontSize: 11,
               color: _bodyColor,
@@ -599,9 +618,9 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
     );
   }
 
-  Widget _buildHistorySection() {
-    final historyItems = recycleOptions.map((item) {
-      return MapEntry(item, recycledItems[item] ?? 0);
+  Widget _buildHistorySection(AppLocalizations l) {
+    final historyItems = recycleKeys.map((key) {
+      return MapEntry(key, recycledItems[key] ?? 0);
     }).toList();
 
     return Container(
@@ -638,7 +657,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'View History',
+                    l.progressViewHistory,
                     style: ReLeafTextStyles.title.copyWith(
                       fontSize: 22,
                       color: Colors.white,
@@ -666,7 +685,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
               crossAxisSpacing: 12,
               childAspectRatio: 1.45,
               children: historyItems.map((entry) {
-                return _buildHistoryItemBox(entry.key, entry.value);
+                return _buildHistoryItemBox(entry.key, entry.value, l);
               }).toList(),
             ),
           ],
@@ -675,7 +694,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
     );
   }
 
-  Widget _buildHistoryItemBox(String itemName, int count) {
+  Widget _buildHistoryItemBox(String key, int count, AppLocalizations l) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
@@ -687,7 +706,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SvgPicture.asset(
-            _getItemSvg(itemName),
+            _getItemSvg(key),
             width: 18,
             height: 18,
             colorFilter: const ColorFilter.mode(
@@ -698,7 +717,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
           const SizedBox(height: 5),
           Flexible(
             child: Text(
-              itemName,
+              _translateKey(key, l),
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -711,7 +730,7 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
           ),
           const SizedBox(height: 4),
           Text(
-            '$count recycled',
+            l.progressRecycledCount(count),
             style: ReLeafTextStyles.body.copyWith(
               fontSize: 12,
               height: 1.1,
@@ -773,41 +792,39 @@ class _RecyclingProgressPageState extends State<RecyclingProgressPage>
     return progress.clamp(0.0, 1.0);
   }
 
-  String _getNextLevelText() {
-    if (recycleLevel == 10) {
-      return 'You reached the highest level. Keep recycling!';
-    }
+  String _getNextLevelText(AppLocalizations l) {
+    if (recycleLevel == 10) return l.progressMaxLevel;
 
     final nextLevelPoints = recycleLevel * 50;
     final remaining = nextLevelPoints - recyclePoints;
 
-    return '$remaining more recycled items needed for Level ${recycleLevel + 1}';
+    return l.progressNextLevel(remaining, recycleLevel + 1);
   }
 
-  String _getLevelMessage(int level) {
+  String _getLevelMessage(int level, AppLocalizations l) {
     switch (level) {
       case 1:
-        return 'A small seed has started growing.';
+        return l.progressMsg1;
       case 2:
-        return 'Your plant is sprouting.';
+        return l.progressMsg2;
       case 3:
-        return 'Your first leaves are growing.';
+        return l.progressMsg3;
       case 4:
-        return 'Your eco habit is getting stronger.';
+        return l.progressMsg4;
       case 5:
-        return 'Your plant is becoming healthier.';
+        return l.progressMsg5;
       case 6:
-        return 'Your plant is growing into a small tree.';
+        return l.progressMsg6;
       case 7:
-        return 'Your tree is becoming stronger.';
+        return l.progressMsg7;
       case 8:
-        return 'Your green impact is clearly growing.';
+        return l.progressMsg8;
       case 9:
-        return 'You are close to becoming a recycling champion.';
+        return l.progressMsg9;
       case 10:
-        return 'You are a ReLeaf recycling champion!';
+        return l.progressMsg10;
       default:
-        return 'Keep recycling to grow your plant.';
+        return l.progressMsgDefault;
     }
   }
 

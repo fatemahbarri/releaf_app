@@ -12,7 +12,9 @@ import 'package:releaf_app/user/Bins/LocationPage.dart';
 import 'package:releaf_app/user/profile/Profile.dart';
 import 'package:releaf_app/user/UserWidgets/UserBottomNav.dart';
 
+import 'package:releaf_app/l10n/app_localizations.dart';
 import 'package:releaf_app/user/classification/LearnMore.dart';
+
 import 'tflite_helper.dart';
 
 class ImageClassifierScreen extends StatefulWidget {
@@ -24,8 +26,12 @@ class ImageClassifierScreen extends StatefulWidget {
 
 class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
   File? _image;
-  String _result = 'No result yet';
+
+  // raw label from model (always English, used for logic)
+  String _result = '';
+
   String _confidence = '';
+
   double _confidenceValue = 0.0;
 
   bool _isLoading = false;
@@ -71,6 +77,25 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
     return _confidence.isNotEmpty && _confidenceValue < 0.55;
   }
 
+  String _translateCategory(String category, AppLocalizations l) {
+    switch (category.toLowerCase().trim()) {
+      case 'plastic':
+        return l.locationCategoryPlastic;
+      case 'glass':
+        return l.locationCategoryGlass;
+      case 'metal':
+        return l.locationCategoryMetal;
+      case 'paper':
+        return l.locationCategoryPaper;
+      case 'cardboard':
+        return l.locationCategoryCardboard;
+      case 'trash':
+        return l.locationCategoryTrash;
+      default:
+        return category;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -79,6 +104,7 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
 
   Future<void> _loadModel() async {
     await TFLiteHelper.init();
+
     if (!mounted) return;
 
     setState(() {
@@ -91,7 +117,7 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
 
     setState(() {
       _isLoading = true;
-      _result = 'Classifying...';
+      _result = '';
       _confidence = '';
       _confidenceValue = 0.0;
     });
@@ -100,8 +126,10 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
 
     if (!mounted) return;
 
-    final double confidenceValue =
-        double.tryParse(result['confidence'].toString()) ?? 0.0;
+    final double confidenceValue = double.tryParse(
+          result['confidence'].toString(),
+        ) ??
+        0.0;
 
     setState(() {
       _result = result['label'].toString();
@@ -141,18 +169,15 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
     }
   }
 
-  bool get _hasResult {
-    return !_isLoading &&
-        _result != 'No result yet' &&
-        _result != 'Classifying...';
-  }
+  // _result is empty string when no result yet
+  bool get _hasResult => !_isLoading && _result.isNotEmpty;
 
   void _learnMore() {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => LearnMorePage(
-          wasteType: _result,
+          wasteType: _result, // pass raw English label for tips lookup
         ),
       ),
     );
@@ -183,6 +208,8 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
   }
 
   Widget _infoBox() {
+    final l = AppLocalizations.of(context)!;
+
     return _customCard(
       padding: const EdgeInsets.all(14),
       child: Row(
@@ -194,7 +221,7 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Upload a clear image of one waste item to get better classification results.',
+              l.uploadClearImage,
               style: ReLeafTextStyles.body.copyWith(
                 color: subTextColor,
                 fontWeight: FontWeight.w600,
@@ -212,12 +239,16 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
     if (index == 0) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomePageUser()),
+        MaterialPageRoute(
+          builder: (_) => const HomePageUser(),
+        ),
       );
     } else if (index == 2) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const LocationPage()),
+        MaterialPageRoute(
+          builder: (_) => const LocationPage(),
+        ),
       );
     } else if (index == 3) {
       Navigator.pushReplacement(
@@ -234,6 +265,8 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -242,8 +275,8 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
           child: Column(
             children: [
               AppTopBar(
-                title: 'Waste Classification',
-                subtitle: 'Take or upload a waste image',
+                title: l.classificationTitle,
+                subtitle: l.classificationSubtitle,
                 icon: Icons.camera_alt_outlined,
                 showBackButton: false,
                 showNotifications: false,
@@ -286,7 +319,7 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
                                           ),
                                           const SizedBox(height: 14),
                                           Text(
-                                            'Take a photo or upload a waste image',
+                                            l.uploadPlaceholder,
                                             textAlign: TextAlign.center,
                                             style:
                                                 ReLeafTextStyles.body.copyWith(
@@ -306,7 +339,7 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
                         children: [
                           Expanded(
                             child: ReLeafButton(
-                              text: 'Take Photo',
+                              text: l.takePhoto,
                               icon: Icons.camera_alt_outlined,
                               onPressed: _pickCamera,
                             ),
@@ -314,7 +347,7 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: ReLeafButton(
-                              text: 'Upload',
+                              text: l.upload,
                               icon: Icons.upload_rounded,
                               onPressed: _pickGallery,
                             ),
@@ -325,7 +358,7 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
                       _infoBox(),
                       const SizedBox(height: 22),
                       Text(
-                        'Result',
+                        l.resultTitle,
                         style: ReLeafTextStyles.title.copyWith(
                           fontSize: 22,
                           color: mainTextColor,
@@ -349,7 +382,9 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
                                     color: ReLeafColors.secondary,
                                   )
                                 : Text(
-                                    _result,
+                                    _result.isEmpty
+                                        ? l.noResultYet
+                                        : _translateCategory(_result, l),
                                     textAlign: TextAlign.center,
                                     style: ReLeafTextStyles.title.copyWith(
                                       fontSize: 20,
@@ -361,7 +396,7 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
                             if (_confidence.isNotEmpty) ...[
                               const SizedBox(height: 8),
                               Text(
-                                'Confidence: $_confidence',
+                                '${l.confidenceLabel}: $_confidence',
                                 style: ReLeafTextStyles.subtitle.copyWith(
                                   color: _isLowConfidence
                                       ? const Color(0xFFE67E22)
@@ -382,7 +417,7 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(
-                                        'We are not fully sure about this result. Please retake the photo to confirm the waste type.',
+                                        l.lowConfidenceMessage,
                                         textAlign: TextAlign.start,
                                         style: ReLeafTextStyles.body.copyWith(
                                           color: const Color(0xFFE67E22),
@@ -401,7 +436,7 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
                         const SizedBox(height: 16),
                         Center(
                           child: ReLeafButton(
-                            text: 'Learn More',
+                            text: l.learnMore,
                             icon: Icons.info_outline,
                             onPressed: _learnMore,
                           ),

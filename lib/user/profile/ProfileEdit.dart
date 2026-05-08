@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:releaf_app/l10n/app_localizations.dart';
 
 import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/user/UserWidgets/UserBottomNav.dart';
@@ -36,19 +37,15 @@ class _ProfileEditState extends State<ProfileEdit> {
   bool get isDarkMode => Theme.of(context).brightness == Brightness.dark;
 
   Color get cardColor => isDarkMode ? const Color(0xFF1F2F2A) : Colors.white;
-
-  Color get iconBoxColor => isDarkMode ? const Color(0xFF2E4A3D) : lightGreen;
-
   Color get mainTextColor => isDarkMode ? Colors.white : textDark;
-
   Color get subTextColor => isDarkMode ? Colors.white70 : textMedium;
-
   Color get fieldBorderColor =>
       isDarkMode ? Colors.white.withOpacity(0.08) : const Color(0xFFDCE8D7);
-
   Color get shadowColor => isDarkMode
       ? Colors.black.withOpacity(0.25)
       : Colors.black.withOpacity(0.06);
+
+  // ─── Lifecycle ───────────────────────────────────────────────────────────
 
   @override
   void initState() {
@@ -71,11 +68,14 @@ class _ProfileEditState extends State<ProfileEdit> {
     super.dispose();
   }
 
+  // ─── Actions ─────────────────────────────────────────────────────────────
+
   Future<void> _saveChanges() async {
+    final l = AppLocalizations.of(context)!;
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      _showMessage('No user is logged in.');
+      _showMessage(l.noUser);
       return;
     }
 
@@ -85,7 +85,7 @@ class _ProfileEditState extends State<ProfileEdit> {
     final fullName = '$firstName $lastName'.trim();
 
     if (firstName.isEmpty || newEmail.isEmpty || !newEmail.contains('@')) {
-      _showMessage('Please enter a valid name and email.');
+      _showMessage(l.validationError);
       return;
     }
 
@@ -106,42 +106,35 @@ class _ProfileEditState extends State<ProfileEdit> {
 
       if (!mounted) return;
 
-      _showMessage(
-        newEmail != oldEmail
-            ? 'Saved. Please verify your new email to complete the change.'
-            : 'Profile updated successfully.',
-      );
-
+      _showMessage(newEmail != oldEmail ? l.savedWithVerify : l.savedSuccess);
       Navigator.pop(context, true);
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       setState(() => isSaving = false);
-
       if (e.code == 'requires-recent-login') {
-        _showMessage(
-          'Please log out and log in again, then change your email.',
-        );
+        _showMessage(l.reloginError);
       } else {
-        _showMessage(e.message ?? 'Failed to update profile.');
+        _showMessage(e.message ?? l.failedUpdate);
       }
     } catch (_) {
       if (!mounted) return;
       setState(() => isSaving = false);
-      _showMessage('Failed to update profile.');
+      _showMessage(AppLocalizations.of(context)!.failedUpdate);
     }
   }
 
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: secondary,
-      ),
+      SnackBar(content: Text(message), backgroundColor: secondary),
     );
   }
 
+  // ─── Build ───────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     final fullName =
         '${firstNameController.text.trim()} ${lastNameController.text.trim()}'
             .trim();
@@ -156,7 +149,7 @@ class _ProfileEditState extends State<ProfileEdit> {
             child: Column(
               children: [
                 AppTopBar(
-                  title: 'Edit Profile',
+                  title: l.editProfile,
                   icon: Icons.person_rounded,
                   showNotifications: false,
                   showBackButton: true,
@@ -200,7 +193,7 @@ class _ProfileEditState extends State<ProfileEdit> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  fullName.isEmpty ? 'User Profile' : fullName,
+                  fullName.isEmpty ? l.userProfile : fullName,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: mainTextColor,
@@ -211,17 +204,17 @@ class _ProfileEditState extends State<ProfileEdit> {
                 const SizedBox(height: 24),
                 _buildField(
                   controller: firstNameController,
-                  hintText: 'First name',
+                  hintText: l.firstName,
                   icon: Icons.person_outline,
                 ),
                 _buildField(
                   controller: lastNameController,
-                  hintText: 'Last name',
+                  hintText: l.lastName,
                   icon: Icons.badge_outlined,
                 ),
                 _buildField(
                   controller: emailController,
-                  hintText: 'Email',
+                  hintText: l.email,
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
                 ),
@@ -240,9 +233,9 @@ class _ProfileEditState extends State<ProfileEdit> {
                     ),
                     child: isSaving
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                            'Save',
-                            style: TextStyle(
+                        : Text(
+                            l.save,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 17,
                               fontWeight: FontWeight.bold,
@@ -256,33 +249,6 @@ class _ProfileEditState extends State<ProfileEdit> {
         ),
         bottomNavigationBar: const UserBottomNav(currentIndex: 3),
       ),
-    );
-  }
-
-  Widget _topBar() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: mainTextColor,
-              size: 24,
-            ),
-          ),
-        ),
-        Text(
-          'Edit Profile',
-          style: TextStyle(
-            color: mainTextColor,
-            fontSize: 26,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
     );
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:releaf_app/l10n/app_localizations.dart';
 
 import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
@@ -150,11 +151,11 @@ class _BinsListPageState extends State<BinsListPage> {
     return 0.0;
   }
 
-  void _handleGo(Map<String, dynamic> bin) {
+  void _handleGo(Map<String, dynamic> bin, AppLocalizations l10n) {
     final name = _getValue(
       bin,
       ['binName', 'name', 'title', 'locationName'],
-      fallback: 'Recycling Bin',
+      fallback: l10n.defaultBinName,
     );
 
     final city = _getValue(
@@ -247,7 +248,7 @@ class _BinsListPageState extends State<BinsListPage> {
     );
   }
 
-  Widget _searchBar() {
+  Widget _searchBar(AppLocalizations l10n) {
     return Container(
       height: 54,
       padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -279,7 +280,7 @@ class _BinsListPageState extends State<BinsListPage> {
             Icons.search_rounded,
             color: isDarkMode ? Colors.white70 : ReLeafColors.primary,
           ),
-          hintText: 'Search location',
+          hintText: l10n.binsSearchLocation,
           hintStyle: TextStyle(
             color: subTextColor,
             fontSize: 15,
@@ -323,11 +324,11 @@ class _BinsListPageState extends State<BinsListPage> {
     );
   }
 
-  Widget _buildLocationCard(Map<String, dynamic> bin) {
+  Widget _buildLocationCard(Map<String, dynamic> bin, AppLocalizations l10n) {
     final name = _getValue(
       bin,
       ['binName', 'name', 'title', 'locationName'],
-      fallback: 'Recycling Bin',
+      fallback: l10n.defaultBinName,
     );
 
     final city = _getValue(
@@ -384,10 +385,10 @@ class _BinsListPageState extends State<BinsListPage> {
           ),
           const SizedBox(width: 10),
           ReLeafButton(
-            text: 'Go',
+            text: l10n.binsGo,
             small: true,
             icon: Icons.arrow_forward_rounded,
-            onPressed: () => _handleGo(bin),
+            onPressed: () => _handleGo(bin, l10n),
           ),
         ],
       ),
@@ -402,12 +403,15 @@ class _BinsListPageState extends State<BinsListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     final isTrash = widget.category.toLowerCase() == 'trash';
 
-    final pageTitle = isTrash ? 'Trash Bins' : '${widget.category} Bins';
-
+    final pageTitle = isTrash
+        ? l10n.trashBinsTitle
+        : l10n.categoryBinsTitle(_translateCategory(widget.category, l10n));
     final pageSubtitle =
-        isTrash ? 'Non-recyclable waste locations' : 'Available recycling bins';
+        isTrash ? l10n.trashBinsSubtitle : l10n.recyclingBinsSubtitle;
 
     return AppBackground(
       child: Scaffold(
@@ -430,10 +434,10 @@ class _BinsListPageState extends State<BinsListPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _searchBar(),
+                      _searchBar(l10n),
                       const SizedBox(height: 16),
                       Text(
-                        'Nearby Locations',
+                        l10n.binsNearbyLocations,
                         style: ReLeafTextStyles.title.copyWith(
                           fontSize: 22,
                           color: mainTextColor,
@@ -457,7 +461,7 @@ class _BinsListPageState extends State<BinsListPage> {
                             if (snapshot.hasError) {
                               return Center(
                                 child: _infoBox(
-                                  text: 'Failed to load locations.',
+                                  text: l10n.binsLoadFailed,
                                   icon: Icons.error_outline,
                                   isError: true,
                                 ),
@@ -469,8 +473,7 @@ class _BinsListPageState extends State<BinsListPage> {
                             if (bins.isEmpty) {
                               return Center(
                                 child: _infoBox(
-                                  text:
-                                      'No active locations available for this category yet.',
+                                  text: l10n.binsNoLocations,
                                   icon: Icons.info_outline,
                                 ),
                               );
@@ -481,6 +484,7 @@ class _BinsListPageState extends State<BinsListPage> {
                               itemBuilder: (context, index) {
                                 return _buildLocationCard(
                                   bins[index].data(),
+                                  l10n,
                                 );
                               },
                             );
@@ -499,5 +503,24 @@ class _BinsListPageState extends State<BinsListPage> {
         ),
       ),
     );
+  }
+
+  String _translateCategory(String category, AppLocalizations l10n) {
+    switch (category.toLowerCase()) {
+      case 'plastic':
+        return l10n.locationCategoryPlastic;
+      case 'glass':
+        return l10n.locationCategoryGlass;
+      case 'metal':
+        return l10n.locationCategoryMetal;
+      case 'paper':
+        return l10n.locationCategoryPaper;
+      case 'cardboard':
+        return l10n.locationCategoryCardboard;
+      case 'trash':
+        return l10n.locationCategoryTrash;
+      default:
+        return category;
+    }
   }
 }

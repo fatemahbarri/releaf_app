@@ -3,14 +3,39 @@ import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
 import 'package:releaf_app/widgets/releaf_ui.dart';
 import 'package:releaf_app/user/llm/Chatbot.dart';
+import 'package:releaf_app/l10n/app_localizations.dart';
 
 class LearnMorePage extends StatelessWidget {
   final String wasteType;
 
-  const LearnMorePage({super.key, required this.wasteType});
+  const LearnMorePage({
+    super.key,
+    required this.wasteType,
+  });
+
+  String _translateCategory(String category, AppLocalizations l) {
+    switch (category.toLowerCase().trim()) {
+      case 'plastic':
+        return l.locationCategoryPlastic;
+      case 'glass':
+        return l.locationCategoryGlass;
+      case 'metal':
+        return l.locationCategoryMetal;
+      case 'paper':
+        return l.locationCategoryPaper;
+      case 'cardboard':
+        return l.locationCategoryCardboard;
+      case 'trash':
+        return l.locationCategoryTrash;
+      default:
+        return category;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     final Color cardColor =
@@ -27,9 +52,6 @@ class LearnMorePage extends StatelessWidget {
     final Color mainTextColor =
         isDarkMode ? Colors.white : ReLeafColors.textDark;
 
-    final Color subTextColor =
-        isDarkMode ? Colors.white70 : ReLeafColors.textDark.withOpacity(0.65);
-
     final List<Color> topBarGradient = isDarkMode
         ? const [
             Color(0xFF1B3A31),
@@ -42,56 +64,56 @@ class LearnMorePage extends StatelessWidget {
 
     final Map<String, List<String>> tips = {
       'plastic': [
-        'Rinse plastic containers before recycling.',
-        'Check the recycling symbol on the item.',
-        'Make sure bottles are empty and caps are secured.',
-        'Avoid placing plastic bags in recycling bins.',
-        'Try to reduce single-use plastics.',
+        l.plasticTip1,
+        l.plasticTip2,
+        l.plasticTip3,
+        l.plasticTip4,
+        l.plasticTip5,
       ],
       'glass': [
-        'Rinse glass containers before recycling.',
-        'Separate broken glass carefully.',
-        'Do not mix glass with other materials.',
-        'Remove lids if required.',
-        'Reuse glass containers when possible.',
+        l.glassTip1,
+        l.glassTip2,
+        l.glassTip3,
+        l.glassTip4,
+        l.glassTip5,
       ],
       'metal': [
-        'Rinse metal cans to remove food residue.',
-        'Flatten cans if possible to save space.',
-        'Avoid mixing metal with other waste.',
-        'Recycle aluminum and steel separately if required.',
-        'Reuse containers when possible.',
+        l.metalTip1,
+        l.metalTip2,
+        l.metalTip3,
+        l.metalTip4,
+        l.metalTip5,
       ],
       'paper': [
-        'Keep paper clean and dry.',
-        'Avoid recycling oily or wet paper.',
-        'Flatten paper to save space.',
-        'Separate paper from plastic coatings.',
-        'Reuse paper when possible.',
+        l.paperTip1,
+        l.paperTip2,
+        l.paperTip3,
+        l.paperTip4,
+        l.paperTip5,
       ],
       'cardboard': [
-        'Flatten cardboard boxes before recycling.',
-        'Keep cardboard dry and clean.',
-        'Remove tape and labels if possible.',
-        'Do not recycle wet cardboard.',
-        'Reuse boxes when possible.',
+        l.cardboardTip1,
+        l.cardboardTip2,
+        l.cardboardTip3,
+        l.cardboardTip4,
+        l.cardboardTip5,
       ],
       'trash': [
-        'This item is not recyclable.',
-        'Dispose of it in general waste.',
-        'Avoid mixing with recyclable materials.',
-        'Reduce usage of non-recyclable items.',
-        'Look for reusable alternatives.',
+        l.trashTip1,
+        l.trashTip2,
+        l.trashTip3,
+        l.trashTip4,
+        l.trashTip5,
       ],
     };
 
     final List<String> tipsList = tips[wasteType.toLowerCase().trim()] ??
         [
-          'No recycling tips are available for this item.',
-          'Try to identify the material before disposal.',
-          'Avoid mixing unknown waste with recyclable materials.',
-          'Check local recycling instructions when possible.',
-          'Ask the chatbot for more information.',
+          l.defaultTip1,
+          l.defaultTip2,
+          l.defaultTip3,
+          l.defaultTip4,
+          l.defaultTip5,
         ];
 
     Widget customCard({required Widget child}) {
@@ -123,15 +145,13 @@ class LearnMorePage extends StatelessWidget {
         body: SafeArea(
           child: Column(
             children: [
-              /// ✅ TOP BAR
               AppTopBar(
-                title: wasteType,
-                subtitle: 'Recycling Tips',
+                title: _translateCategory(wasteType, l),
+                subtitle: l.learnMoreSubtitle,
                 icon: Icons.eco_rounded,
                 showBackButton: true,
                 gradientColors: topBarGradient,
               ),
-
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.fromLTRB(16, 18, 16, 20),
@@ -178,7 +198,7 @@ class LearnMorePage extends StatelessWidget {
                       ),
                       const SizedBox(height: 30),
                       ReLeafButton(
-                        text: 'Chat Bot',
+                        text: l.chatBot,
                         icon: Icons.chat_bubble_outline,
                         onPressed: () {
                           Navigator.push(

@@ -4,8 +4,8 @@ import 'package:releaf_app/services/firebase_service.dart';
 import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/widgets/auth_card.dart';
 import 'package:releaf_app/widgets/custom_button.dart';
-
 import 'package:releaf_app/auth/Login.dart';
+import 'package:releaf_app/main.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -51,6 +51,48 @@ class _SignUpState extends State<SignUp> {
   bool obscurePassword = true;
   bool obscureConfirmPassword = true;
 
+  String _t(String key, bool isArabic) {
+    final en = {
+      'title': 'Create Account',
+      'subtitle': 'Sign up to get started',
+      'fullName': 'Full Name',
+      'email': 'Email Address',
+      'password': 'Password',
+      'confirmPassword': 'Confirm Password',
+      'signup': 'Sign up',
+      'already': 'Already have an account?',
+      'login': 'Log in',
+      'fillFields': 'Please fill in all fields',
+      'validEmail': 'Please enter a valid email address',
+      'passwordMatch': 'Passwords do not match',
+      'strongPassword':
+          'Password must be at least 8 characters and include uppercase, lowercase, and numbers',
+      'verify':
+          'Verification email sent. Please check your email before logging in.',
+    };
+
+    final ar = {
+      'title': 'إنشاء حساب',
+      'subtitle': 'أنشئ حسابك للبدء',
+      'fullName': 'الاسم الكامل',
+      'email': 'البريد الإلكتروني',
+      'password': 'كلمة المرور',
+      'confirmPassword': 'تأكيد كلمة المرور',
+      'signup': 'إنشاء حساب',
+      'already': 'لديك حساب بالفعل؟',
+      'login': 'تسجيل الدخول',
+      'fillFields': 'يرجى تعبئة جميع الحقول',
+      'validEmail': 'يرجى إدخال بريد إلكتروني صحيح',
+      'passwordMatch': 'كلمتا المرور غير متطابقتين',
+      'strongPassword':
+          'يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل وتتضمن أحرف كبيرة وصغيرة وأرقام',
+      'verify':
+          'تم إرسال رابط التحقق إلى بريدك الإلكتروني، يرجى التحقق قبل تسجيل الدخول.',
+    };
+
+    return isArabic ? ar[key]! : en[key]!;
+  }
+
   @override
   void dispose() {
     fullNameController.dispose();
@@ -68,7 +110,7 @@ class _SignUpState extends State<SignUp> {
     return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email);
   }
 
-  Future<void> _signUp() async {
+  Future<void> _signUp(bool isArabic) async {
     final fullName = fullNameController.text.trim();
     final email = emailController.text.trim().toLowerCase();
     final password = passwordController.text.trim();
@@ -78,46 +120,40 @@ class _SignUpState extends State<SignUp> {
         email.isEmpty ||
         password.isEmpty ||
         confirmPassword.isEmpty) {
-      _showMessage('Please fill in all fields');
+      _showMessage(_t('fillFields', isArabic));
       return;
     }
 
     if (!_isValidEmail(email)) {
-      _showMessage('Please enter a valid email address');
+      _showMessage(_t('validEmail', isArabic));
       return;
     }
 
     if (password != confirmPassword) {
-      _showMessage('Passwords do not match');
+      _showMessage(_t('passwordMatch', isArabic));
       return;
     }
 
     if (!_isStrongPassword(password)) {
-      _showMessage(
-        'Password must be at least 8 characters and include uppercase, lowercase, and numbers',
-      );
+      _showMessage(_t('strongPassword', isArabic));
       return;
     }
 
     setState(() => isLoading = true);
 
     try {
-      // Register user once only
       await _firebaseService.registerUser(
         name: fullName,
         email: email,
         password: password,
       );
 
-      // Send verification email
       final user = FirebaseAuth.instance.currentUser;
       await user?.sendEmailVerification();
 
       if (!mounted) return;
 
-      _showMessage(
-        'Verification email sent. Please check your email before logging in.',
-      );
+      _showMessage(_t('verify', isArabic));
 
       fullNameController.clear();
       emailController.clear();
@@ -195,176 +231,191 @@ class _SignUpState extends State<SignUp> {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: ThemeData.light(),
-      child: Scaffold(
-        body: Stack(
-          children: [
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: SizedBox(
-                height: 280,
-                width: double.infinity,
-                child: ClipPath(
-                  clipper: BottomWaveClipper(),
-                  child: Container(
-                    color: const Color(0xFFB7D98A),
+    return ValueListenableBuilder<Locale>(
+      valueListenable: localeNotifier,
+      builder: (context, locale, _) {
+        final isArabic = locale.languageCode == 'ar';
+
+        return Directionality(
+          textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+          child: Theme(
+            data: ThemeData.light(),
+            child: Scaffold(
+              body: Stack(
+                children: [
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: SizedBox(
+                      height: 280,
+                      width: double.infinity,
+                      child: ClipPath(
+                        clipper: BottomWaveClipper(),
+                        child: Container(
+                          color: const Color(0xFFB7D98A),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-            ),
-            AppBackground(
-              child: SafeArea(
-                child: SingleChildScrollView(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 8),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            color: Color(0xFF2A2A2A),
-                          ),
+                  AppBackground(
+                    child: SafeArea(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 20,
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Image.asset(
-                        'assets/images/Releaf_logo.png',
-                        height: 120,
-                      ),
-                      const SizedBox(height: 14),
-                      const Text(
-                        'Create Account',
-                        style: TextStyle(
-                          color: Color(0xFF498056),
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      const Text(
-                        'Sign up to get started',
-                        style: TextStyle(
-                          color: Color(0xFF2A2A2A),
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-                      AuthCard(
-                        isDark: false,
                         child: Column(
                           children: [
-                            _buildTextField(
-                              controller: fullNameController,
-                              hintText: 'Full Name',
-                              prefixIcon: const Icon(
-                                Icons.person_outline,
-                                color: Color(0xFF499A64),
-                              ),
-                            ),
-                            _buildTextField(
-                              controller: emailController,
-                              hintText: 'Email Address',
-                              keyboardType: TextInputType.emailAddress,
-                              prefixIcon: const Icon(
-                                Icons.email_outlined,
-                                color: Color(0xFF499A64),
-                              ),
-                            ),
-                            _buildTextField(
-                              controller: passwordController,
-                              hintText: 'Password',
-                              obscureText: obscurePassword,
-                              prefixIcon: const Icon(
-                                Icons.lock_outline,
-                                color: Color(0xFF499A64),
-                              ),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  obscurePassword
-                                      ? Icons.visibility_off
-                                      : Icons.visibility,
-                                  color: Color(0xFF675F5A),
-                                ),
+                            const SizedBox(height: 8),
+                            Align(
+                              alignment: isArabic
+                                  ? Alignment.centerRight
+                                  : Alignment.centerLeft,
+                              child: IconButton(
                                 onPressed: () {
-                                  setState(() {
-                                    obscurePassword = !obscurePassword;
-                                  });
+                                  Navigator.pop(context);
                                 },
-                              ),
-                            ),
-                            _buildTextField(
-                              controller: confirmPasswordController,
-                              hintText: 'Confirm Password',
-                              obscureText: obscureConfirmPassword,
-                              prefixIcon: const Icon(
-                                Icons.lock_outline,
-                                color: Color(0xFF499A64),
-                              ),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  obscureConfirmPassword
-                                      ? Icons.visibility_off
-                                      : Icons.visibility,
-                                  color: Color(0xFF675F5A),
+                                icon: const Icon(
+                                  Icons.arrow_back_ios_new_rounded,
+                                  color: Color(0xFF2A2A2A),
                                 ),
-                                onPressed: () {
-                                  setState(() {
-                                    obscureConfirmPassword =
-                                        !obscureConfirmPassword;
-                                  });
-                                },
                               ),
                             ),
-                            const SizedBox(height: 10),
-                            CustomButton(
-                              text: 'Sign up',
-                              isLoading: isLoading,
-                              onTap: _signUp,
+                            const SizedBox(height: 8),
+                            Image.asset(
+                              'assets/images/Releaf_logo.png',
+                              height: 120,
                             ),
-                            const SizedBox(height: 12),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: RichText(
-                                text: const TextSpan(
-                                  text: 'Already have an account? ',
-                                  style: TextStyle(
-                                    color: Color.fromARGB(255, 70, 68, 68),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
+                            const SizedBox(height: 14),
+                            Text(
+                              _t('title', isArabic),
+                              style: const TextStyle(
+                                color: Color(0xFF498056),
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              _t('subtitle', isArabic),
+                              style: const TextStyle(
+                                color: Color(0xFF2A2A2A),
+                              ),
+                            ),
+                            const SizedBox(height: 28),
+                            AuthCard(
+                              isDark: false,
+                              child: Column(
+                                children: [
+                                  _buildTextField(
+                                    controller: fullNameController,
+                                    hintText: _t('fullName', isArabic),
+                                    prefixIcon: const Icon(
+                                      Icons.person_outline,
+                                      color: Color(0xFF499A64),
+                                    ),
                                   ),
-                                  children: [
-                                    TextSpan(
-                                      text: 'Log in',
-                                      style: TextStyle(
-                                        color: Color.fromARGB(255, 19, 72, 115),
-                                        fontWeight: FontWeight.bold,
+                                  _buildTextField(
+                                    controller: emailController,
+                                    hintText: _t('email', isArabic),
+                                    keyboardType: TextInputType.emailAddress,
+                                    prefixIcon: const Icon(
+                                      Icons.email_outlined,
+                                      color: Color(0xFF499A64),
+                                    ),
+                                  ),
+                                  _buildTextField(
+                                    controller: passwordController,
+                                    hintText: _t('password', isArabic),
+                                    obscureText: obscurePassword,
+                                    prefixIcon: const Icon(
+                                      Icons.lock_outline,
+                                      color: Color(0xFF499A64),
+                                    ),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        obscurePassword
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
+                                        color: const Color(0xFF675F5A),
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          obscurePassword = !obscurePassword;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  _buildTextField(
+                                    controller: confirmPasswordController,
+                                    hintText: _t('confirmPassword', isArabic),
+                                    obscureText: obscureConfirmPassword,
+                                    prefixIcon: const Icon(
+                                      Icons.lock_outline,
+                                      color: Color(0xFF499A64),
+                                    ),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        obscureConfirmPassword
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
+                                        color: const Color(0xFF675F5A),
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          obscureConfirmPassword =
+                                              !obscureConfirmPassword;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  CustomButton(
+                                    text: _t('signup', isArabic),
+                                    isLoading: isLoading,
+                                    onTap: () => _signUp(isArabic),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: RichText(
+                                      text: TextSpan(
+                                        text: '${_t('already', isArabic)} ',
+                                        style: const TextStyle(
+                                          color:
+                                              Color.fromARGB(255, 70, 68, 68),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: _t('login', isArabic),
+                                            style: const TextStyle(
+                                              color: Color.fromARGB(
+                                                  255, 19, 72, 115),
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
