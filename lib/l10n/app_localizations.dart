@@ -1561,6 +1561,282 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The goal of ReLeaf is to support sustainable recycling behavior by making waste sorting easier, faster, and more accessible.'**
   String get adminGoalText;
+
+  /// No description provided for @adminBins.
+  ///
+  /// In en, this message translates to:
+  /// **'Bins'**
+  String get adminBins;
+
+  /// No description provided for @adminActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get adminActive;
+
+  /// No description provided for @adminInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get adminInactive;
+
+  /// No description provided for @adminActiveBins.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Bins'**
+  String get adminActiveBins;
+
+  /// No description provided for @adminInactiveBins.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive Bins'**
+  String get adminInactiveBins;
+
+  /// No description provided for @adminAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get adminAll;
+
+  /// No description provided for @adminPlastic.
+  ///
+  /// In en, this message translates to:
+  /// **'Plastic'**
+  String get adminPlastic;
+
+  /// No description provided for @adminPaper.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper'**
+  String get adminPaper;
+
+  /// No description provided for @adminMetal.
+  ///
+  /// In en, this message translates to:
+  /// **'Metal'**
+  String get adminMetal;
+
+  /// No description provided for @adminGlass.
+  ///
+  /// In en, this message translates to:
+  /// **'Glass'**
+  String get adminGlass;
+
+  /// No description provided for @adminCardboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Cardboard'**
+  String get adminCardboard;
+
+  /// No description provided for @adminTrash.
+  ///
+  /// In en, this message translates to:
+  /// **'Trash'**
+  String get adminTrash;
+
+  /// No description provided for @adminDeleteBin.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Bin'**
+  String get adminDeleteBin;
+
+  /// No description provided for @adminDeleteBinQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{binName}\"?'**
+  String adminDeleteBinQuestion(String binName);
+
+  /// No description provided for @adminBinDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Bin deleted successfully'**
+  String get adminBinDeletedSuccessfully;
+
+  /// No description provided for @adminFailedToLoadBins.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load bins'**
+  String get adminFailedToLoadBins;
+
+  /// No description provided for @adminNoActiveBinsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No active bins found'**
+  String get adminNoActiveBinsFound;
+
+  /// No description provided for @adminNoInactiveBinsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No inactive bins found'**
+  String get adminNoInactiveBinsFound;
+
+  /// No description provided for @adminRecyclingBin.
+  ///
+  /// In en, this message translates to:
+  /// **'Recycling Bin'**
+  String get adminRecyclingBin;
+
+  /// No description provided for @adminUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get adminUnknown;
+
+  /// No description provided for @adminEditBin.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Bin'**
+  String get adminEditBin;
+
+  /// No description provided for @adminAddBin.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Bin'**
+  String get adminAddBin;
+
+  /// No description provided for @adminBinName.
+  ///
+  /// In en, this message translates to:
+  /// **'Bin Name'**
+  String get adminBinName;
+
+  /// No description provided for @adminGovernorate.
+  ///
+  /// In en, this message translates to:
+  /// **'Governorate'**
+  String get adminGovernorate;
+
+  /// No description provided for @adminDistrict.
+  ///
+  /// In en, this message translates to:
+  /// **'District'**
+  String get adminDistrict;
+
+  /// No description provided for @adminBinType.
+  ///
+  /// In en, this message translates to:
+  /// **'Bin Type'**
+  String get adminBinType;
+
+  /// No description provided for @adminBinStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Bin Status'**
+  String get adminBinStatus;
+
+  /// No description provided for @adminSelectLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Location'**
+  String get adminSelectLocation;
+
+  /// No description provided for @adminDescriptionAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Description / Address'**
+  String get adminDescriptionAddress;
+
+  /// No description provided for @adminPleaseFillAllFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill all fields'**
+  String get adminPleaseFillAllFields;
+
+  /// No description provided for @adminLocationSearchFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Location search failed: {error}'**
+  String adminLocationSearchFailed(String error);
+
+  /// No description provided for @adminSaveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get adminSaveChanges;
+
+  /// No description provided for @adminSearchLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Location'**
+  String get adminSearchLocation;
+
+  /// No description provided for @adminNearbyLocations.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearby Locations'**
+  String get adminNearbyLocations;
+
+  /// No description provided for @adminNoLocationsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No locations found'**
+  String get adminNoLocationsFound;
+
+  /// No description provided for @adminCategoryBinsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{category} Bins'**
+  String adminCategoryBinsTitle(String category);
+
+  /// No description provided for @adminIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaints'**
+  String get adminIssues;
+
+  /// No description provided for @adminDirectReporting.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct Reporting'**
+  String get adminDirectReporting;
+
+  /// No description provided for @adminReviewIssueReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Review user complaints'**
+  String get adminReviewIssueReports;
+
+  /// No description provided for @adminUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get adminUnread;
+
+  /// No description provided for @adminRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get adminRead;
+
+  /// No description provided for @adminFixed.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed'**
+  String get adminFixed;
+
+  /// No description provided for @adminAddAdminComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add admin comment...'**
+  String get adminAddAdminComment;
+
+  /// No description provided for @adminIssueUpdateSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaint update saved'**
+  String get adminIssueUpdateSaved;
+
+  /// No description provided for @adminFailedToLoadIssueReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load complaints'**
+  String get adminFailedToLoadIssueReports;
+
+  /// No description provided for @adminNoIssueReportsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No complaints found'**
+  String get adminNoIssueReportsFound;
 }
 
 class _AppLocalizationsDelegate

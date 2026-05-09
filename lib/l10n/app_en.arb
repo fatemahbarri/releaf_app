@@ -315,5 +315,82 @@
   "adminRoleTitle": "Admin Role",
   "adminRoleText": "Admins can manage users, recycling bins, reported issues, and review app activity to keep the system organized and reliable.",
   "adminGoalTitle": "Project Goal",
-  "adminGoalText": "The goal of ReLeaf is to support sustainable recycling behavior by making waste sorting easier, faster, and more accessible."
+  "adminGoalText": "The goal of ReLeaf is to support sustainable recycling behavior by making waste sorting easier, faster, and more accessible.",
+
+
+
+"adminBins": "Bins",
+"adminActive": "Active",
+"adminInactive": "Inactive",
+"adminActiveBins": "Active Bins",
+"adminInactiveBins": "Inactive Bins",
+
+"adminAll": "All",
+"adminPlastic": "Plastic",
+"adminPaper": "Paper",
+"adminMetal": "Metal",
+"adminGlass": "Glass",
+"adminCardboard": "Cardboard",
+"adminTrash": "Trash",
+
+"adminDeleteBin": "Delete Bin",
+"adminDeleteBinQuestion": "Delete \"{binName}\"?",
+"@adminDeleteBinQuestion": {
+  "placeholders": {
+    "binName": {
+      "type": "String"
+    }
+  }
+},
+
+"adminBinDeletedSuccessfully": "Bin deleted successfully",
+"adminFailedToLoadBins": "Failed to load bins",
+"adminNoActiveBinsFound": "No active bins found",
+"adminNoInactiveBinsFound": "No inactive bins found",
+"adminRecyclingBin": "Recycling Bin",
+"adminUnknown": "Unknown",
+
+"adminEditBin": "Edit Bin",
+"adminAddBin": "Add Bin",
+"adminBinName": "Bin Name",
+"adminGovernorate": "Governorate",
+"adminDistrict": "District",
+"adminBinType": "Bin Type",
+"adminBinStatus": "Bin Status",
+"adminSelectLocation": "Select Location",
+"adminDescriptionAddress": "Description / Address",
+"adminPleaseFillAllFields": "Please fill all fields",
+"adminLocationSearchFailed": "Location search failed: {error}",
+"@adminLocationSearchFailed": {
+  "placeholders": {
+    "error": {
+      "type": "String"
+    }
+  }
+},
+"adminSaveChanges": "Save Changes",
+
+"adminSearchLocation": "Search Location",
+"adminNearbyLocations": "Nearby Locations",
+"adminNoLocationsFound": "No locations found",
+"adminCategoryBinsTitle": "{category} Bins",
+"@adminCategoryBinsTitle": {
+  "placeholders": {
+    "category": {
+      "type": "String"
+    }
+  }
+},
+
+"adminIssues": "Complaints",
+"adminDirectReporting": "Direct Reporting",
+"adminReviewIssueReports": "Review user complaints",
+"adminUnread": "Unread",
+"adminRead": "Read",
+"adminFixed": "Fixed",
+"adminAddAdminComment": "Add admin comment...",
+"adminIssueUpdateSaved": "Complaint update saved",
+"adminFailedToLoadIssueReports": "Failed to load complaints",
+"adminNoIssueReportsFound": "No complaints found"
+
 }

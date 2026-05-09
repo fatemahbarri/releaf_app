@@ -791,4 +791,148 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get adminGoalText =>
       'The goal of ReLeaf is to support sustainable recycling behavior by making waste sorting easier, faster, and more accessible.';
+
+  @override
+  String get adminBins => 'Bins';
+
+  @override
+  String get adminActive => 'Active';
+
+  @override
+  String get adminInactive => 'Inactive';
+
+  @override
+  String get adminActiveBins => 'Active Bins';
+
+  @override
+  String get adminInactiveBins => 'Inactive Bins';
+
+  @override
+  String get adminAll => 'All';
+
+  @override
+  String get adminPlastic => 'Plastic';
+
+  @override
+  String get adminPaper => 'Paper';
+
+  @override
+  String get adminMetal => 'Metal';
+
+  @override
+  String get adminGlass => 'Glass';
+
+  @override
+  String get adminCardboard => 'Cardboard';
+
+  @override
+  String get adminTrash => 'Trash';
+
+  @override
+  String get adminDeleteBin => 'Delete Bin';
+
+  @override
+  String adminDeleteBinQuestion(String binName) {
+    return 'Delete \"$binName\"?';
+  }
+
+  @override
+  String get adminBinDeletedSuccessfully => 'Bin deleted successfully';
+
+  @override
+  String get adminFailedToLoadBins => 'Failed to load bins';
+
+  @override
+  String get adminNoActiveBinsFound => 'No active bins found';
+
+  @override
+  String get adminNoInactiveBinsFound => 'No inactive bins found';
+
+  @override
+  String get adminRecyclingBin => 'Recycling Bin';
+
+  @override
+  String get adminUnknown => 'Unknown';
+
+  @override
+  String get adminEditBin => 'Edit Bin';
+
+  @override
+  String get adminAddBin => 'Add Bin';
+
+  @override
+  String get adminBinName => 'Bin Name';
+
+  @override
+  String get adminGovernorate => 'Governorate';
+
+  @override
+  String get adminDistrict => 'District';
+
+  @override
+  String get adminBinType => 'Bin Type';
+
+  @override
+  String get adminBinStatus => 'Bin Status';
+
+  @override
+  String get adminSelectLocation => 'Select Location';
+
+  @override
+  String get adminDescriptionAddress => 'Description / Address';
+
+  @override
+  String get adminPleaseFillAllFields => 'Please fill all fields';
+
+  @override
+  String adminLocationSearchFailed(String error) {
+    return 'Location search failed: $error';
+  }
+
+  @override
+  String get adminSaveChanges => 'Save Changes';
+
+  @override
+  String get adminSearchLocation => 'Search Location';
+
+  @override
+  String get adminNearbyLocations => 'Nearby Locations';
+
+  @override
+  String get adminNoLocationsFound => 'No locations found';
+
+  @override
+  String adminCategoryBinsTitle(String category) {
+    return '$category Bins';
+  }
+
+  @override
+  String get adminIssues => 'Complaints';
+
+  @override
+  String get adminDirectReporting => 'Direct Reporting';
+
+  @override
+  String get adminReviewIssueReports => 'Review user complaints';
+
+  @override
+  String get adminUnread => 'Unread';
+
+  @override
+  String get adminRead => 'Read';
+
+  @override
+  String get adminFixed => 'Fixed';
+
+  @override
+  String get adminAddAdminComment => 'Add admin comment...';
+
+  @override
+  String get adminIssueUpdateSaved => 'Complaint update saved';
+
+  @override
+  String get adminFailedToLoadIssueReports => 'Failed to load complaints';
+
+  @override
+  String get adminNoIssueReportsFound => 'No complaints found';
 }

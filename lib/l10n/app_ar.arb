@@ -315,7 +315,81 @@
   "adminRoleTitle": "دور المسؤول",
   "adminRoleText": "يمكن للمسؤول إدارة المستخدمين، وحاويات إعادة التدوير، والمشكلات المرسلة، ومراجعة نشاط التطبيق للحفاظ على تنظيم النظام وموثوقيته.",
   "adminGoalTitle": "هدف المشروع",
-  "adminGoalText": "يهدف ReLeaf إلى دعم سلوك إعادة التدوير المستدام من خلال جعل فرز النفايات أسهل وأسرع وأكثر سهولة."
-  
+  "adminGoalText": "يهدف ReLeaf إلى دعم سلوك إعادة التدوير المستدام من خلال جعل فرز النفايات أسهل وأسرع وأكثر سهولة.",
+
+
+"adminBins": "الحاويات",
+"adminActive": "نشط",
+"adminInactive": "غير نشط",
+"adminActiveBins": "الحاويات النشطة",
+"adminInactiveBins": "الحاويات غير النشطة",
+
+"adminAll": "الكل",
+"adminPlastic": "بلاستيك",
+"adminPaper": "ورق",
+"adminMetal": "معدن",
+"adminGlass": "زجاج",
+"adminCardboard": "كرتون",
+"adminTrash": "نفايات",
+
+"adminDeleteBin": "حذف الحاوية",
+"adminDeleteBinQuestion": "هل تريد حذف \"{binName}\"؟",
+"@adminDeleteBinQuestion": {
+  "placeholders": {
+    "binName": {
+      "type": "String"
+    }
+  }
+},
+
+"adminBinDeletedSuccessfully": "تم حذف الحاوية بنجاح",
+"adminFailedToLoadBins": "فشل تحميل الحاويات",
+"adminNoActiveBinsFound": "لا توجد حاويات نشطة",
+"adminNoInactiveBinsFound": "لا توجد حاويات غير نشطة",
+"adminRecyclingBin": "حاوية إعادة تدوير",
+"adminUnknown": "غير معروف",
+
+"adminEditBin": "تعديل الحاوية",
+"adminAddBin": "إضافة حاوية",
+"adminBinName": "اسم الحاوية",
+"adminGovernorate": "المحافظة",
+"adminDistrict": "الحي",
+"adminBinType": "نوع الحاوية",
+"adminBinStatus": "حالة الحاوية",
+"adminSelectLocation": "اختيار الموقع",
+"adminDescriptionAddress": "الوصف / العنوان",
+"adminPleaseFillAllFields": "يرجى تعبئة جميع الحقول",
+"adminLocationSearchFailed": "فشل البحث عن الموقع: {error}",
+"@adminLocationSearchFailed": {
+  "placeholders": {
+    "error": {
+      "type": "String"
+    }
+  }
+},
+"adminSaveChanges": "حفظ التغييرات",
+
+"adminSearchLocation": "البحث عن موقع",
+"adminNearbyLocations": "المواقع القريبة",
+"adminNoLocationsFound": "لا توجد مواقع",
+"adminCategoryBinsTitle": "حاويات {category}",
+"@adminCategoryBinsTitle": {
+  "placeholders": {
+    "category": {
+      "type": "String"
+    }
+  }
+},
+
+"adminIssues": "الشكاوى",
+"adminDirectReporting": "الشكاوى المباشرة",
+"adminReviewIssueReports": "مراجعة شكاوى المستخدمين",
+"adminUnread": "غير مقروء",
+"adminRead": "مقروء",
+"adminFixed": "تم الحل",
+"adminAddAdminComment": "أضف تعليق المسؤول...",
+"adminIssueUpdateSaved": "تم حفظ تحديث الشكوى",
+"adminFailedToLoadIssueReports": "فشل تحميل الشكاوى",
+"adminNoIssueReportsFound": "لا توجد شكاوى"
 
 }

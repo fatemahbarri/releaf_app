@@ -788,4 +788,148 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get adminGoalText =>
       'يهدف ReLeaf إلى دعم سلوك إعادة التدوير المستدام من خلال جعل فرز النفايات أسهل وأسرع وأكثر سهولة.';
+
+  @override
+  String get adminBins => 'الحاويات';
+
+  @override
+  String get adminActive => 'نشط';
+
+  @override
+  String get adminInactive => 'غير نشط';
+
+  @override
+  String get adminActiveBins => 'الحاويات النشطة';
+
+  @override
+  String get adminInactiveBins => 'الحاويات غير النشطة';
+
+  @override
+  String get adminAll => 'الكل';
+
+  @override
+  String get adminPlastic => 'بلاستيك';
+
+  @override
+  String get adminPaper => 'ورق';
+
+  @override
+  String get adminMetal => 'معدن';
+
+  @override
+  String get adminGlass => 'زجاج';
+
+  @override
+  String get adminCardboard => 'كرتون';
+
+  @override
+  String get adminTrash => 'نفايات';
+
+  @override
+  String get adminDeleteBin => 'حذف الحاوية';
+
+  @override
+  String adminDeleteBinQuestion(String binName) {
+    return 'هل تريد حذف \"$binName\"؟';
+  }
+
+  @override
+  String get adminBinDeletedSuccessfully => 'تم حذف الحاوية بنجاح';
+
+  @override
+  String get adminFailedToLoadBins => 'فشل تحميل الحاويات';
+
+  @override
+  String get adminNoActiveBinsFound => 'لا توجد حاويات نشطة';
+
+  @override
+  String get adminNoInactiveBinsFound => 'لا توجد حاويات غير نشطة';
+
+  @override
+  String get adminRecyclingBin => 'حاوية إعادة تدوير';
+
+  @override
+  String get adminUnknown => 'غير معروف';
+
+  @override
+  String get adminEditBin => 'تعديل الحاوية';
+
+  @override
+  String get adminAddBin => 'إضافة حاوية';
+
+  @override
+  String get adminBinName => 'اسم الحاوية';
+
+  @override
+  String get adminGovernorate => 'المحافظة';
+
+  @override
+  String get adminDistrict => 'الحي';
+
+  @override
+  String get adminBinType => 'نوع الحاوية';
+
+  @override
+  String get adminBinStatus => 'حالة الحاوية';
+
+  @override
+  String get adminSelectLocation => 'اختيار الموقع';
+
+  @override
+  String get adminDescriptionAddress => 'الوصف / العنوان';
+
+  @override
+  String get adminPleaseFillAllFields => 'يرجى تعبئة جميع الحقول';
+
+  @override
+  String adminLocationSearchFailed(String error) {
+    return 'فشل البحث عن الموقع: $error';
+  }
+
+  @override
+  String get adminSaveChanges => 'حفظ التغييرات';
+
+  @override
+  String get adminSearchLocation => 'البحث عن موقع';
+
+  @override
+  String get adminNearbyLocations => 'المواقع القريبة';
+
+  @override
+  String get adminNoLocationsFound => 'لا توجد مواقع';
+
+  @override
+  String adminCategoryBinsTitle(String category) {
+    return 'حاويات $category';
+  }
+
+  @override
+  String get adminIssues => 'الشكاوى';
+
+  @override
+  String get adminDirectReporting => 'الشكاوى المباشرة';
+
+  @override
+  String get adminReviewIssueReports => 'مراجعة شكاوى المستخدمين';
+
+  @override
+  String get adminUnread => 'غير مقروء';
+
+  @override
+  String get adminRead => 'مقروء';
+
+  @override
+  String get adminFixed => 'تم الحل';
+
+  @override
+  String get adminAddAdminComment => 'أضف تعليق المسؤول...';
+
+  @override
+  String get adminIssueUpdateSaved => 'تم حفظ تحديث الشكوى';
+
+  @override
+  String get adminFailedToLoadIssueReports => 'فشل تحميل الشكاوى';
+
+  @override
+  String get adminNoIssueReportsFound => 'لا توجد شكاوى';
 }
