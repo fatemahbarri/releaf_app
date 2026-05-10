@@ -1001,7 +1001,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminNotificationPendingStatus => 'قيد الانتظار';
 
   @override
-  String get adminNotificationNoDetails => 'لا توجد تفاصيل';
+  String get adminNotificationNoDetails => 'لا توجد تفاصيل إضافية';
 
   @override
   String get adminUsersManagementTitle => 'إدارة المستخدمين';
@@ -1103,4 +1103,37 @@ class AppLocalizationsAr extends AppLocalizations {
   String adminEditUserFailedStatus(String error) {
     return 'فشل تحديث حالة المستخدم: $error';
   }
+
+  @override
+  String get incorrectClassificationResult => 'نتيجة تصنيف غير صحيحة';
+
+  @override
+  String get appCrashOrFeatureNotWorking => 'تعطل التطبيق أو ميزة لا تعمل';
+
+  @override
+  String get wrongChatbotResponse => 'رد غير صحيح من المساعد الذكي';
+
+  @override
+  String get read => 'مقروء';
+
+  @override
+  String get unread => 'غير مقروء';
+
+  @override
+  String get resolved => 'تم الحل';
+
+  @override
+  String get adminNavHome => 'الرئيسية';
+
+  @override
+  String get adminNavUsers => 'المستخدمون';
+
+  @override
+  String get adminNavBins => 'الحاويات';
+
+  @override
+  String get adminNavIssues => 'الشكاوى';
+
+  @override
+  String get adminNavProfile => 'الملف الشخصي';
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:releaf_app/l10n/app_localizations.dart';
 
 import '../theme/admin_theme.dart';
 import '../screens/home/AdminHomePage.dart';
@@ -14,6 +15,7 @@ class AdminBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final navBg = isDark ? const Color(0xFF1F2D28) : AdminTheme.navBar;
@@ -50,7 +52,7 @@ class AdminBar extends StatelessWidget {
             index: 0,
             icon: Icons.home_outlined,
             selectedIcon: Icons.home_rounded,
-            label: 'Home',
+            label: l10n.adminNavHome,
             selectedBg: selectedBg,
             selectedColor: selectedColor,
             unselectedColor: unselectedColor,
@@ -60,7 +62,7 @@ class AdminBar extends StatelessWidget {
             index: 1,
             icon: Icons.group_outlined,
             selectedIcon: Icons.group,
-            label: 'Users',
+            label: l10n.adminNavUsers,
             selectedBg: selectedBg,
             selectedColor: selectedColor,
             unselectedColor: unselectedColor,
@@ -70,7 +72,7 @@ class AdminBar extends StatelessWidget {
             index: 2,
             icon: Icons.location_on_outlined,
             selectedIcon: Icons.location_on,
-            label: 'Bins',
+            label: l10n.adminNavBins,
             selectedBg: selectedBg,
             selectedColor: selectedColor,
             unselectedColor: unselectedColor,
@@ -80,7 +82,7 @@ class AdminBar extends StatelessWidget {
             index: 3,
             icon: Icons.report_problem_outlined,
             selectedIcon: Icons.report_problem,
-            label: 'Issues',
+            label: l10n.adminNavIssues,
             selectedBg: selectedBg,
             selectedColor: selectedColor,
             unselectedColor: unselectedColor,
@@ -90,7 +92,7 @@ class AdminBar extends StatelessWidget {
             index: 4,
             icon: Icons.settings_outlined,
             selectedIcon: Icons.settings,
-            label: 'Profile',
+            label: l10n.adminNavProfile,
             selectedBg: selectedBg,
             selectedColor: selectedColor,
             unselectedColor: unselectedColor,

@@ -1004,7 +1004,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminNotificationPendingStatus => 'Pending';
 
   @override
-  String get adminNotificationNoDetails => 'No details provided';
+  String get adminNotificationNoDetails => 'No additional details provided';
 
   @override
   String get adminUsersManagementTitle => 'Users Management';
@@ -1105,4 +1105,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String adminEditUserFailedStatus(String error) {
     return 'Failed to update user status: $error';
   }
+
+  @override
+  String get incorrectClassificationResult => 'Incorrect classification result';
+
+  @override
+  String get appCrashOrFeatureNotWorking => 'App crash or feature not working';
+
+  @override
+  String get wrongChatbotResponse => 'Wrong chatbot response';
+
+  @override
+  String get read => 'Read';
+
+  @override
+  String get unread => 'Unread';
+
+  @override
+  String get resolved => 'Resolved';
+
+  @override
+  String get adminNavHome => 'Home';
+
+  @override
+  String get adminNavUsers => 'Users';
+
+  @override
+  String get adminNavBins => 'Bins';
+
+  @override
+  String get adminNavIssues => 'Issues';
+
+  @override
+  String get adminNavProfile => 'Profile';
 }

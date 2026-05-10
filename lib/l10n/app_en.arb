@@ -512,6 +512,20 @@
       "type": "String"
     }
   }
-}
+},
 
+"incorrectClassificationResult": "Incorrect classification result",
+"appCrashOrFeatureNotWorking": "App crash or feature not working",
+"wrongChatbotResponse": "Wrong chatbot response",
+"read": "Read",
+"unread": "Unread",
+"resolved": "Resolved",
+
+"adminNotificationNoDetails": "No additional details provided",
+
+"adminNavHome": "Home",
+"adminNavUsers": "Users",
+"adminNavBins": "Bins",
+"adminNavIssues": "Issues",
+"adminNavProfile": "Profile"
 }
