@@ -56,8 +56,23 @@ class IssueDetailsPage extends StatelessWidget {
   }
 
   String _translateDetails(String details, AppLocalizations l) {
-    if (details == 'No additional details provided.') return l.noDetails;
+    if (details.trim() == 'No additional details provided.') return l.noDetails;
     return details;
+  }
+
+  String _translateStatus(String status, AppLocalizations l) {
+    switch (status.toLowerCase()) {
+      case 'unread':
+        return l.adminUnread;
+      case 'read':
+        return l.adminRead;
+      case 'fixed':
+        return l.adminFixed;
+      case 'pending':
+        return status;
+      default:
+        return status;
+    }
   }
 
   @override
@@ -100,6 +115,7 @@ class IssueDetailsPage extends StatelessWidget {
 
               final rawTitle = data['title']?.toString() ?? '';
               final rawDetails = data['details']?.toString() ?? '';
+              final rawStatus = data['status']?.toString() ?? 'pending';
 
               final title = rawTitle.isEmpty
                   ? l.complaint
@@ -107,7 +123,7 @@ class IssueDetailsPage extends StatelessWidget {
 
               final details = _translateDetails(rawDetails, l);
 
-              final status = data['status']?.toString() ?? 'Pending';
+              final status = _translateStatus(rawStatus, l);
 
               final adminReply = data['adminComment']?.toString() ?? '';
 
