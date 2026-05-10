@@ -1,0 +1,395 @@
+{
+  "@@locale": "ar",
+
+  "appTitle": "ReLeaf",
+  "cancel": "إلغاء",
+  "delete": "حذف",
+  "save": "حفظ",
+  "language": "اللغة",
+  "languageToggle": "English",
+  "darkMode": "الوضع الداكن",
+  "settings": "الإعدادات",
+  "support": "الدعم",
+  "logout": "تسجيل الخروج",
+
+  "navHome": "الرئيسية",
+  "navClassify": "تصنيف",
+  "navBins": "حاويات",
+  "navProfile": "حسابي",
+
+  "myAccount": "حسابي",
+  "account": "الحساب",
+  "editProfile": "تعديل الملف الشخصي",
+  "changePassword": "تغيير كلمة المرور",
+  "aboutReleaf": "عن ReLeaf",
+
+  "userProfile": "الملف الشخصي",
+  "firstName": "الاسم الأول",
+  "lastName": "اسم العائلة",
+  "email": "البريد الإلكتروني",
+  "newEmail": "البريد الإلكتروني الجديد",
+
+  "deleteAccount": "حذف الحساب",
+  "deleteTitle": "حذف الحساب",
+  "deleteConfirm": "هل أنت متأكد أنك تريد حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.",
+
+  "noUser": "لا يوجد مستخدم مسجل الدخول.",
+  "validationError": "يرجى إدخال اسم وبريد إلكتروني صحيحين.",
+  "savedWithVerify": "تم الحفظ. يرجى التحقق من بريدك الجديد لإتمام التغيير.",
+  "savedSuccess": "تم تحديث الملف الشخصي بنجاح.",
+  "reloginError": "يرجى تسجيل الخروج والدخول مجدداً ثم تغيير البريد.",
+  "failedUpdate": "فشل تحديث الملف الشخصي.",
+
+  "savePassword": "حفظ كلمة المرور",
+  "currentPassword": "كلمة المرور الحالية",
+  "newPassword": "كلمة المرور الجديدة",
+  "confirmPassword": "تأكيد كلمة المرور الجديدة",
+  "fillAll": "يرجى ملء جميع الحقول.",
+  "weakPassword": "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل وتشمل حرفاً كبيراً وصغيراً ورقماً.",
+  "noMatch": "كلمتا المرور غير متطابقتين.",
+  "passwordSuccess": "تم تغيير كلمة المرور بنجاح.",
+  "wrongPassword": "كلمة المرور الحالية غير صحيحة.",
+  "tooWeak": "كلمة المرور الجديدة ضعيفة جداً.",
+  "reloginPassword": "يرجى تسجيل الدخول مجدداً ثم المحاولة.",
+  "failedPassword": "فشل تغيير كلمة المرور.",
+
+  "reportIssue": "الإبلاغ عن مشكلة",
+  "reportAnIssue": "الإبلاغ عن مشكلة",
+  "newReport": "تقرير جديد",
+  "previousReports": "التقارير السابقة",
+  "infoBox": "اختر نوع المشكلة، ثم أضف التفاصيل إذا لزم الأمر.",
+  "report": "إبلاغ",
+  "submit": "إرسال",
+  "saving": "جارٍ الحفظ...",
+  "writeHere": "اكتب هنا (اختياري)",
+  "describeIssue": "يرجى وصف المشكلة أدناه.",
+  "extraDetails": "يمكنك إضافة تفاصيل إضافية أدناه إذا لزم الأمر.",
+  "successMsg": "تم استلام شكواك بنجاح.",
+  "failMsg": "فشل إرسال التقرير. يرجى المحاولة مجدداً.",
+  "loginFirst": "يرجى تسجيل الدخول أولاً.",
+  "errorLoading": "خطأ في تحميل التقارير.",
+  "noReports": "لا توجد تقارير سابقة.",
+  "reportsAppear": "ستظهر تقاريرك المُرسلة هنا.",
+  "complaint": "شكوى",
+  "answered": "تمت الإجابة",
+  "tapForMore": "للمزيد من التفاصيل، اضغط هنا",
+  "adminReplyLabel": "رد الأدمن: ",
+  "issue1": "نتيجة تصنيف غير صحيحة",
+  "issue2": "رد غير صحيح من المساعد الذكي",
+  "issue3": "تعطل التطبيق أو ميزة لا تعمل",
+  "issue4": "موقع إعادة تدوير غير صحيح أو مفقود",
+  "issue5": "مشكلة في تسجيل الدخول أو الحساب",
+  "issue6": "أخرى",
+  "complaintDetails": "تفاصيل الشكوى",
+  "requestTimeline": "مراحل الطلب",
+  "adminReply": "رد الأدمن",
+  "noDetails": "لا توجد تفاصيل إضافية.",
+  "step1Title": "تم إرسال الطلب",
+  "step1Sub": "تم إرسال شكواك بنجاح.",
+  "step2Title": "جارٍ المعالجة",
+  "step2Sub": "الأدمن يراجع شكواك.",
+  "step3Title": "تم الانتهاء",
+  "step3Sub": "قام الأدمن بالرد على شكواك.",
+  "waitingReply": "في انتظار رد الأدمن...",
+
+  "aboutSubtitle": "تطبيق ذكي يساعدك على فرز النفايات وإعادة التدوير بسهولة",
+  "version": "الإصدار 1.0.0",
+  "whatTitle": "ما هو ReLeaf؟",
+  "whatText": "ReLeaf هو تطبيق ذكي يساعد المستخدمين على التعرف على أنواع النفايات وفرزها بشكل صحيح باستخدام الذكاء الاصطناعي، بالإضافة إلى العثور على أقرب مواقع إعادة التدوير.",
+  "featuresTitle": "مميزات التطبيق",
+  "featuresText": "يوفر التطبيق تصنيف النفايات بالصور، ومساعداً ذكياً للإجابة على الأسئلة، وخريطة لمواقع إعادة التدوير القريبة، مع تجربة استخدام سهلة وحديثة.",
+  "userRoleTitle": "تجربة المستخدم",
+  "userRoleText": "يمكن للمستخدم استخدام التطبيق لتصنيف النفايات، واستكشاف مواقع إعادة التدوير، والتواصل مع المساعد الذكي، والإبلاغ عن أي مشكلة بسهولة.",
+  "goalTitle": "رؤيتنا",
+  "goalText": "نسعى إلى نشر الوعي البيئي وتشجيع إعادة التدوير من خلال استخدام تقنيات الذكاء الاصطناعي بطريقة بسيطة ومفيدة للجميع.",
+
+  "classificationTitle": "تصنيف النفايات",
+  "classificationSubtitle": "التقط أو ارفع صورة للنفايات",
+  "uploadClearImage": "ارفع صورة واضحة لعنصر نفايات واحد للحصول على نتائج تصنيف أدق",
+  "uploadPlaceholder": "التقط صورة أو ارفع صورة للنفايات",
+  "takePhoto": "التقاط صورة",
+  "upload": "رفع صورة",
+  "resultTitle": "النتيجة",
+  "confidenceLabel": "نسبة الثقة",
+  "lowConfidenceMessage": "لسنا متأكدين تمامًا من النتيجة. يرجى إعادة التقاط الصورة للتأكد من نوع النفايات.",
+  "learnMore": "معرفة المزيد",
+  "classifying": "جارٍ التصنيف...",
+  "noResultYet": "لا توجد نتيجة بعد",
+  "learnMoreSubtitle": "إرشادات إعادة التدوير",
+  "chatBot": "المساعد الذكي",
+
+  "plasticTip1": "اغسل العبوات البلاستيكية قبل إعادة تدويرها.",
+  "plasticTip2": "تحقق من رمز إعادة التدوير على العبوة.",
+  "plasticTip3": "تأكد من تفريغ الزجاجات وإغلاق الأغطية.",
+  "plasticTip4": "تجنب وضع الأكياس البلاستيكية في حاويات التدوير.",
+  "plasticTip5": "حاول التقليل من استخدام البلاستيك أحادي الاستخدام.",
+  "glassTip1": "اغسل العبوات الزجاجية قبل إعادة تدويرها.",
+  "glassTip2": "تعامل بحذر مع الزجاج المكسور.",
+  "glassTip3": "لا تخلط الزجاج مع مواد أخرى.",
+  "glassTip4": "قم بإزالة الأغطية إذا لزم الأمر.",
+  "glassTip5": "أعد استخدام العبوات الزجاجية متى أمكن.",
+  "metalTip1": "اغسل العلب المعدنية لإزالة بقايا الطعام.",
+  "metalTip2": "قم بضغط العلب لتوفير المساحة إن أمكن.",
+  "metalTip3": "تجنب خلط المعادن مع النفايات الأخرى.",
+  "metalTip4": "قم بفرز الألمنيوم والحديد إذا لزم الأمر.",
+  "metalTip5": "أعد استخدام العبوات المعدنية متى أمكن.",
+  "paperTip1": "احرص على إبقاء الورق نظيفًا وجافًا.",
+  "paperTip2": "تجنب إعادة تدوير الورق المبلل أو الدهني.",
+  "paperTip3": "قم بطي الورق لتوفير المساحة.",
+  "paperTip4": "افصل الورق عن الطبقات البلاستيكية.",
+  "paperTip5": "أعد استخدام الورق متى أمكن.",
+  "cardboardTip1": "قم بطي صناديق الكرتون قبل إعادة التدوير.",
+  "cardboardTip2": "احرص على إبقاء الكرتون جافًا ونظيفًا.",
+  "cardboardTip3": "أزل الشريط والملصقات إن أمكن.",
+  "cardboardTip4": "لا تعيد تدوير الكرتون المبلل.",
+  "cardboardTip5": "أعد استخدام الصناديق متى أمكن.",
+  "trashTip1": "هذا العنصر غير قابل لإعادة التدوير.",
+  "trashTip2": "تخلص منه في حاوية النفايات العامة.",
+  "trashTip3": "تجنب خلطه مع المواد القابلة لإعادة التدوير.",
+  "trashTip4": "قلل من استخدام العناصر غير القابلة لإعادة التدوير.",
+  "trashTip5": "ابحث عن بدائل قابلة لإعادة الاستخدام.",
+  "defaultTip1": "لا توجد إرشادات متوفرة لهذا العنصر.",
+  "defaultTip2": "حاول التعرف على المادة قبل التخلص منها.",
+  "defaultTip3": "تجنب خلط النفايات غير المعروفة مع المواد القابلة لإعادة التدوير.",
+  "defaultTip4": "تحقق من تعليمات إعادة التدوير المحلية إن أمكن.",
+  "defaultTip5": "اسأل المساعد الذكي للحصول على مزيد من المعلومات.",
+
+  "binsSearchLocation": "ابحث عن موقع",
+  "binsNearbyLocations": "المواقع القريبة",
+  "trashBinsTitle": "حاويات النفايات",
+  "categoryBinsTitle": "صناديق {category}",
+  "@categoryBinsTitle": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+  "trashBinsSubtitle": "مواقع النفايات غير القابلة لإعادة التدوير",
+  "recyclingBinsSubtitle": "حاويات إعادة التدوير المتاحة",
+  "binsGo": "اذهب",
+  "binsLoadFailed": "فشل تحميل المواقع.",
+  "binsNoLocations": "لا توجد مواقع نشطة لهذه الفئة حتى الآن.",
+  "defaultBinName": "حاوية إعادة التدوير",
+
+  "binDetailsCategory": "الفئة: {category}",
+  "@binDetailsCategory": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+  "binDetailsCalculating": "جارٍ حساب المسار...",
+  "binDetailsLocationUnavailable": "الموقع غير متاح",
+  "binDetailsDistance": "المسافة: {km} كم",
+  "@binDetailsDistance": {
+    "placeholders": {
+      "km": { "type": "String" }
+    }
+  },
+
+  "locationPageTitle": "مواقع الحاويات",
+  "locationPageSubtitle": "صناديق إعادة التدوير القريبة",
+  "locationDetecting": "جارٍ تحديد موقعك...",
+  "locationNearestBins": "تظهر الصناديق الأقرب على الخريطة بناءً على موقعك الحالي.",
+  "locationLoadingBins": "جارٍ تحميل الصناديق القريبة...",
+  "locationBinsCategory": "فئات الصناديق",
+  "locationNonRecyclables": "غير قابل للتدوير",
+  "locationDefaultBinName": "صندوق إعادة التدوير",
+  "locationBinDistance": "{type} على بُعد {km} كم",
+  "@locationBinDistance": {
+    "placeholders": {
+      "type": { "type": "String" },
+      "km": { "type": "String" }
+    }
+  },
+  "locationServiceDisabled": "يرجى تفعيل خدمة الموقع.",
+  "locationPermissionRequired": "إذن الموقع مطلوب.",
+  "locationPermissionDenied": "تم رفض إذن الموقع بشكل دائم.",
+  "locationFailedLoad": "فشل تحميل الصناديق القريبة.",
+  "locationCategoryCardboard": "كرتون",
+  "locationCategoryGlass": "زجاج",
+  "locationCategoryMetal": "معدن",
+  "locationCategoryPaper": "ورق",
+  "locationCategoryPlastic": "بلاستيك",
+  "locationCategoryTrash": "نفايات",
+
+  "homeWelcoming": "مرحباً...",
+  "homeWelcome": "مرحباً، {name}",
+  "@homeWelcome": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "homeSubtitle": "ساهم اليوم في مستقبلٍ أنظف",
+  "homeTitle": "مرحباً في ReLeaf",
+  "homeDescription": "صنّف النفايات، وابحث عن صناديق التدوير، واحصل على إرشادات بسهولة.",
+  "homeRecyclingProgress": "إنجازك في إعادة التدوير",  "homePlantTap": "اضغط لترى نمو نبتتك 🌱",
+  "homeChatbotTip": "استخدم المساعد الذكي إذا كنت بحاجة إلى معرفة أين تضع عنصراً ما.",
+
+  "progressTitle": "تقدم إعادة التدوير",
+  "progressSubtitle": "كلما قمت بإعادة التدوير أكثر، كلما نمت نبتتك!",
+  "progressAddItems": "سجّل العناصر التي قمت بتدويرها",
+  "progressAdding": "جارٍ الإضافة...",
+  "progressAddButton": "إضافة العناصر",
+  "progressMostRecycled": "أكثر العناصر التي قمت بإعادة تدويرها",
+  "progressViewHistory": "عرض السجل",
+  "progressLevel": "المستوى {level}",
+  "@progressLevel": {
+    "placeholders": { "level": { "type": "int" } }
+  },
+  "progressNextLevel": "تحتاج {remaining} عنصراً إضافياً للوصول إلى المستوى {next}",
+  "@progressNextLevel": {
+    "placeholders": {
+      "remaining": { "type": "int" },
+      "next": { "type": "int" }
+    }
+  },
+  "progressMaxLevel": "وصلت إلى أعلى مستوى. استمر في إعادة التدوير!",
+  "progressRecycledCount": "تمت إعادة تدوير {count}",
+  "@progressRecycledCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "progressEmpty": "لا توجد عناصر معاد تدويرها بعد. أضف عناصر أعلاه أو امسح من صفحة التصنيف.",
+  "progressSelectFirst": "يرجى اختيار عنصر واحد على الأقل أولاً.",
+  "progressLevelUp": "أحسنت! ترقيت لمستوى جديد ونبتتك تنمو سريعاً! 🌱",
+  "progressSuccess": "تمت إضافة العناصر المعاد تدويرها بنجاح!",
+  "progressFailed": "تعذر إضافة العناصر. يرجى المحاولة مجدداً.",
+  "progressMsg1": "بدأت رحلتك البيئية بخطوة صغيرة.",
+  "progressMsg2": "نبتتك تنبت.",
+  "progressMsg3": "أوراقك الأولى تنمو.",
+  "progressMsg4": "عادتك البيئية تتقوى.",
+  "progressMsg5": "نبتتك في ازدياد وصحة.",
+  "progressMsg6": "نبتتك تنمو لتصبح شجرة صغيرة.",
+  "progressMsg7": "شجرتك تزداد قوة.",
+  "progressMsg8": "تأثيرك الأخضر ينمو بوضوح.",
+  "progressMsg9": "أنت على وشك أن تصبح بطلاً في إعادة التدوير!",
+  "progressMsg10": "أنت بطل إعادة تدوير ReLeaf!",
+  "progressMsgDefault": "استمر في إعادة التدوير لتنمية نبتتك.",
+
+  "notificationsTitle": "الإشعارات",
+  "notificationsSubtitle": "تابع آخر تحديثات طلباتك",
+  "notificationsEmpty": "لا توجد إشعارات بعد.",
+  "notificationsResolved": "تمت معالجة الطلب #{number}",
+  "@notificationsResolved": {
+    "placeholders": { "number": { "type": "String" } }
+  },
+  "notificationsReceived": "تم استلام طلبك #{number}",
+  "@notificationsReceived": {
+    "placeholders": { "number": { "type": "String" } }
+  },
+  "notificationsResolvedMsg": "تمت الإجابة على شكواك رقم #{number} بنجاح.",
+  "@notificationsResolvedMsg": {
+    "placeholders": { "number": { "type": "String" } }
+  },
+  "notificationsReceivedMsg": "وصلت شكواك رقم #{number} وجارٍ مراجعتها.",
+  "@notificationsReceivedMsg": {
+    "placeholders": { "number": { "type": "String" } }
+  },
+  "notificationsAdminReply": "الأدمن: {reply}",
+  "@notificationsAdminReply": {
+    "placeholders": { "reply": { "type": "String" } }
+  },
+  "progressItemPlastic": "بلاستيك",
+  "progressItemGlass": "زجاج",
+  "progressItemPaper": "ورق",
+  "progressItemMetal": "معدن",
+  "progressItemCardboard": "كرتون",
+  "progressItemTrash": "نفايات (غير قابلة للتدوير)",
+
+
+  "adminMyAccount": "حساب المسؤول",
+  "adminAccount": "الحساب",
+  "adminSettings": "الإعدادات",
+  "adminSupport": "الدعم",
+  "adminEditProfile": "تعديل الملف الشخصي",
+  "adminChangePassword": "تغيير كلمة المرور",
+  "adminDarkMode": "الوضع الليلي",
+  "adminLanguage": "اللغة",
+  "adminAboutReLeaf": "عن ReLeaf",
+  "adminLogout": "تسجيل الخروج",
+
+
+  "adminAboutReLeaf": "عن ReLeaf",
+  "adminAboutSubtitle": "مساعد ذكي لفرز النفايات وإعادة التدوير",
+  "adminVersion": "الإصدار 1.0.0",
+  "adminWhatTitle": "ما هو ReLeaf؟",
+  "adminWhatText": "ReLeaf هو تطبيق ذكي يساعد المستخدمين على تصنيف النفايات، والعثور على حاويات إعادة التدوير، والحصول على إرشادات للفرز الصحيح.",
+  "adminFeaturesTitle": "الميزات الرئيسية",
+  "adminFeaturesText": "يتضمن التطبيق تصنيف النفايات بالصور، ومواقع حاويات إعادة التدوير، ومساعدًا ذكيًا، وتقارير المشكلات، وتتبع تقدم المستخدم.",
+  "adminRoleTitle": "دور المسؤول",
+  "adminRoleText": "يمكن للمسؤول إدارة المستخدمين، وحاويات إعادة التدوير، والمشكلات المرسلة، ومراجعة نشاط التطبيق للحفاظ على تنظيم النظام وموثوقيته.",
+  "adminGoalTitle": "هدف المشروع",
+  "adminGoalText": "يهدف ReLeaf إلى دعم سلوك إعادة التدوير المستدام من خلال جعل فرز النفايات أسهل وأسرع وأكثر سهولة.",
+
+
+"adminBins": "الحاويات",
+"adminActive": "نشط",
+"adminInactive": "غير نشط",
+"adminActiveBins": "الحاويات النشطة",
+"adminInactiveBins": "الحاويات غير النشطة",
+
+"adminAll": "الكل",
+"adminPlastic": "بلاستيك",
+"adminPaper": "ورق",
+"adminMetal": "معدن",
+"adminGlass": "زجاج",
+"adminCardboard": "كرتون",
+"adminTrash": "نفايات",
+
+"adminDeleteBin": "حذف الحاوية",
+"adminDeleteBinQuestion": "هل تريد حذف \"{binName}\"؟",
+"@adminDeleteBinQuestion": {
+  "placeholders": {
+    "binName": {
+      "type": "String"
+    }
+  }
+},
+
+"adminBinDeletedSuccessfully": "تم حذف الحاوية بنجاح",
+"adminFailedToLoadBins": "فشل تحميل الحاويات",
+"adminNoActiveBinsFound": "لا توجد حاويات نشطة",
+"adminNoInactiveBinsFound": "لا توجد حاويات غير نشطة",
+"adminRecyclingBin": "حاوية إعادة تدوير",
+"adminUnknown": "غير معروف",
+
+"adminEditBin": "تعديل الحاوية",
+"adminAddBin": "إضافة حاوية",
+"adminBinName": "اسم الحاوية",
+"adminGovernorate": "المحافظة",
+"adminDistrict": "الحي",
+"adminBinType": "نوع الحاوية",
+"adminBinStatus": "حالة الحاوية",
+"adminSelectLocation": "اختيار الموقع",
+"adminDescriptionAddress": "الوصف / العنوان",
+"adminPleaseFillAllFields": "يرجى تعبئة جميع الحقول",
+"adminLocationSearchFailed": "فشل البحث عن الموقع: {error}",
+"@adminLocationSearchFailed": {
+  "placeholders": {
+    "error": {
+      "type": "String"
+    }
+  }
+},
+"adminSaveChanges": "حفظ التغييرات",
+
+"adminSearchLocation": "البحث عن موقع",
+"adminNearbyLocations": "المواقع القريبة",
+"adminNoLocationsFound": "لا توجد مواقع",
+"adminCategoryBinsTitle": "حاويات {category}",
+"@adminCategoryBinsTitle": {
+  "placeholders": {
+    "category": {
+      "type": "String"
+    }
+  }
+},
+
+"adminIssues": "الشكاوى",
+"adminDirectReporting": "الشكاوى المباشرة",
+"adminReviewIssueReports": "مراجعة شكاوى المستخدمين",
+"adminUnread": "غير مقروء",
+"adminRead": "مقروء",
+"adminFixed": "تم الحل",
+"adminAddAdminComment": "أضف تعليق المسؤول...",
+"adminIssueUpdateSaved": "تم حفظ تحديث الشكوى",
+"adminFailedToLoadIssueReports": "فشل تحميل الشكاوى",
+"adminNoIssueReportsFound": "لا توجد شكاوى"
+
+}

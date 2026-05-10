@@ -19,7 +19,10 @@ class _ChatbotState extends State<Chatbot> {
   bool _isLoading = false;
 
   final String _baseUrl = 'http://localhost:3000';
+<<<<<<< HEAD
 
+=======
+>>>>>>> a3cb5b5aa4e0179c903ca7e7b7de1db964b39033
 
   final List<String> _quickQuestions = [
     'Where do I throw a plastic bottle?',

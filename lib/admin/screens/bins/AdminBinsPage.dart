@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:releaf_app/l10n/app_localizations.dart';
 
 import '../../widgets/AdminBar.dart';
 import '../../widgets/admin_background.dart';
@@ -110,19 +111,21 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
   }
 
   Future<void> _deleteBin(String binId, String binName) async {
+    final loc = AppLocalizations.of(context)!;
+
     final confirm = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: cardBg,
         title: Text(
-          'Delete Bin',
+          loc.adminDeleteBin,
           style: TextStyle(
             color: titleColor,
             fontWeight: FontWeight.bold,
           ),
         ),
         content: Text(
-          'Delete "$binName"?',
+          loc.adminDeleteBinQuestion(binName),
           style: TextStyle(color: subTextColor),
         ),
         shape: RoundedRectangleBorder(
@@ -132,14 +135,14 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             child: Text(
-              'Cancel',
+              loc.cancel,
               style: TextStyle(color: subTextColor),
             ),
           ),
           ElevatedButton.icon(
             onPressed: () => Navigator.pop(context, true),
             icon: const Icon(Icons.delete, color: Colors.white),
-            label: const Text('Delete'),
+            label: Text(loc.delete),
             style: ElevatedButton.styleFrom(
               backgroundColor: AdminTheme.error,
               foregroundColor: Colors.white,
@@ -156,18 +159,22 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Bin deleted successfully')),
+      SnackBar(content: Text(loc.adminBinDeletedSuccessfully)),
     );
   }
 
-  Widget _buildStatusTab(String text) {
-    final selected = _selectedStatus == text;
+  Widget _buildStatusTab(String statusKey) {
+    final loc = AppLocalizations.of(context)!;
+    final selected = _selectedStatus == statusKey;
+
+    final label =
+        statusKey == 'Active' ? loc.adminActiveBins : loc.adminInactiveBins;
 
     return Expanded(
       child: GestureDetector(
         onTap: () {
           setState(() {
-            _selectedStatus = text;
+            _selectedStatus = statusKey;
           });
         },
         child: Container(
@@ -189,7 +196,7 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
             ],
           ),
           child: Text(
-            text == 'Active' ? 'Active Bins' : 'Inactive Bins',
+            label,
             style: TextStyle(
               color: selected ? Colors.white : subTextColor,
               fontSize: 13,
@@ -199,6 +206,29 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
         ),
       ),
     );
+  }
+
+  String _filterLabel(String value) {
+    final loc = AppLocalizations.of(context)!;
+
+    switch (value) {
+      case 'All':
+        return loc.adminAll;
+      case 'Plastic':
+        return loc.adminPlastic;
+      case 'Paper':
+        return loc.adminPaper;
+      case 'Metal':
+        return loc.adminMetal;
+      case 'Glass':
+        return loc.adminGlass;
+      case 'Cardboard':
+        return loc.adminCardboard;
+      case 'Trash':
+        return loc.adminTrash;
+      default:
+        return value;
+    }
   }
 
   Widget _buildFilterButton(String text) {
@@ -216,7 +246,7 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
           ),
         ),
         child: Text(
-          text,
+          _filterLabel(text),
           style: TextStyle(
             color: selected ? Colors.white : subTextColor,
             fontSize: 13,
@@ -228,16 +258,16 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
   }
 
   Widget _buildBinIcon(String type) {
-  return SvgPicture.asset(
-    _getItemSvg(type),
-    width: 24,
-    height: 24,
-    colorFilter: ColorFilter.mode(
-      titleColor,
-      BlendMode.srcIn,
-    ),
-  );
-}
+    return SvgPicture.asset(
+      _getItemSvg(type),
+      width: 24,
+      height: 24,
+      colorFilter: ColorFilter.mode(
+        titleColor,
+        BlendMode.srcIn,
+      ),
+    );
+  }
 
   String _getItemSvg(String itemName) {
     final item = itemName.toLowerCase();
@@ -279,16 +309,18 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
   }
 
   Widget _buildBinCard(String binId, Map<String, dynamic> bin) {
+    final loc = AppLocalizations.of(context)!;
+
     final name = _getValue(
       bin,
       ['name', 'binName', 'title', 'locationName'],
-      fallback: 'Recycling Bin',
+      fallback: loc.adminRecyclingBin,
     );
 
     final type = _getValue(
       bin,
       ['type', 'category', 'material', 'binType'],
-      fallback: 'Unknown',
+      fallback: loc.adminUnknown,
     );
 
     final city = _getValue(
@@ -411,6 +443,8 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
     return AdminBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -447,7 +481,7 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
           child: Column(
             children: [
               AppTopBar(
-                title: 'Bins',
+                title: loc.adminBins,
                 icon: Icons.location_on_rounded,
                 showNotifications: false,
                 gradientColors: [
@@ -507,7 +541,7 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
                             if (snapshot.hasError) {
                               return Center(
                                 child: Text(
-                                  'Failed to load bins',
+                                  loc.adminFailedToLoadBins,
                                   style: TextStyle(
                                     color: subTextColor,
                                     fontSize: 16,
@@ -523,8 +557,8 @@ class _AdminBinsPageState extends State<AdminBinsPage> {
                               return Center(
                                 child: Text(
                                   _selectedStatus == 'Active'
-                                      ? 'No active bins found'
-                                      : 'No inactive bins found',
+                                      ? loc.adminNoActiveBinsFound
+                                      : loc.adminNoInactiveBinsFound,
                                   style: TextStyle(
                                     color: subTextColor,
                                     fontSize: 16,

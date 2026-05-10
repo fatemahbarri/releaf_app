@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:releaf_app/l10n/app_localizations.dart';
 import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/widgets/releaf_ui.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
@@ -29,6 +30,7 @@ class UserNotificationsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     final user = FirebaseAuth.instance.currentUser;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -53,8 +55,8 @@ class UserNotificationsPage extends StatelessWidget {
           child: Column(
             children: [
               AppTopBar(
-                title: 'Notifications',
-                subtitle: 'Track your complaints updates',
+                title: l.notificationsTitle,
+                subtitle: l.notificationsSubtitle,
                 icon: Icons.notifications_none_rounded,
                 showBackButton: true,
                 showNotifications: false,
@@ -72,7 +74,7 @@ class UserNotificationsPage extends StatelessWidget {
                 child: user == null
                     ? Center(
                         child: Text(
-                          'Please login first.',
+                          l.loginFirst,
                           style: ReLeafTextStyles.body.copyWith(
                             color: subTextColor,
                           ),
@@ -97,7 +99,7 @@ class UserNotificationsPage extends StatelessWidget {
                               snapshot.data!.docs.isEmpty) {
                             return Center(
                               child: Text(
-                                'No notifications yet.',
+                                l.notificationsEmpty,
                                 style: ReLeafTextStyles.body.copyWith(
                                   color: subTextColor,
                                 ),
@@ -141,9 +143,6 @@ class UserNotificationsPage extends StatelessWidget {
                               final issueNumber =
                                   _formatIssueNumber(data['issueNumber']);
 
-                              final title =
-                                  data['title']?.toString() ?? 'Complaint';
-
                               final reply =
                                   data['adminReply']?.toString() ?? '';
 
@@ -153,8 +152,12 @@ class UserNotificationsPage extends StatelessWidget {
                               final bool isRead = data['isReadByUser'] == true;
 
                               final message = isResolved
-                                  ? 'Your complaint #$issueNumber has been resolved successfully.'
-                                  : 'Your complaint #$issueNumber has been received successfully.';
+                                  ? l.notificationsResolvedMsg(issueNumber)
+                                  : l.notificationsReceivedMsg(issueNumber);
+
+                              final title = isResolved
+                                  ? l.notificationsResolved(issueNumber)
+                                  : l.notificationsReceived(issueNumber);
 
                               final color = isResolved
                                   ? const Color(0xFF66BB6A)
@@ -204,9 +207,7 @@ class UserNotificationsPage extends StatelessWidget {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              isResolved
-                                                  ? 'Resolved #$issueNumber'
-                                                  : 'Received #$issueNumber',
+                                              title,
                                               style: TextStyle(
                                                 fontWeight: isRead
                                                     ? FontWeight.w600
@@ -215,19 +216,6 @@ class UserNotificationsPage extends StatelessWidget {
                                                     ? textColor
                                                         .withOpacity(0.65)
                                                     : textColor,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              title,
-                                              style: TextStyle(
-                                                color: isRead
-                                                    ? subTextColor
-                                                        .withOpacity(0.65)
-                                                    : subTextColor,
-                                                fontWeight: isRead
-                                                    ? FontWeight.normal
-                                                    : FontWeight.w600,
                                               ),
                                             ),
                                             const SizedBox(height: 6),
@@ -246,7 +234,8 @@ class UserNotificationsPage extends StatelessWidget {
                                                   top: 6,
                                                 ),
                                                 child: Text(
-                                                  'Admin: $reply',
+                                                  l.notificationsAdminReply(
+                                                      reply),
                                                   style: TextStyle(
                                                     color: isRead
                                                         ? subTextColor

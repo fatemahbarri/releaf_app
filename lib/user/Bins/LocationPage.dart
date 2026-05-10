@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:releaf_app/l10n/app_localizations.dart';
 import 'package:releaf_app/user/UserWidgets/UserBottomNav.dart';
 import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
@@ -71,13 +72,15 @@ class _LocationPageState extends State<LocationPage> {
   }
 
   Future<void> _loadNearbyBins() async {
+    final l = AppLocalizations.of(context)!;
+
     try {
       setState(() => _isLoadingLocation = true);
 
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
       if (!serviceEnabled) {
-        _showError('Please enable location services.');
+        _showError(l.locationServiceDisabled);
         setState(() => _isLoadingLocation = false);
         return;
       }
@@ -89,13 +92,13 @@ class _LocationPageState extends State<LocationPage> {
       }
 
       if (permission == LocationPermission.denied) {
-        _showError('Location permission is required.');
+        _showError(l.locationPermissionRequired);
         setState(() => _isLoadingLocation = false);
         return;
       }
 
       if (permission == LocationPermission.deniedForever) {
-        _showError('Location permission is permanently denied.');
+        _showError(l.locationPermissionDenied);
         setState(() => _isLoadingLocation = false);
         return;
       }
@@ -201,7 +204,7 @@ class _LocationPageState extends State<LocationPage> {
       if (!mounted) return;
 
       setState(() => _isLoadingLocation = false);
-      _showError('Failed to load nearby bins.');
+      _showError(l.locationFailedLoad);
     }
   }
 
@@ -224,6 +227,7 @@ class _LocationPageState extends State<LocationPage> {
   }
 
   void _showBinInfo(Map<String, dynamic> bin) {
+    final l = AppLocalizations.of(context)!;
     final distanceKm = (_toDouble(bin['distance']) / 1000).toStringAsFixed(1);
 
     showModalBottomSheet(
@@ -242,7 +246,7 @@ class _LocationPageState extends State<LocationPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                bin['binName'] ?? 'Recycling Bin',
+                bin['binName'] ?? l.locationDefaultBinName,
                 textAlign: TextAlign.center,
                 style: ReLeafTextStyles.title.copyWith(
                   fontSize: 20,
@@ -259,7 +263,10 @@ class _LocationPageState extends State<LocationPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                '${bin['binType'] ?? 'Bin'} • $distanceKm km away',
+                l.locationBinDistance(
+                  bin['binType'] ?? 'Bin',
+                  distanceKm,
+                ),
                 style: ReLeafTextStyles.subtitle.copyWith(
                   color: isDarkMode ? Colors.white70 : ReLeafColors.primary,
                   fontWeight: FontWeight.w600,
@@ -307,7 +314,7 @@ class _LocationPageState extends State<LocationPage> {
     );
   }
 
-  Widget _infoBox() {
+  Widget _infoBox(AppLocalizations l) {
     return _customCard(
       child: Row(
         children: [
@@ -318,9 +325,7 @@ class _LocationPageState extends State<LocationPage> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              _isLoadingLocation
-                  ? 'Detecting your location...'
-                  : 'The nearest bins are shown on the map based on your current location.',
+              _isLoadingLocation ? l.locationDetecting : l.locationNearestBins,
               style: ReLeafTextStyles.body.copyWith(
                 color: subTextColor,
                 fontWeight: FontWeight.w600,
@@ -332,8 +337,9 @@ class _LocationPageState extends State<LocationPage> {
     );
   }
 
-  Widget _buildCategoryButton(String title) {
-    final isTrash = title == 'Trash';
+  Widget _buildCategoryButton(
+      String category, String label, AppLocalizations l) {
+    final isTrash = category == 'Trash';
 
     return Expanded(
       child: Padding(
@@ -341,7 +347,7 @@ class _LocationPageState extends State<LocationPage> {
         child: SizedBox(
           height: 120,
           child: InkWell(
-            onTap: () => _openCategoryPage(title),
+            onTap: () => _openCategoryPage(category),
             borderRadius: BorderRadius.circular(20),
             child: _customCard(
               padding: const EdgeInsets.symmetric(
@@ -353,7 +359,7 @@ class _LocationPageState extends State<LocationPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SvgPicture.asset(
-                    _getItemSvg(title),
+                    _getItemSvg(category),
                     width: 30,
                     height: 30,
                     colorFilter: ColorFilter.mode(
@@ -364,7 +370,7 @@ class _LocationPageState extends State<LocationPage> {
                   const SizedBox(height: 6),
                   Flexible(
                     child: Text(
-                      title,
+                      label,
                       textAlign: TextAlign.center,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -379,7 +385,7 @@ class _LocationPageState extends State<LocationPage> {
                     height: 16,
                     child: isTrash
                         ? Text(
-                            'non-recyclables',
+                            l.locationNonRecyclables,
                             textAlign: TextAlign.center,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -450,6 +456,8 @@ class _LocationPageState extends State<LocationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -458,8 +466,8 @@ class _LocationPageState extends State<LocationPage> {
           child: Column(
             children: [
               AppTopBar(
-                title: 'Bin Location',
-                subtitle: 'Nearby recycling bins',
+                title: l.locationPageTitle,
+                subtitle: l.locationPageSubtitle,
                 icon: Icons.location_on_rounded,
                 showBackButton: false,
                 showNotifications: false,
@@ -535,7 +543,7 @@ class _LocationPageState extends State<LocationPage> {
                                           ),
                                           const SizedBox(width: 8),
                                           Text(
-                                            'Loading nearby bins...',
+                                            l.locationLoadingBins,
                                             style: TextStyle(
                                               fontSize: 12,
                                               color: mainTextColor,
@@ -551,10 +559,10 @@ class _LocationPageState extends State<LocationPage> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      _infoBox(),
+                      _infoBox(l),
                       const SizedBox(height: 24),
                       Text(
-                        'Bins Category',
+                        l.locationBinsCategory,
                         style: ReLeafTextStyles.title.copyWith(
                           fontSize: 24,
                           color: mainTextColor,
@@ -563,19 +571,23 @@ class _LocationPageState extends State<LocationPage> {
                       const SizedBox(height: 14),
                       Row(
                         children: [
-                          _buildCategoryButton('Cardboard'),
-                          _buildCategoryButton('Glass'),
-                          _buildCategoryButton('Metal'),
+                          _buildCategoryButton(
+                              'Cardboard', l.locationCategoryCardboard, l),
+                          _buildCategoryButton(
+                              'Glass', l.locationCategoryGlass, l),
+                          _buildCategoryButton(
+                              'Metal', l.locationCategoryMetal, l),
                         ],
                       ),
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          _buildCategoryButton('Paper'),
                           _buildCategoryButton(
-                            'Plastic',
-                          ),
-                          _buildCategoryButton('Trash'),
+                              'Paper', l.locationCategoryPaper, l),
+                          _buildCategoryButton(
+                              'Plastic', l.locationCategoryPlastic, l),
+                          _buildCategoryButton(
+                              'Trash', l.locationCategoryTrash, l),
                         ],
                       ),
                       const SizedBox(height: 24),

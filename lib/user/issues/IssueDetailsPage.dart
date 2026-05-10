@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:releaf_app/l10n/app_localizations.dart';
+
 import 'package:releaf_app/widgets/app_background.dart';
 import '../../widgets/releaf_ui.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
@@ -24,9 +26,8 @@ class IssueDetailsPage extends StatelessWidget {
   int _getStep(Map<String, dynamic> data) {
     final status = data['status']?.toString().toLowerCase() ?? 'pending';
     final adminReply = data['adminComment']?.toString() ?? '';
-    if (adminReply.isNotEmpty || status == 'fixed') {
-      return 2;
-    }
+
+    if (adminReply.isNotEmpty || status == 'fixed') return 2;
 
     if (status == 'processing' || status == 'in progress' || status == 'read') {
       return 1;
@@ -35,8 +36,49 @@ class IssueDetailsPage extends StatelessWidget {
     return 0;
   }
 
+  String _translateIssueTitle(String title, AppLocalizations l) {
+    switch (title.trim()) {
+      case 'Incorrect classification result':
+        return l.issue1;
+      case 'Wrong chatbot response':
+        return l.issue2;
+      case 'App crash or feature not working':
+        return l.issue3;
+      case 'Incorrect or missing recycling location':
+        return l.issue4;
+      case 'Login or account issue':
+        return l.issue5;
+      case 'Other':
+        return l.issue6;
+      default:
+        return title;
+    }
+  }
+
+  String _translateDetails(String details, AppLocalizations l) {
+    if (details.trim() == 'No additional details provided.') return l.noDetails;
+    return details;
+  }
+
+  String _translateStatus(String status, AppLocalizations l) {
+    switch (status.toLowerCase()) {
+      case 'unread':
+        return l.adminUnread;
+      case 'read':
+        return l.adminRead;
+      case 'fixed':
+        return l.adminFixed;
+      case 'pending':
+        return status;
+      default:
+        return status;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     final Color cardColor =
@@ -71,29 +113,32 @@ class IssueDetailsPage extends StatelessWidget {
                   ? snapshot.data!.data() as Map<String, dynamic>
                   : issueData;
 
-              final issueNumber = _formatIssueNumber(data['issueNumber']);
-              final title = data['title']?.toString() ?? 'Complaint';
-              final details = data['details']?.toString() ?? '';
-              final status = data['status']?.toString() ?? 'Pending';
-              final adminReply = data['adminComment']?.toString() ?? '';              final currentStep = _getStep(data);
+              final rawTitle = data['title']?.toString() ?? '';
+              final rawDetails = data['details']?.toString() ?? '';
+              final rawStatus = data['status']?.toString() ?? 'pending';
+
+              final title = rawTitle.isEmpty
+                  ? l.complaint
+                  : _translateIssueTitle(rawTitle, l);
+
+              final details = _translateDetails(rawDetails, l);
+
+              final status = _translateStatus(rawStatus, l);
+
+              final adminReply = data['adminComment']?.toString() ?? '';
+
+              final currentStep = _getStep(data);
 
               return Column(
                 children: [
                   AppTopBar(
-                    title: 'Complaint Details',
+                    title: l.complaintDetails,
                     icon: Icons.assignment_outlined,
                     showBackButton: true,
                     showNotifications: false,
-                    gradientColors:
-                        Theme.of(context).brightness == Brightness.dark
-                            ? [
-                                const Color(0xFF1B3A31),
-                                const Color(0xFF2F5D50),
-                              ]
-                            : [
-                                const Color(0xFF7FB77E),
-                                const Color(0xFF5E9C76),
-                              ],
+                    gradientColors: isDarkMode
+                        ? const [Color(0xFF1B3A31), Color(0xFF2F5D50)]
+                        : const [Color(0xFF7FB77E), Color(0xFF5E9C76)],
                   ),
                   Expanded(
                     child: SingleChildScrollView(
@@ -102,6 +147,7 @@ class IssueDetailsPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildInfoCard(
+                            context: context,
                             title: title,
                             details: details,
                             status: status,
@@ -114,7 +160,7 @@ class IssueDetailsPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 22),
                           Text(
-                            'Request Timeline',
+                            l.requestTimeline,
                             style: ReLeafTextStyles.title.copyWith(
                               fontSize: 22,
                               color: mainTextColor,
@@ -122,6 +168,7 @@ class IssueDetailsPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 16),
                           _buildTimeline(
+                            context: context,
                             currentStep: currentStep,
                             cardColor: cardColor,
                             mainTextColor: mainTextColor,
@@ -132,7 +179,7 @@ class IssueDetailsPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 24),
                           Text(
-                            'Admin Reply',
+                            l.adminReply,
                             style: ReLeafTextStyles.title.copyWith(
                               fontSize: 22,
                               color: mainTextColor,
@@ -140,6 +187,7 @@ class IssueDetailsPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           _buildReplyBox(
+                            context: context,
                             adminReply: adminReply,
                             cardColor: cardColor,
                             mainTextColor: mainTextColor,
@@ -162,6 +210,7 @@ class IssueDetailsPage extends StatelessWidget {
   }
 
   Widget _buildInfoCard({
+    required BuildContext context,
     required String title,
     required String details,
     required String status,
@@ -188,14 +237,17 @@ class IssueDetailsPage extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            details.isEmpty ? 'No additional details provided.' : details,
+            details,
             style: ReLeafTextStyles.body.copyWith(
               color: subTextColor,
             ),
           ),
           const SizedBox(height: 14),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 7,
+            ),
             decoration: BoxDecoration(
               color: isDarkMode
                   ? const Color(0xFF2E4A3D)
@@ -216,6 +268,7 @@ class IssueDetailsPage extends StatelessWidget {
   }
 
   Widget _buildTimeline({
+    required BuildContext context,
     required int currentStep,
     required Color cardColor,
     required Color mainTextColor,
@@ -224,20 +277,22 @@ class IssueDetailsPage extends StatelessWidget {
     required Color shadowColor,
     required bool isDarkMode,
   }) {
+    final l = AppLocalizations.of(context)!;
+
     final steps = [
       {
-        'title': 'Request Submitted',
-        'subtitle': 'Your complaint has been sent successfully.',
+        'title': l.step1Title,
+        'subtitle': l.step1Sub,
         'icon': Icons.send_rounded,
       },
       {
-        'title': 'Processing Request',
-        'subtitle': 'The admin is reviewing your complaint.',
+        'title': l.step2Title,
+        'subtitle': l.step2Sub,
         'icon': Icons.manage_search_rounded,
       },
       {
-        'title': 'Request Completed',
-        'subtitle': 'The admin has replied to your complaint.',
+        'title': l.step3Title,
+        'subtitle': l.step3Sub,
         'icon': Icons.check_circle_rounded,
       },
     ];
@@ -320,6 +375,7 @@ class IssueDetailsPage extends StatelessWidget {
   }
 
   Widget _buildReplyBox({
+    required BuildContext context,
     required String adminReply,
     required Color cardColor,
     required Color mainTextColor,
@@ -328,6 +384,8 @@ class IssueDetailsPage extends StatelessWidget {
     required Color shadowColor,
     required bool isDarkMode,
   }) {
+    final l = AppLocalizations.of(context)!;
+
     final hasReply = adminReply.trim().isNotEmpty;
 
     return _customCard(
@@ -352,7 +410,7 @@ class IssueDetailsPage extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Waiting for admin reply...',
+                    l.waitingReply,
                     style: ReLeafTextStyles.body.copyWith(
                       color: isDarkMode ? Colors.white60 : Colors.grey,
                       fontWeight: FontWeight.w500,

@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:releaf_app/l10n/app_localizations.dart';
 import 'package:releaf_app/user/llm/Chatbot.dart';
 import 'package:releaf_app/user/UserWidgets/UserBottomNav.dart';
 import 'package:releaf_app/user/Home/RecyclingProgressPage.dart';
@@ -108,6 +109,8 @@ class _HomePageUserState extends State<HomePageUser> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -118,8 +121,10 @@ class _HomePageUserState extends State<HomePageUser> {
               Stack(
                 children: [
                   AppTopBar(
-                    title: isLoadingName ? 'Welcome...' : 'Welcome, $userName',
-                    subtitle: 'Recycle today for a cleaner tomorrow!',
+                    title: isLoadingName
+                        ? l.homeWelcoming
+                        : l.homeWelcome(userName),
+                    subtitle: l.homeSubtitle,
                     icon: Icons.eco_rounded,
                     showBackButton: false,
                     showNotifications: false,
@@ -215,7 +220,7 @@ class _HomePageUserState extends State<HomePageUser> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Welcome to ReLeaf',
+                        l.homeTitle,
                         textAlign: TextAlign.center,
                         style: ReLeafTextStyles.title.copyWith(
                           fontSize: 24,
@@ -224,7 +229,7 @@ class _HomePageUserState extends State<HomePageUser> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Classify waste, find recycling bins, and get recycling guidance easily.',
+                        l.homeDescription,
                         textAlign: TextAlign.center,
                         style: ReLeafTextStyles.body.copyWith(
                           fontSize: 15,
@@ -232,9 +237,9 @@ class _HomePageUserState extends State<HomePageUser> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _buildRecyclingGameCard(),
+                      _buildRecyclingGameCard(l),
                       const SizedBox(height: 16),
-                      _buildInfoBox(),
+                      _buildInfoBox(l),
                       const SizedBox(height: 80),
                     ],
                   ),
@@ -263,7 +268,7 @@ class _HomePageUserState extends State<HomePageUser> {
     );
   }
 
-  Widget _buildRecyclingGameCard() {
+  Widget _buildRecyclingGameCard(AppLocalizations l) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -300,7 +305,7 @@ class _HomePageUserState extends State<HomePageUser> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Recycling Progress',
+                    l.homeRecyclingProgress,
                     style: ReLeafTextStyles.title.copyWith(
                       fontSize: 20,
                       color: _textColor,
@@ -308,7 +313,7 @@ class _HomePageUserState extends State<HomePageUser> {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Tap to grow your plant 🌱',
+                    l.homePlantTap,
                     style: ReLeafTextStyles.body.copyWith(
                       color: _bodyColor,
                     ),
@@ -327,7 +332,7 @@ class _HomePageUserState extends State<HomePageUser> {
     );
   }
 
-  Widget _buildInfoBox() {
+  Widget _buildInfoBox(AppLocalizations l) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -345,7 +350,7 @@ class _HomePageUserState extends State<HomePageUser> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Use the chatbot if you need help knowing where an item belongs.',
+              l.homeChatbotTip,
               style: ReLeafTextStyles.body.copyWith(
                 color: _bodyColor,
                 fontSize: 14,

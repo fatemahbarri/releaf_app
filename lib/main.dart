@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:releaf_app/l10n/app_localizations.dart';
 
 import 'firebase_options.dart';
 import 'SplashScreen.dart';
 import 'user/classification/tflite_helper.dart';
+
+// ─── Theme ───────────────────────────────────────────────────────────────────
 
 final ValueNotifier<ThemeMode> themeNotifier =
     ValueNotifier<ThemeMode>(ThemeMode.light);
@@ -21,6 +25,25 @@ Future<void> updateTheme(bool isDarkMode) async {
   themeNotifier.value = isDarkMode ? ThemeMode.dark : ThemeMode.light;
 }
 
+// ─── Locale ──────────────────────────────────────────────────────────────────
+
+final ValueNotifier<Locale> localeNotifier =
+    ValueNotifier<Locale>(const Locale('en'));
+
+Future<void> loadLocale() async {
+  final prefs = await SharedPreferences.getInstance();
+  final langCode = prefs.getString('language') ?? 'en';
+  localeNotifier.value = Locale(langCode);
+}
+
+Future<void> updateLocale(Locale locale) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('language', locale.languageCode);
+  localeNotifier.value = locale;
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -31,9 +54,12 @@ void main() async {
   await TFLiteHelper.init();
 
   await loadTheme();
+  await loadLocale();
 
   runApp(const ReLeafApp());
 }
+
+// ─── Scroll Behavior ──────────────────────────────────────────────────────────
 
 class NoStretchScrollBehavior extends ScrollBehavior {
   const NoStretchScrollBehavior();
@@ -53,6 +79,8 @@ class NoStretchScrollBehavior extends ScrollBehavior {
   }
 }
 
+// ─── App ──────────────────────────────────────────────────────────────────────
+
 class ReLeafApp extends StatelessWidget {
   const ReLeafApp({super.key});
 
@@ -61,37 +89,52 @@ class ReLeafApp extends StatelessWidget {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: themeNotifier,
       builder: (context, currentTheme, _) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'ReLeaf',
-          scrollBehavior: const NoStretchScrollBehavior(),
-          themeMode: currentTheme,
+        return ValueListenableBuilder<Locale>(
+          valueListenable: localeNotifier,
+          builder: (context, currentLocale, _) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: 'ReLeaf',
+              scrollBehavior: const NoStretchScrollBehavior(),
+              themeMode: currentTheme,
 
-          // Light Mode: نفس ألوان التطبيق الأصلية
-          theme: ThemeData(
-            brightness: Brightness.light,
-            fontFamily: 'Poppins',
-            scaffoldBackgroundColor: const Color(0xFFF7FBF2),
-            primaryColor: const Color(0xFF7FB77E),
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color(0xFF7FB77E),
-              brightness: Brightness.light,
-            ),
-          ),
+              // ── Localization ──
+              locale: currentLocale,
+              supportedLocales: AppLocalizations.supportedLocales,
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
 
-          // Dark Mode
-          darkTheme: ThemeData(
-            brightness: Brightness.dark,
-            fontFamily: 'Poppins',
-            scaffoldBackgroundColor: const Color(0xFF0F1713),
-            primaryColor: const Color(0xFF7FB77E),
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: const Color(0xFF7FB77E),
-              brightness: Brightness.dark,
-            ),
-          ),
+              // ── Light Theme ──
+              theme: ThemeData(
+                brightness: Brightness.light,
+                fontFamily: 'Poppins',
+                scaffoldBackgroundColor: const Color(0xFFF7FBF2),
+                primaryColor: const Color(0xFF7FB77E),
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: const Color(0xFF7FB77E),
+                  brightness: Brightness.light,
+                ),
+              ),
 
-          home: const SplashScreen(),
+              // ── Dark Theme ──
+              darkTheme: ThemeData(
+                brightness: Brightness.dark,
+                fontFamily: 'Poppins',
+                scaffoldBackgroundColor: const Color(0xFF0F1713),
+                primaryColor: const Color(0xFF7FB77E),
+                colorScheme: ColorScheme.fromSeed(
+                  seedColor: const Color(0xFF7FB77E),
+                  brightness: Brightness.dark,
+                ),
+              ),
+
+              home: const SplashScreen(),
+            );
+          },
         );
       },
     );

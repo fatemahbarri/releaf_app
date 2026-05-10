@@ -3,12 +3,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:releaf_app/l10n/app_localizations.dart';
 
 import '../../../services/firebase_service.dart';
 import 'locations_data.dart';
 import '../../widgets/AdminBar.dart';
 import '../../widgets/admin_background.dart';
-
 
 class AddBin extends StatefulWidget {
   final String category;
@@ -132,8 +132,31 @@ class _AddBinState extends State<AddBin> {
     }
   }
 
+  String _categoryLabel(String value) {
+    final loc = AppLocalizations.of(context)!;
+
+    switch (value) {
+      case 'Plastic':
+        return loc.adminPlastic;
+      case 'Paper':
+        return loc.adminPaper;
+      case 'Metal':
+        return loc.adminMetal;
+      case 'Glass':
+        return loc.adminGlass;
+      case 'Cardboard':
+        return loc.adminCardboard;
+      case 'Trash':
+        return loc.adminTrash;
+      default:
+        return value;
+    }
+  }
+
   Future<void> _searchAddress() async {
+    final loc = AppLocalizations.of(context)!;
     final query = _descriptionController.text.trim();
+
     if (query.isEmpty) return;
 
     setState(() => _isSearchingAddress = true);
@@ -151,7 +174,7 @@ class _AddBinState extends State<AddBin> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Location search failed: $e')),
+        SnackBar(content: Text(loc.adminLocationSearchFailed(e.toString()))),
       );
     } finally {
       if (mounted) setState(() => _isSearchingAddress = false);
@@ -159,6 +182,8 @@ class _AddBinState extends State<AddBin> {
   }
 
   Future<void> _saveBin() async {
+    final loc = AppLocalizations.of(context)!;
+
     final binName = _binNameController.text.trim();
     final city = _selectedCity ?? '';
     final region = _selectedDistrict ?? '';
@@ -172,7 +197,7 @@ class _AddBinState extends State<AddBin> {
         description.isEmpty ||
         region == 'Select district') {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
+        SnackBar(content: Text(loc.adminPleaseFillAllFields)),
       );
       return;
     }
@@ -226,18 +251,18 @@ class _AddBinState extends State<AddBin> {
   }
 
   Widget _categoryIcon(String type, {Color? color}) {
-  final iconColor = color ?? subTextColor;
+    final iconColor = color ?? subTextColor;
 
-  return SvgPicture.asset(
-    _getItemSvg(type),
-    width: 24,
-    height: 24,
-    colorFilter: ColorFilter.mode(
-      iconColor,
-      BlendMode.srcIn,
-    ),
-  );
-}
+    return SvgPicture.asset(
+      _getItemSvg(type),
+      width: 24,
+      height: 24,
+      colorFilter: ColorFilter.mode(
+        iconColor,
+        BlendMode.srcIn,
+      ),
+    );
+  }
 
   String _getItemSvg(String itemName) {
     final item = itemName.toLowerCase();
@@ -253,6 +278,8 @@ class _AddBinState extends State<AddBin> {
   }
 
   Widget _topBar() {
+    final loc = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
       decoration: BoxDecoration(
@@ -285,7 +312,7 @@ class _AddBinState extends State<AddBin> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              _isEditMode ? 'Edit Bin' : 'Add Bin',
+              _isEditMode ? loc.adminEditBin : loc.adminAddBin,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -367,6 +394,8 @@ class _AddBinState extends State<AddBin> {
   }
 
   Widget _cityDropdown() {
+    final loc = AppLocalizations.of(context)!;
+
     return _dropdownContainer(
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
@@ -379,7 +408,7 @@ class _AddBinState extends State<AddBin> {
               Icon(Icons.location_city_outlined, color: subTextColor),
               const SizedBox(width: 12),
               Text(
-                'Governorate',
+                loc.adminGovernorate,
                 style: TextStyle(
                   color: hintColor,
                   fontSize: 16,
@@ -431,6 +460,7 @@ class _AddBinState extends State<AddBin> {
   }
 
   Widget _districtDropdown() {
+    final loc = AppLocalizations.of(context)!;
     final districts =
         _selectedCity == null ? <String>[] : cityDistricts[_selectedCity]!;
 
@@ -446,7 +476,7 @@ class _AddBinState extends State<AddBin> {
               Icon(Icons.map_outlined, color: subTextColor),
               const SizedBox(width: 12),
               Text(
-                'District',
+                loc.adminDistrict,
                 style: TextStyle(
                   color: hintColor,
                   fontSize: 16,
@@ -521,6 +551,8 @@ class _AddBinState extends State<AddBin> {
   }
 
   Widget _categoryDropdown() {
+    final loc = AppLocalizations.of(context)!;
+
     return _dropdownContainer(
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
@@ -533,7 +565,7 @@ class _AddBinState extends State<AddBin> {
               Icon(Icons.recycling_rounded, color: subTextColor),
               const SizedBox(width: 12),
               Text(
-                'Bin Type',
+                loc.adminBinType,
                 style: TextStyle(
                   color: hintColor,
                   fontSize: 16,
@@ -549,7 +581,7 @@ class _AddBinState extends State<AddBin> {
                   _categoryIcon(category),
                   const SizedBox(width: 12),
                   Text(
-                    category,
+                    _categoryLabel(category),
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -568,7 +600,7 @@ class _AddBinState extends State<AddBin> {
                   _categoryIcon(category),
                   const SizedBox(width: 12),
                   Text(
-                    category,
+                    _categoryLabel(category),
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -590,6 +622,8 @@ class _AddBinState extends State<AddBin> {
   }
 
   Widget _statusSelector() {
+    final loc = AppLocalizations.of(context)!;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -613,7 +647,7 @@ class _AddBinState extends State<AddBin> {
           ),
           const SizedBox(width: 12),
           Text(
-            'Bin Status',
+            loc.adminBinStatus,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -622,7 +656,7 @@ class _AddBinState extends State<AddBin> {
           ),
           const Spacer(),
           Text(
-            _isActive ? 'Active' : 'Inactive',
+            _isActive ? loc.adminActive : loc.adminInactive,
             style: TextStyle(
               color: _isActive ? primary : Colors.redAccent,
               fontWeight: FontWeight.bold,
@@ -697,6 +731,8 @@ class _AddBinState extends State<AddBin> {
   }
 
   Widget _saveButton() {
+    final loc = AppLocalizations.of(context)!;
+
     return GestureDetector(
       onTap: _isSaving ? null : _saveBin,
       child: Opacity(
@@ -730,7 +766,7 @@ class _AddBinState extends State<AddBin> {
                   ),
                 )
               : Text(
-                  _isEditMode ? 'Save Changes' : 'Save',
+                  _isEditMode ? loc.adminSaveChanges : loc.save,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -744,6 +780,8 @@ class _AddBinState extends State<AddBin> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
     return AdminBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -760,7 +798,7 @@ class _AddBinState extends State<AddBin> {
                     children: [
                       _buildInputField(
                         controller: _binNameController,
-                        hint: 'Bin Name',
+                        hint: loc.adminBinName,
                         icon: Icons.delete_outline,
                       ),
                       _cityDropdown(),
@@ -768,7 +806,7 @@ class _AddBinState extends State<AddBin> {
                       _categoryDropdown(),
                       _buildInputField(
                         controller: _descriptionController,
-                        hint: 'Description / Address',
+                        hint: loc.adminDescriptionAddress,
                         icon: Icons.description_outlined,
                         maxLines: 2,
                         suffixIcon: IconButton(
@@ -792,7 +830,7 @@ class _AddBinState extends State<AddBin> {
                       _statusSelector(),
                       const SizedBox(height: 12),
                       Text(
-                        'Select Location',
+                        loc.adminSelectLocation,
                         style: TextStyle(
                           color: titleColor,
                           fontSize: 22,

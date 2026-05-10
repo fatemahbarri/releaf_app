@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:releaf_app/l10n/app_localizations.dart';
 import 'IssueDetailsPage.dart';
 import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/user/UserWidgets/UserBottomNav.dart';
 import '../../widgets/releaf_ui.dart';
-
 import 'package:releaf_app/widgets/app_top_bar.dart';
 
 class ReportIssueUser extends StatefulWidget {
@@ -19,7 +19,10 @@ class ReportIssueUser extends StatefulWidget {
 class _ReportIssueUserState extends State<ReportIssueUser> {
   int selectedTab = 0;
 
-  final List<String> issues = [
+  bool get isDarkMode => Theme.of(context).brightness == Brightness.dark;
+
+  // English keys stored in Firestore — never change these
+  final List<String> _issuesEn = [
     'Incorrect classification result',
     'Wrong chatbot response',
     'App crash or feature not working',
@@ -28,32 +31,59 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
     'Other',
   ];
 
-  bool get isDarkMode => Theme.of(context).brightness == Brightness.dark;
-
   Color get cardColor => isDarkMode ? const Color(0xFF1F2F2A) : Colors.white;
-
   Color get iconBoxColor =>
       isDarkMode ? const Color(0xFF2E4A3D) : ReLeafColors.lightGreen;
-
   Color get mainTextColor => isDarkMode ? Colors.white : ReLeafColors.textDark;
-
   Color get subTextColor =>
       isDarkMode ? Colors.white70 : ReLeafColors.textDark.withOpacity(0.65);
-
   Color get borderColor => isDarkMode
       ? Colors.white.withOpacity(0.08)
       : Colors.white.withOpacity(0.8);
-
   Color get shadowColor => isDarkMode
       ? Colors.black.withOpacity(0.25)
       : Colors.black.withOpacity(0.06);
 
+  List<String> _issues(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return [
+      l.issue1,
+      l.issue2,
+      l.issue3,
+      l.issue4,
+      l.issue5,
+      l.issue6,
+    ];
+  }
+
+  String _translateIssueTitle(String title, AppLocalizations l) {
+    switch (title.trim()) {
+      case 'Incorrect classification result':
+        return l.issue1;
+      case 'Wrong chatbot response':
+        return l.issue2;
+      case 'App crash or feature not working':
+        return l.issue3;
+      case 'Incorrect or missing recycling location':
+        return l.issue4;
+      case 'Login or account issue':
+        return l.issue5;
+      case 'Other':
+        return l.issue6;
+      default:
+        return title;
+    }
+  }
+
+  String _translateDetails(String details, AppLocalizations l) {
+    if (details == 'No additional details provided.') return l.noDetails;
+    return details;
+  }
+
   Future<void> _submitIssue(String issueTitle, String details) async {
     final user = FirebaseAuth.instance.currentUser;
 
-    if (user == null) {
-      throw Exception('User not logged in');
-    }
+    if (user == null) throw Exception('User not logged in');
 
     final firestore = FirebaseFirestore.instance;
 
@@ -82,7 +112,8 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
     });
   }
 
-  void _showIssueDialog(String issueTitle) {
+  void _showIssueDialog(String issueDisplayTitle, String issueTitleEn) {
+    final l = AppLocalizations.of(context)!;
     final TextEditingController detailsController = TextEditingController();
     bool isSubmitting = false;
 
@@ -91,28 +122,25 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
+            final isOther = issueTitleEn == 'Other';
+
             return AlertDialog(
               backgroundColor: cardColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),
               ),
               title: Text(
-                issueTitle,
-                style: ReLeafTextStyles.title.copyWith(
-                  color: mainTextColor,
-                ),
+                issueDisplayTitle,
+                style: ReLeafTextStyles.title.copyWith(color: mainTextColor),
               ),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      issueTitle == 'Other'
-                          ? 'Please describe the issue below.'
-                          : 'You can add extra details below if needed.',
-                      style: ReLeafTextStyles.body.copyWith(
-                        color: subTextColor,
-                      ),
+                      isOther ? l.describeIssue : l.extraDetails,
+                      style:
+                          ReLeafTextStyles.body.copyWith(color: subTextColor),
                     ),
                     const SizedBox(height: 14),
                     TextField(
@@ -120,7 +148,7 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
                       maxLines: 5,
                       style: TextStyle(color: mainTextColor),
                       decoration: InputDecoration(
-                        hintText: 'Write here (optional)',
+                        hintText: l.writeHere,
                         hintStyle: TextStyle(color: subTextColor),
                         filled: true,
                         fillColor:
@@ -148,54 +176,38 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
               actions: [
                 TextButton(
                   onPressed: isSubmitting ? null : () => Navigator.pop(context),
-                  child: Text(
-                    'Cancel',
-                    style: TextStyle(color: subTextColor),
-                  ),
+                  child: Text(l.cancel, style: TextStyle(color: subTextColor)),
                 ),
                 ReLeafButton(
-                  text: isSubmitting ? 'Saving...' : 'Submit',
+                  text: isSubmitting ? l.saving : l.submit,
                   small: true,
                   onPressed: isSubmitting
                       ? null
                       : () async {
                           final details = detailsController.text.trim();
-
-                          setDialogState(() {
-                            isSubmitting = true;
-                          });
+                          setDialogState(() => isSubmitting = true);
 
                           try {
-                            await _submitIssue(issueTitle, details);
+                            await _submitIssue(issueTitleEn, details);
 
                             if (!mounted) return;
 
                             Navigator.pop(context);
-
-                            setState(() {
-                              selectedTab = 1;
-                            });
+                            setState(() => selectedTab = 1);
 
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: const Text(
-                                  'Your complaint has been received successfully.',
-                                ),
+                                content: Text(l.successMsg),
                                 backgroundColor: ReLeafColors.secondary,
                               ),
                             );
                           } catch (e) {
                             if (!mounted) return;
-
-                            setDialogState(() {
-                              isSubmitting = false;
-                            });
+                            setDialogState(() => isSubmitting = false);
 
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Failed to submit report. Please try again.',
-                                ),
+                              SnackBar(
+                                content: Text(l.failMsg),
                                 backgroundColor: Colors.red,
                               ),
                             );
@@ -211,6 +223,8 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
   }
 
   Widget _buildTabs() {
+    final l = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
@@ -227,8 +241,8 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
       ),
       child: Row(
         children: [
-          _buildTabButton('New Report', 0),
-          _buildTabButton('Previous Reports', 1),
+          _buildTabButton(l.newReport, 0),
+          _buildTabButton(l.previousReports, 1),
         ],
       ),
     );
@@ -239,11 +253,7 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
 
     return Expanded(
       child: GestureDetector(
-        onTap: () {
-          setState(() {
-            selectedTab = index;
-          });
-        },
+        onTap: () => setState(() => selectedTab = index),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 13),
           decoration: BoxDecoration(
@@ -264,13 +274,17 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
   }
 
   Widget _buildNewReportPage() {
+    final l = AppLocalizations.of(context)!;
+    final issues = _issues(context);
+
     return Column(
       children: [
-        _infoBox(
-          'Choose the issue type, then add details if needed.',
-        ),
+        _infoBox(l.infoBox),
         const SizedBox(height: 16),
-        ...issues.map(_buildIssueCard),
+        ...List.generate(
+          issues.length,
+          (i) => _buildIssueCard(issues[i], _issuesEn[i]),
+        ),
       ],
     );
   }
@@ -301,7 +315,9 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
     );
   }
 
-  Widget _buildIssueCard(String title) {
+  Widget _buildIssueCard(String displayTitle, String titleEn) {
+    final l = AppLocalizations.of(context)!;
+
     return _customCard(
       child: Row(
         children: [
@@ -320,7 +336,7 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              title,
+              displayTitle,
               style: ReLeafTextStyles.body.copyWith(
                 color: mainTextColor,
                 fontWeight: FontWeight.w600,
@@ -328,9 +344,9 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
             ),
           ),
           ReLeafButton(
-            text: 'Report',
+            text: l.report,
             small: true,
-            onPressed: () => _showIssueDialog(title),
+            onPressed: () => _showIssueDialog(displayTitle, titleEn),
           ),
         ],
       ),
@@ -338,12 +354,13 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
   }
 
   Widget _buildPreviousReportsPage() {
+    final l = AppLocalizations.of(context)!;
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
       return Center(
         child: Text(
-          'Please login first.',
+          l.loginFirst,
           style: ReLeafTextStyles.body.copyWith(color: mainTextColor),
         ),
       );
@@ -357,7 +374,7 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text(
-            'Error loading reports.',
+            l.errorLoading,
             style: ReLeafTextStyles.body.copyWith(color: Colors.red),
           );
         }
@@ -383,7 +400,7 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'No previous reports yet.',
+                  l.noReports,
                   style: ReLeafTextStyles.title.copyWith(
                     fontSize: 20,
                     color: mainTextColor,
@@ -391,11 +408,9 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Your submitted reports will appear here.',
+                  l.reportsAppear,
                   textAlign: TextAlign.center,
-                  style: ReLeafTextStyles.body.copyWith(
-                    color: subTextColor,
-                  ),
+                  style: ReLeafTextStyles.body.copyWith(color: subTextColor),
                 ),
               ],
             ),
@@ -407,7 +422,6 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
         reports.sort((a, b) {
           final aData = a.data() as Map<String, dynamic>;
           final bData = b.data() as Map<String, dynamic>;
-
           final aTime = aData['createdAt'];
           final bTime = bData['createdAt'];
 
@@ -423,13 +437,16 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
             final data = doc.data() as Map<String, dynamic>;
 
             final issueNumber = data['issueNumber']?.toString() ?? '00001';
-            final title = data['title']?.toString() ?? 'Complaint';
-            final details = data['details']?.toString() ?? '';
+            final rawTitle = data['title']?.toString() ?? '';
+            final rawDetails = data['details']?.toString() ?? '';
             final status = data['status']?.toString() ?? 'Pending';
             final adminReply = data['adminComment']?.toString() ?? '';
 
-            final isCompleted = status.toLowerCase() == 'fixed' ||
-                adminReply.isNotEmpty;
+            final title = _translateIssueTitle(rawTitle, l);
+            final details = _translateDetails(rawDetails, l);
+
+            final isCompleted =
+                status.toLowerCase() == 'fixed' || adminReply.isNotEmpty;
 
             return GestureDetector(
               onTap: () {
@@ -466,7 +483,7 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Complaint #$issueNumber',
+                            '${l.complaint} #$issueNumber',
                             style: ReLeafTextStyles.title.copyWith(
                               fontSize: 17,
                               color: mainTextColor,
@@ -485,7 +502,7 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            isCompleted ? 'Answered' : status,
+                            isCompleted ? l.answered : status,
                             style: TextStyle(
                               color: isCompleted ? Colors.green : Colors.orange,
                               fontSize: 12,
@@ -513,11 +530,9 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'For more details, tap',
+                      l.tapForMore,
                       style: TextStyle(
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white38
-                            : Colors.grey,
+                        color: isDarkMode ? Colors.white38 : Colors.grey,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
@@ -535,7 +550,7 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
                           border: Border.all(color: borderColor),
                         ),
                         child: Text(
-                          'Admin reply: $adminReply',
+                          '${l.adminReplyLabel}$adminReply',
                           style: ReLeafTextStyles.body.copyWith(
                             color: mainTextColor,
                             fontSize: 13,
@@ -577,6 +592,8 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     return AppBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -585,19 +602,13 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
           child: Column(
             children: [
               AppTopBar(
-                title: 'Report an Issue',
+                title: l.reportAnIssue,
                 icon: Icons.report_problem_outlined,
                 showBackButton: true,
                 showNotifications: false,
-                gradientColors: Theme.of(context).brightness == Brightness.dark
-                    ? [
-                        const Color(0xFF1B3A31),
-                        const Color(0xFF2F5D50),
-                      ]
-                    : [
-                        const Color(0xFF7FB77E),
-                        const Color(0xFF5E9C76),
-                      ],
+                gradientColors: isDarkMode
+                    ? const [Color(0xFF1B3A31), Color(0xFF2F5D50)]
+                    : const [Color(0xFF7FB77E), Color(0xFF5E9C76)],
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -616,9 +627,7 @@ class _ReportIssueUserState extends State<ReportIssueUser> {
             ],
           ),
         ),
-        bottomNavigationBar: const UserBottomNav(
-          currentIndex: 3,
-        ),
+        bottomNavigationBar: const UserBottomNav(currentIndex: 3),
       ),
     );
   }

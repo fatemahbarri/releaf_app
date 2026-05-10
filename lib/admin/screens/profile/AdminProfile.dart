@@ -11,8 +11,8 @@ import '../../theme/admin_theme.dart';
 import 'AdminProfileEdit.dart';
 import '../../../auth/Login.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
-
 import 'package:releaf_app/AboutReLeafPage.dart';
+import 'package:releaf_app/l10n/app_localizations.dart';
 
 class AdminProfile extends StatefulWidget {
   const AdminProfile({super.key});
@@ -57,6 +57,7 @@ class _AdminProfileState extends State<AdminProfile> {
 
   Future<void> _loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
+
     if (!mounted) return;
 
     setState(() {
@@ -64,17 +65,14 @@ class _AdminProfileState extends State<AdminProfile> {
     });
   }
 
-  Future<void> _saveTheme(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('dark_mode', value);
-  }
-
   Future<void> _loadAdminData() async {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
       if (!mounted) return;
+
       setState(() => isLoading = false);
+
       return;
     }
 
@@ -128,20 +126,6 @@ class _AdminProfileState extends State<AdminProfile> {
         adminName = result['name'] ?? adminName;
         adminEmail = result['email'] ?? adminEmail;
       });
-
-      final user = FirebaseAuth.instance.currentUser;
-
-      if (user != null) {
-        await FirebaseFirestore.instance
-            .collection('admins')
-            .doc(user.uid)
-            .set({
-          'name': adminName,
-          'email': adminEmail,
-          'role': 'admin',
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      }
     }
   }
 
@@ -156,15 +140,6 @@ class _AdminProfileState extends State<AdminProfile> {
         builder: (_) => const LoginPage(isAdminMode: true),
       ),
       (route) => false,
-    );
-  }
-
-  void _showComingSoon(String title) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$title will be available soon'),
-        backgroundColor: secondary,
-      ),
     );
   }
 
@@ -194,13 +169,6 @@ class _AdminProfileState extends State<AdminProfile> {
               color: isDarkMode ? const Color(0xFF31443B) : Colors.white,
               width: 6,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(isDarkMode ? 0.25 : 0.12),
-                blurRadius: 12,
-                offset: const Offset(0, 5),
-              ),
-            ],
           ),
           child: const Icon(
             Icons.person_rounded,
@@ -243,18 +211,6 @@ class _AdminProfileState extends State<AdminProfile> {
       decoration: BoxDecoration(
         color: cardBg,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: isDarkMode
-              ? Colors.white.withOpacity(0.08)
-              : Colors.white.withOpacity(0.8),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDarkMode ? 0.18 : 0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 5),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -368,19 +324,19 @@ class _AdminProfileState extends State<AdminProfile> {
     );
   }
 
-  Widget _accountSection() {
+  Widget _accountSection(AppLocalizations l) {
     return _sectionCard(
-      title: 'Account',
+      title: l.adminAccount,
       children: [
         _menuItem(
           icon: Icons.person_rounded,
-          title: 'Edit Profile',
+          title: l.adminEditProfile,
           onTap: _openEditPage,
         ),
         _divider(),
         _menuItem(
           icon: Icons.lock_rounded,
-          title: 'Change Password',
+          title: l.adminChangePassword,
           onTap: () {
             Navigator.push(
               context,
@@ -394,32 +350,85 @@ class _AdminProfileState extends State<AdminProfile> {
     );
   }
 
-  Widget _settingsSection() {
+  Widget _settingsSection(AppLocalizations l) {
+    final isArabic = localeNotifier.value.languageCode == 'ar';
+
     return _sectionCard(
-      title: 'Settings',
+      title: l.adminSettings,
       children: [
         _switchItem(
           icon: Icons.dark_mode_rounded,
-          title: 'Dark Mode',
+          title: l.adminDarkMode,
           value: isDarkMode,
           onChanged: (value) async {
             setState(() {
               isDarkMode = value;
             });
+
             await updateTheme(value);
           },
+        ),
+        _divider(),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Row(
+            children: [
+              _iconBox(Icons.language_rounded),
+              const SizedBox(width: 18),
+              Expanded(
+                child: Text(
+                  l.language,
+                  style: TextStyle(
+                    color: titleColor,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () async {
+                  await updateLocale(
+                    isArabic ? const Locale('en') : const Locale('ar'),
+                  );
+
+                  setState(() {});
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: iconBoxBg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: secondary.withOpacity(0.4),
+                    ),
+                  ),
+                  child: Text(
+                    l.languageToggle,
+                    style: TextStyle(
+                      color: isDarkMode ? Colors.white : secondary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _supportSection() {
+  Widget _supportSection(AppLocalizations l) {
     return _sectionCard(
-      title: 'Support',
+      title: l.adminSupport,
       children: [
         _menuItem(
           icon: Icons.info_rounded,
-          title: 'About ReLeaf',
+          title: l.adminAboutReLeaf,
           onTap: () {
             Navigator.push(
               context,
@@ -433,7 +442,7 @@ class _AdminProfileState extends State<AdminProfile> {
     );
   }
 
-  Widget _logoutButton() {
+  Widget _logoutButton(AppLocalizations l) {
     return GestureDetector(
       onTap: _logout,
       child: Container(
@@ -443,26 +452,19 @@ class _AdminProfileState extends State<AdminProfile> {
         decoration: BoxDecoration(
           color: cardBg,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(isDarkMode ? 0.18 : 0.06),
-              blurRadius: 12,
-              offset: const Offset(0, 5),
-            ),
-          ],
         ),
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.logout_rounded,
               color: AdminTheme.error,
               size: 27,
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Text(
-              'Logout',
-              style: TextStyle(
+              l.adminLogout,
+              style: const TextStyle(
                 color: AdminTheme.error,
                 fontSize: 19,
                 fontWeight: FontWeight.bold,
@@ -476,6 +478,8 @@ class _AdminProfileState extends State<AdminProfile> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     if (isLoading) {
       return const AdminBackground(
         child: Scaffold(
@@ -488,50 +492,45 @@ class _AdminProfileState extends State<AdminProfile> {
     }
 
     return AdminBackground(
-      child: Stack(
-        children: [
-          Container(color: pageOverlay),
-          Scaffold(
-            backgroundColor: Colors.transparent,
-            body: SafeArea(
-              bottom: false,
-              child: Column(
-                children: [
-                  AppTopBar(
-                    title: 'My Account',
-                    icon: Icons.person_rounded,
-                    showBackButton: false,
-                    gradientColors: isDarkMode
-                        ? const [
-                            Color(0xFF1F2D28),
-                            Color(0xFF31443B),
-                          ]
-                        : const [
-                            Color(0xFF7FB77E),
-                            Color(0xFF5E9C76),
-                          ],
-                  ),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 18),
-                      child: Column(
-                        children: [
-                          _profileHeader(),
-                          const SizedBox(height: 20),
-                          _accountSection(),
-                          _settingsSection(),
-                          _supportSection(),
-                          _logoutButton(),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              AppTopBar(
+                title: l.adminMyAccount,
+                icon: Icons.person_rounded,
+                showBackButton: false,
+                gradientColors: isDarkMode
+                    ? const [
+                        Color(0xFF1F2D28),
+                        Color(0xFF31443B),
+                      ]
+                    : const [
+                        Color(0xFF7FB77E),
+                        Color(0xFF5E9C76),
+                      ],
               ),
-            ),
-            bottomNavigationBar: const AdminBar(selectedIndex: 4),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 18),
+                  child: Column(
+                    children: [
+                      _profileHeader(),
+                      const SizedBox(height: 20),
+                      _accountSection(l),
+                      _settingsSection(l),
+                      _supportSection(l),
+                      _logoutButton(l),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
+        bottomNavigationBar: const AdminBar(selectedIndex: 4),
       ),
     );
   }

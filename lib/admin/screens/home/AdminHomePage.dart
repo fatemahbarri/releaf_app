@@ -10,7 +10,7 @@ import '../../widgets/admin_background.dart';
 
 import '../users/AdminUserManagment.dart';
 import '../bins/AdminBinsPage.dart';
-import '../notifications/AdminNotificationsOverlay.dart';
+import 'notifications/AdminNotificationsOverlay.dart';
 
 import 'widgets/dashboard_card.dart';
 import 'widgets/summary_card.dart';
