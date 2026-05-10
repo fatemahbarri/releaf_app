@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:releaf_app/l10n/app_localizations.dart';
+
 import 'package:releaf_app/user/Home/HomePageUser.dart';
 import 'package:releaf_app/user/profile/Profile.dart';
 import 'package:releaf_app/user/Bins/LocationPage.dart';
@@ -20,6 +22,8 @@ class UserBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     final Color navBg = isDark ? const Color(0xFF1A2520) : lightGreen;
@@ -27,7 +31,10 @@ class UserBottomNav extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: 88,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 8,
+      ),
       decoration: BoxDecoration(
         color: navBg,
         borderRadius: const BorderRadius.vertical(
@@ -40,7 +47,9 @@ class UserBottomNav extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.30 : 0.06),
+            color: Colors.black.withOpacity(
+              isDark ? 0.30 : 0.06,
+            ),
             blurRadius: 12,
             offset: const Offset(0, -2),
           ),
@@ -53,28 +62,28 @@ class UserBottomNav extends StatelessWidget {
             index: 0,
             icon: Icons.home_outlined,
             selectedIcon: Icons.home_rounded,
-            label: 'Home',
+            label: l.navHome,
           ),
           _buildNavItem(
             context: context,
             index: 1,
             icon: Icons.camera_alt_outlined,
             selectedIcon: Icons.camera_alt_rounded,
-            label: 'Classify',
+            label: l.navClassify,
           ),
           _buildNavItem(
             context: context,
             index: 2,
             icon: Icons.location_on_outlined,
             selectedIcon: Icons.location_on,
-            label: 'Bins',
+            label: l.navBins,
           ),
           _buildNavItem(
             context: context,
             index: 3,
             icon: Icons.settings_outlined,
             selectedIcon: Icons.settings,
-            label: 'Profile',
+            label: l.navProfile,
           ),
         ],
       ),
@@ -89,6 +98,7 @@ class UserBottomNav extends StatelessWidget {
     required String label,
   }) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
+
     final bool isSelected = currentIndex == index;
 
     final Color selectedBg = isDark
@@ -110,25 +120,31 @@ class UserBottomNav extends StatelessWidget {
             case 0:
               page = const HomePageUser();
               break;
+
             case 1:
               page = const ImageClassifierScreen();
               break;
+
             case 2:
               page = const LocationPage();
               break;
+
             case 3:
               page = const Profile(
                 name: '',
                 email: '',
               );
               break;
+
             default:
               page = const HomePageUser();
           }
 
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => page),
+            MaterialPageRoute(
+              builder: (_) => page,
+            ),
           );
         },
         child: Column(
@@ -137,7 +153,10 @@ class UserBottomNav extends StatelessWidget {
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 18,
+                vertical: 8,
+              ),
               decoration: BoxDecoration(
                 color: isSelected ? selectedBg : Colors.transparent,
                 borderRadius: BorderRadius.circular(22),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:releaf_app/l10n/app_localizations.dart';
+
 import 'donut_chart.dart';
 
 class SummaryCard extends StatelessWidget {
@@ -56,7 +58,8 @@ class SummaryCard extends StatelessWidget {
               activePercentage: activePercentage,
               blockedPercentage: blockedPercentage,
               centerTopText: '$totalUsers',
-              centerBottomText: 'Users',
+              centerBottomText:
+                AppLocalizations.of(context)!.adminHomeUsersLabel,
             ),
           ),
           const SizedBox(width: 18),
@@ -67,7 +70,8 @@ class SummaryCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Users Activity',
+                  AppLocalizations.of(context)!
+                      .adminHomeUsersActivityTitle,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
@@ -76,7 +80,8 @@ class SummaryCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'A quick overview of active and blocked users.',
+                  AppLocalizations.of(context)!
+                      .adminHomeUsersOverviewSubtitle,
                   style: TextStyle(
                     fontSize: 13.5,
                     height: 1.4,
@@ -86,7 +91,8 @@ class SummaryCard extends StatelessWidget {
                 const SizedBox(height: 14),
                 _LegendItem(
                   color: const Color(0xFF22B573),
-                  label: 'Active Users',
+                  label: AppLocalizations.of(context)!
+                             .adminHomeActiveUsersLabel,
                   value: activeUsers.toString(),
                   isDark: isDark,
                 ),
@@ -94,7 +100,8 @@ class SummaryCard extends StatelessWidget {
                
                 _LegendItem(
                   color: const Color(0xFFE53935),
-                  label: 'Blocked Users',
+                  label: AppLocalizations.of(context)!
+                              .adminHomeBlockedUsersLabel,
                   value: blockedUsers.toString(),
                   isDark: isDark,
                 ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:releaf_app/l10n/app_localizations.dart';
+
 import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/admin/widgets/admin_background.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
@@ -24,6 +26,8 @@ class AboutReLeafPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     final Color primary = isAdmin ? AdminTheme.primary : userPrimary;
@@ -43,14 +47,42 @@ class AboutReLeafPage extends StatelessWidget {
         : Colors.white.withOpacity(0.75);
 
     final List<Color> topBarGradient = isDark
-        ? const [
-            Color(0xFF1B3A31),
-            Color(0xFF2F5D50),
-          ]
-        : [
-            primary,
-            secondary,
-          ];
+        ? const [Color(0xFF1B3A31), Color(0xFF2F5D50)]
+        : [primary, secondary];
+
+    // ─── Texts ─────────────────────────────────────────────
+
+    final String t_aboutReleaf = isAdmin ? 'About ReLeaf' : l.aboutReleaf;
+
+    final String t_subtitle = isAdmin
+        ? 'Smart waste sorting and recycling assistant'
+        : l.aboutSubtitle;
+
+    final String t_version = isAdmin ? 'Version 1.0.0' : l.version;
+
+    final String t_whatTitle = isAdmin ? 'What is ReLeaf?' : l.whatTitle;
+
+    final String t_whatText = isAdmin
+        ? 'ReLeaf is a smart recycling application that helps users classify waste, find recycling bins, and get guidance for proper waste sorting.'
+        : l.whatText;
+
+    final String t_featuresTitle = isAdmin ? 'Main Features' : l.featuresTitle;
+
+    final String t_featuresText = isAdmin
+        ? 'The app includes waste image classification, recycling bin locations, chatbot assistance, issue reporting, and user progress tracking.'
+        : l.featuresText;
+
+    final String t_roleTitle = isAdmin ? 'Admin Role' : l.userRoleTitle;
+
+    final String t_roleText = isAdmin
+        ? 'Admins can manage users, recycling bins, reported issues, and review app activity to keep the system organized and reliable.'
+        : l.userRoleText;
+
+    final String t_goalTitle = isAdmin ? 'Project Goal' : l.goalTitle;
+
+    final String t_goalText = isAdmin
+        ? 'The goal of ReLeaf is to support sustainable recycling behavior by making waste sorting easier, faster, and more accessible.'
+        : l.goalText;
 
     final Widget page = Scaffold(
       backgroundColor: Colors.transparent,
@@ -59,7 +91,7 @@ class AboutReLeafPage extends StatelessWidget {
         child: Column(
           children: [
             AppTopBar(
-              title: 'About ReLeaf',
+              title: t_aboutReleaf,
               icon: Icons.eco_rounded,
               showBackButton: true,
               showNotifications: false,
@@ -67,7 +99,12 @@ class AboutReLeafPage extends StatelessWidget {
             ),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
+                padding: const EdgeInsets.fromLTRB(
+                  16,
+                  20,
+                  16,
+                  100,
+                ),
                 child: Column(
                   children: [
                     Container(
@@ -108,7 +145,7 @@ class AboutReLeafPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Smart Waste Classification & Recycling Assistant',
+                      t_subtitle,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: subTextColor,
@@ -118,10 +155,9 @@ class AboutReLeafPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
                     _aboutCard(
-                      title: 'What is ReLeaf?',
+                      title: t_whatTitle,
                       icon: Icons.info_outline_rounded,
-                      text:
-                          'ReLeaf is a smart recycling application designed to help users classify waste items, understand how to recycle them, and find nearby recycling bins or locations.',
+                      text: t_whatText,
                       cardBg: cardBg,
                       iconBoxBg: iconBoxBg,
                       titleColor: titleColor,
@@ -131,10 +167,9 @@ class AboutReLeafPage extends StatelessWidget {
                       isDark: isDark,
                     ),
                     _aboutCard(
-                      title: 'Main Features',
+                      title: t_featuresTitle,
                       icon: Icons.star_outline_rounded,
-                      text:
-                          'The app includes image-based waste classification, recycling guidance, nearby bin locations, and a smart assistant that answers recycling-related questions.',
+                      text: t_featuresText,
                       cardBg: cardBg,
                       iconBoxBg: iconBoxBg,
                       titleColor: titleColor,
@@ -144,13 +179,11 @@ class AboutReLeafPage extends StatelessWidget {
                       isDark: isDark,
                     ),
                     _aboutCard(
-                      title: isAdmin ? 'Admin Role' : 'User Experience',
+                      title: t_roleTitle,
                       icon: isAdmin
                           ? Icons.admin_panel_settings_outlined
                           : Icons.person_outline_rounded,
-                      text: isAdmin
-                          ? 'Admins can manage users, recycling bins, reported issues, and review app activity to keep the system organized and reliable.'
-                          : 'Users can classify waste, explore recycling options, report issues, and access helpful information through the app.',
+                      text: t_roleText,
                       cardBg: cardBg,
                       iconBoxBg: iconBoxBg,
                       titleColor: titleColor,
@@ -160,10 +193,9 @@ class AboutReLeafPage extends StatelessWidget {
                       isDark: isDark,
                     ),
                     _aboutCard(
-                      title: 'Our Goal',
+                      title: t_goalTitle,
                       icon: Icons.public_rounded,
-                      text:
-                          'Our goal is to encourage better recycling habits and make waste sorting easier through technology, artificial intelligence, and accessible recycling information.',
+                      text: t_goalText,
                       cardBg: cardBg,
                       iconBoxBg: iconBoxBg,
                       titleColor: titleColor,
@@ -174,7 +206,7 @@ class AboutReLeafPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Version 1.0.0',
+                      t_version,
                       style: TextStyle(
                         color: subTextColor,
                         fontSize: 13,
@@ -218,7 +250,9 @@ class AboutReLeafPage extends StatelessWidget {
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.22 : 0.07),
+            color: Colors.black.withOpacity(
+              isDark ? 0.22 : 0.07,
+            ),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

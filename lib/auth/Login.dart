@@ -11,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:releaf_app/admin/widgets/admin_background.dart';
+import 'package:releaf_app/main.dart';
 import '../admin/screens/home/AdminHomePage.dart';
 
 class LoginPage extends StatefulWidget {
@@ -58,11 +59,8 @@ class _LoginPageState extends State<LoginPage> {
   bool rememberMe = false;
   String? adminName;
 
-  String get titleText {
-    return widget.isAdminMode ? 'Admin Login' : 'User Login';
-  }
-
   bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
   Color get titleColor =>
       isDark ? const Color(0xFF8BC99B) : const Color(0xFF498056);
 
@@ -83,6 +81,58 @@ class _LoginPageState extends State<LoginPage> {
 
   Color get linkColor =>
       isDark ? const Color(0xFF9CBFE6) : const Color(0xFF4676AE);
+
+  String _t(String key, bool isArabic) {
+    final en = {
+      'adminLogin': 'Admin Login',
+      'userLogin': 'User Login',
+      'email': 'Email Address',
+      'password': 'Password',
+      'rememberMe': 'Remember me',
+      'login': 'Login',
+      'forgotPassword': 'Forgot Password?',
+      'signup': 'Don’t have an account? Sign up',
+      'fillFields': 'Please fill in all fields',
+      'validEmail': 'Please enter a valid email address',
+      'adminOnly': 'This page is for admin email only',
+      'adminFromAdmin': 'Admin accounts must log in from Admin Login',
+      'userNotFound': 'User data not found. Please contact support.',
+      'verifyEmail': 'Please verify your email first',
+      'blockedTitle': 'Account Blocked',
+      'blockedContent':
+          'Your account has been blocked.\nPlease contact support via WhatsApp.',
+      'cancel': 'Cancel',
+      'whatsapp': 'WhatsApp',
+      'notAdmin': 'This account is not registered as admin',
+      'adminUseLogin': 'This account is admin, please use Admin Login',
+    };
+
+    final ar = {
+      'adminLogin': 'تسجيل دخول المسؤول',
+      'userLogin': 'تسجيل دخول المستخدم',
+      'email': 'البريد الإلكتروني',
+      'password': 'كلمة المرور',
+      'rememberMe': 'تذكرني',
+      'login': 'تسجيل الدخول',
+      'forgotPassword': 'نسيت كلمة المرور؟',
+      'signup': 'ليس لديك حساب؟ إنشاء حساب',
+      'fillFields': 'يرجى تعبئة جميع الحقول',
+      'validEmail': 'يرجى إدخال بريد إلكتروني صحيح',
+      'adminOnly': 'هذه الصفحة مخصصة لبريد المسؤول فقط',
+      'adminFromAdmin': 'حسابات المسؤول يجب تسجيل دخولها من صفحة المسؤول',
+      'userNotFound':
+          'لم يتم العثور على بيانات المستخدم. يرجى التواصل مع الدعم.',
+      'verifyEmail': 'يرجى تفعيل بريدك الإلكتروني أولًا',
+      'blockedTitle': 'الحساب محظور',
+      'blockedContent': 'تم حظر حسابك.\nيرجى التواصل مع الدعم عبر واتساب.',
+      'cancel': 'إلغاء',
+      'whatsapp': 'واتساب',
+      'notAdmin': 'هذا الحساب غير مسجل كمسؤول',
+      'adminUseLogin': 'هذا الحساب مسؤول، يرجى استخدام تسجيل دخول المسؤول',
+    };
+
+    return isArabic ? ar[key]! : en[key]!;
+  }
 
   @override
   void initState() {
@@ -154,29 +204,29 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  Future<void> _signIn() async {
+  Future<void> _signIn(bool isArabic) async {
     final email = emailController.text.trim().toLowerCase();
     final password = passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      _showMessage('Please fill in all fields');
+      _showMessage(_t('fillFields', isArabic));
       return;
     }
 
     if (!_isValidEmail(email)) {
-      _showMessage('Please enter a valid email address');
+      _showMessage(_t('validEmail', isArabic));
       return;
     }
 
     final bool isAdminEmail = email.endsWith('@releaf.com');
 
     if (widget.isAdminMode && !isAdminEmail) {
-      _showMessage('This page is for admin email only');
+      _showMessage(_t('adminOnly', isArabic));
       return;
     }
 
     if (!widget.isAdminMode && isAdminEmail) {
-      _showMessage('Admin accounts must log in from Admin Login');
+      _showMessage(_t('adminFromAdmin', isArabic));
       return;
     }
 
@@ -190,16 +240,15 @@ class _LoginPageState extends State<LoginPage> {
 
       if (userData == null) {
         await FirebaseAuth.instance.signOut();
-        _showMessage('User data not found. Please contact support.');
+        _showMessage(_t('userNotFound', isArabic));
         return;
       }
 
       final user = FirebaseAuth.instance.currentUser;
-// Email verification is required for users only, not admins.
+
       if (!widget.isAdminMode && user != null && !user.emailVerified) {
         await FirebaseAuth.instance.signOut();
-
-        _showMessage('Please verify your email first');
+        _showMessage(_t('verifyEmail', isArabic));
         return;
       }
 
@@ -215,18 +264,16 @@ class _LoginPageState extends State<LoginPage> {
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            title: const Text('Account Blocked'),
-            content: const Text(
-              'Your account has been blocked.\nPlease contact support via WhatsApp.',
-            ),
+            title: Text(_t('blockedTitle', isArabic)),
+            content: Text(_t('blockedContent', isArabic)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(_t('cancel', isArabic)),
               ),
               TextButton(
                 onPressed: openWhatsAppSupport,
-                child: const Text('WhatsApp'),
+                child: Text(_t('whatsapp', isArabic)),
               ),
             ],
           ),
@@ -239,12 +286,12 @@ class _LoginPageState extends State<LoginPage> {
       final name = (userData['name'] ?? '').toString();
 
       if (widget.isAdminMode && role != 'admin') {
-        _showMessage('This account is not registered as admin');
+        _showMessage(_t('notAdmin', isArabic));
         return;
       }
 
       if (!widget.isAdminMode && role == 'admin') {
-        _showMessage('This account is admin, please use Admin Login');
+        _showMessage(_t('adminUseLogin', isArabic));
         return;
       }
 
@@ -338,9 +385,9 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildRememberMe() {
+  Widget _buildRememberMe(bool isArabic) {
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: isArabic ? Alignment.centerRight : Alignment.centerLeft,
       child: InkWell(
         onTap: () {
           setState(() {
@@ -379,7 +426,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(width: 10),
               Text(
-                'Remember me',
+                _t('rememberMe', isArabic),
                 style: TextStyle(
                   color: subTextColor,
                   fontSize: 14,
@@ -414,137 +461,143 @@ class _LoginPageState extends State<LoginPage> {
     return AppBackground(child: child);
   }
 
-  Widget _buildLoginContent() {
+  Widget _buildLoginContent(bool isArabic) {
     return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 24,
-          vertical: 16,
-        ),
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: IconButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const WelcomeScreen(),
-                    ),
-                  );
-                },
-                icon: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  size: 22,
-                  color: textColor,
+      child: Directionality(
+        textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 16,
+          ),
+          child: Column(
+            children: [
+              Align(
+                alignment:
+                    isArabic ? Alignment.centerRight : Alignment.centerLeft,
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const WelcomeScreen(),
+                      ),
+                    );
+                  },
+                  icon: Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    size: 22,
+                    color: textColor,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              titleText,
-              style: TextStyle(
-                color: titleColor,
-                fontSize: 30,
-                fontWeight: FontWeight.w700,
+              const SizedBox(height: 4),
+              Text(
+                widget.isAdminMode
+                    ? _t('adminLogin', isArabic)
+                    : _t('userLogin', isArabic),
+                style: TextStyle(
+                  color: titleColor,
+                  fontSize: 30,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-            const SizedBox(height: 18),
-            Image.asset(
-              'assets/images/Releaf_logo.png',
-              height: widget.isAdminMode ? 130 : 125,
-            ),
-            const SizedBox(height: 70),
-            AuthCard(
-              child: Column(
-                children: [
-                  _buildTextField(
-                    controller: emailController,
-                    hintText: 'Email Address',
-                    keyboardType: TextInputType.emailAddress,
-                    prefixIcon: Icon(
-                      Icons.email_outlined,
-                      color: primaryGreen,
-                    ),
-                    onChanged: (value) => _checkAdminName(value),
-                  ),
-                  _buildTextField(
-                    controller: passwordController,
-                    hintText: 'Password',
-                    obscureText: obscurePassword,
-                    prefixIcon: Icon(
-                      Icons.lock_outline,
-                      color: primaryGreen,
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        obscurePassword
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: subTextColor,
+              const SizedBox(height: 18),
+              Image.asset(
+                'assets/images/Releaf_logo.png',
+                height: widget.isAdminMode ? 130 : 125,
+              ),
+              const SizedBox(height: 70),
+              AuthCard(
+                child: Column(
+                  children: [
+                    _buildTextField(
+                      controller: emailController,
+                      hintText: _t('email', isArabic),
+                      keyboardType: TextInputType.emailAddress,
+                      prefixIcon: Icon(
+                        Icons.email_outlined,
+                        color: primaryGreen,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          obscurePassword = !obscurePassword;
-                        });
-                      },
+                      onChanged: (value) => _checkAdminName(value),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  _buildRememberMe(),
-                  const SizedBox(height: 18),
-                  CustomButton(
-                    text: 'Login',
-                    isLoading: isLoading,
-                    onTap: _signIn,
-                  ),
-                  if (!widget.isAdminMode)
-                    Align(
-                      alignment: Alignment.center,
-                      child: TextButton(
+                    _buildTextField(
+                      controller: passwordController,
+                      hintText: _t('password', isArabic),
+                      obscureText: obscurePassword,
+                      prefixIcon: Icon(
+                        Icons.lock_outline,
+                        color: primaryGreen,
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: subTextColor,
+                        ),
                         onPressed: () {
+                          setState(() {
+                            obscurePassword = !obscurePassword;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    _buildRememberMe(isArabic),
+                    const SizedBox(height: 18),
+                    CustomButton(
+                      text: _t('login', isArabic),
+                      isLoading: isLoading,
+                      onTap: () => _signIn(isArabic),
+                    ),
+                    if (!widget.isAdminMode)
+                      Align(
+                        alignment: Alignment.center,
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const ForgotPasswordPage(),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            _t('forgotPassword', isArabic),
+                            style: TextStyle(
+                              color: linkColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (!widget.isAdminMode) ...[
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const ForgotPasswordPage(),
+                              builder: (_) => const SignUp(),
                             ),
                           );
                         },
                         child: Text(
-                          'Forgot Password?',
+                          _t('signup', isArabic),
                           style: TextStyle(
                             color: linkColor,
-                            fontSize: 14,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                    ),
-                  if (!widget.isAdminMode) ...[
-                    const SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const SignUp(),
-                          ),
-                        );
-                      },
-                      child: Text(
-                        'Don’t have an account? Sign up',
-                        style: TextStyle(
-                          color: linkColor,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -552,37 +605,47 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        scaffoldBackgroundColor:
-            isDark ? const Color(0xFF1F2A23) : Colors.white,
-        textTheme: Theme.of(context).textTheme.apply(),
-      ),
-      child: Scaffold(
-        body: Stack(
-          children: [
-            if (!widget.isAdminMode)
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: SizedBox(
-                  height: 260,
-                  width: double.infinity,
-                  child: ClipPath(
-                    clipper: BottomWaveClipper(),
-                    child: Container(
-                      color: isDark
-                          ? const Color(0xFF3E5A42)
-                          : const Color(0xFFB7D98A),
-                    ),
-                  ),
-                ),
-              ),
-            _buildBackground(
-              child: _buildLoginContent(),
+    return ValueListenableBuilder<Locale>(
+      valueListenable: localeNotifier,
+      builder: (context, locale, _) {
+        final isArabic = locale.languageCode == 'ar';
+
+        return Directionality(
+          textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              scaffoldBackgroundColor:
+                  isDark ? const Color(0xFF1F2A23) : Colors.white,
+              textTheme: Theme.of(context).textTheme.apply(),
             ),
-          ],
-        ),
-      ),
+            child: Scaffold(
+              body: Stack(
+                children: [
+                  if (!widget.isAdminMode)
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: SizedBox(
+                        height: 260,
+                        width: double.infinity,
+                        child: ClipPath(
+                          clipper: BottomWaveClipper(),
+                          child: Container(
+                            color: isDark
+                                ? const Color(0xFF3E5A42)
+                                : const Color(0xFFB7D98A),
+                          ),
+                        ),
+                      ),
+                    ),
+                  _buildBackground(
+                    child: _buildLoginContent(isArabic),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:releaf_app/l10n/app_localizations.dart';
 
 import '../../widgets/AdminBar.dart';
 import '../../widgets/admin_background.dart';
 
 class AdminReportIssue extends StatefulWidget {
-  const AdminReportIssue({super.key});
+  final String? selectedIssueId;
+
+  const AdminReportIssue({
+    super.key,
+    this.selectedIssueId,
+  });
 
   @override
   State<AdminReportIssue> createState() => _AdminReportIssueState();
@@ -13,7 +19,7 @@ class AdminReportIssue extends StatefulWidget {
 
 class _AdminReportIssueState extends State<AdminReportIssue> {
   String _selectedFilter = 'All';
-  String? _expandedIssueId;
+  late String? _expandedIssueId;
 
   final Map<String, TextEditingController> _commentControllers = {};
   final Map<String, bool> _fixedValues = {};
@@ -24,6 +30,12 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
   static const Color border = Color(0xFFDCE8D7);
   static const Color textDark = Color(0xFF2F5D50);
   static const Color textMedium = Color(0xFF4E6A57);
+
+  @override
+  void initState() {
+    super.initState();
+    _expandedIssueId = widget.selectedIssueId;
+  }
 
   bool get isDark => Theme.of(context).brightness == Brightness.dark;
 
@@ -56,6 +68,38 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
 
   String _getStatus(Map<String, dynamic> issue) {
     return (issue['status'] ?? 'unread').toString().toLowerCase();
+  }
+
+  String _filterLabel(String value) {
+    final loc = AppLocalizations.of(context)!;
+
+    switch (value) {
+      case 'All':
+        return loc.adminAll;
+      case 'Unread':
+        return loc.adminUnread;
+      case 'Read':
+        return loc.adminRead;
+      case 'Fixed':
+        return loc.adminFixed;
+      default:
+        return value;
+    }
+  }
+
+  String _statusLabel(String status) {
+    final loc = AppLocalizations.of(context)!;
+
+    switch (status) {
+      case 'unread':
+        return loc.adminUnread;
+      case 'read':
+        return loc.adminRead;
+      case 'fixed':
+        return loc.adminFixed;
+      default:
+        return status;
+    }
   }
 
   List<QueryDocumentSnapshot<Map<String, dynamic>>> _filterIssues(
@@ -97,11 +141,14 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
           .update({
         'status': 'read',
         'readAt': FieldValue.serverTimestamp(),
+        'isRead': 'true',
       });
     }
   }
 
   Future<void> _saveIssueUpdate(String issueId) async {
+    final loc = AppLocalizations.of(context)!;
+
     final comment = _commentControllers[issueId]?.text.trim() ?? '';
     final isFixed = _fixedValues[issueId] ?? false;
 
@@ -109,6 +156,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
       'adminComment': comment,
       'isFixed': isFixed,
       'status': isFixed ? 'fixed' : 'read',
+      'isRead': 'true',
       'updatedAt': FieldValue.serverTimestamp(),
       if (isFixed) 'fixedAt': FieldValue.serverTimestamp(),
     });
@@ -116,13 +164,15 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Issue update saved'),
+      SnackBar(
+        content: Text(loc.adminIssueUpdateSaved),
       ),
     );
   }
 
   Widget _topBar() {
+    final loc = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
       decoration: BoxDecoration(
@@ -151,22 +201,22 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Direct Reporting',
-                  style: TextStyle(
+                  loc.adminDirectReporting,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 2),
+                const SizedBox(height: 2),
                 Text(
-                  'Review user issue reports',
-                  style: TextStyle(
+                  loc.adminReviewIssueReports,
+                  style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 14,
                   ),
@@ -205,7 +255,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
           ],
         ),
         child: Text(
-          text,
+          _filterLabel(text),
           style: TextStyle(
             color: selected ? primary : subTextColor,
             fontSize: 12,
@@ -220,6 +270,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
     String issueId,
     Map<String, dynamic> issue,
   ) {
+    final loc = AppLocalizations.of(context)!;
     final status = _getStatus(issue);
     final isExpanded = _expandedIssueId == issueId;
 
@@ -241,7 +292,10 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
         decoration: BoxDecoration(
           color: cardBg,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: borderColor),
+          border: Border.all(
+            color: isExpanded ? primary : borderColor,
+            width: isExpanded ? 1.4 : 1,
+          ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(isDark ? 0.22 : 0.05),
@@ -283,7 +337,9 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        issue['details']?.toString() ?? '',
+                        issue['details']?.toString() ??
+                            issue['description']?.toString() ??
+                            '',
                         style: TextStyle(
                           color: subTextColor,
                           fontSize: 13.5,
@@ -344,7 +400,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                   fontWeight: FontWeight.w600,
                 ),
                 decoration: InputDecoration(
-                  hintText: 'Add admin comment...',
+                  hintText: loc.adminAddAdminComment,
                   hintStyle: TextStyle(color: hintColor),
                   filled: true,
                   fillColor: inputBg,
@@ -378,7 +434,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                     },
                   ),
                   Text(
-                    'Fixed',
+                    loc.adminFixed,
                     style: TextStyle(
                       color: titleColor,
                       fontSize: 14,
@@ -400,9 +456,9 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      'Save',
-                      style: TextStyle(
+                    child: Text(
+                      loc.save,
+                      style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -434,7 +490,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
         ),
       ),
       child: Text(
-        status,
+        _statusLabel(status),
         style: TextStyle(
           color: isFixed ? primary : titleColor,
           fontSize: 10,
@@ -449,11 +505,14 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
     for (final controller in _commentControllers.values) {
       controller.dispose();
     }
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
+
     return AdminBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -494,7 +553,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                             if (snapshot.hasError) {
                               return Center(
                                 child: Text(
-                                  'Failed to load issue reports',
+                                  loc.adminFailedToLoadIssueReports,
                                   style: TextStyle(
                                     color: subTextColor,
                                     fontSize: 16,
@@ -510,7 +569,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                             if (issues.isEmpty) {
                               return Center(
                                 child: Text(
-                                  'No issue reports found',
+                                  loc.adminNoIssueReportsFound,
                                   style: TextStyle(
                                     color: subTextColor,
                                     fontSize: 16,

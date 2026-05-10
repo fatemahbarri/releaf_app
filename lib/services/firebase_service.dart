@@ -259,6 +259,7 @@ class FirebaseService {
       'status': 'pending',
       'adminReply': '',
       'isReadByUser': false,
+      'isRead': false,
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });

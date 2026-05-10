@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
+import 'package:releaf_app/l10n/app_localizations.dart';
 
 import '../../widgets/AdminBar.dart';
 import '../../widgets/admin_background.dart';
@@ -88,7 +89,9 @@ class _AdminEditUserState extends State<AdminEditUser> {
 
     if (docId == null || docId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User ID not found')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.adminEditUserIdNotFound),
+        ),
       );
       return;
     }
@@ -101,7 +104,9 @@ class _AdminEditUserState extends State<AdminEditUser> {
 
     if (firstName.isEmpty || email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('First name and email are required')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.adminEditUserRequiredFields),
+        ),
       );
       return;
     }
@@ -118,7 +123,9 @@ class _AdminEditUserState extends State<AdminEditUser> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User updated successfully')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.adminEditUserUpdated),
+        ),
       );
 
       Navigator.pop(context);
@@ -126,7 +133,11 @@ class _AdminEditUserState extends State<AdminEditUser> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update user: $e')),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.adminEditUserFailedUpdate(e.toString()),
+          ),
+        ),
       );
     } finally {
       if (mounted) setState(() => isSaving = false);
@@ -138,8 +149,13 @@ class _AdminEditUserState extends State<AdminEditUser> {
         '${firstNameController.text.trim()} ${lastNameController.text.trim()}'
             .trim();
 
-    final actionText = status == 'Blocked' ? 'unblock' : 'block';
-    final displayName = userName.isEmpty ? 'this user' : userName;
+    final actionText = status == 'Blocked'
+    ? AppLocalizations.of(context)!.adminEditUserUnblockAction
+    : AppLocalizations.of(context)!.adminEditUserBlockAction;
+
+    final displayName = userName.isEmpty
+        ? AppLocalizations.of(context)!.adminEditUserThisUser
+        : userName;
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -150,21 +166,22 @@ class _AdminEditUserState extends State<AdminEditUser> {
             borderRadius: BorderRadius.circular(18),
           ),
           title: Text(
-            'Confirm Action',
+            AppLocalizations.of(context)!.adminEditUserConfirmAction,
             style: TextStyle(
               color: titleColor,
               fontWeight: FontWeight.bold,
             ),
           ),
           content: Text(
-            'Are you sure you want to $actionText $displayName?',
+            AppLocalizations.of(context)!
+                .adminEditUserConfirmBlock(actionText, displayName),
             style: TextStyle(color: subTextColor),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
               child: Text(
-                'Cancel',
+                AppLocalizations.of(context)!.cancel,
                 style: TextStyle(color: subTextColor),
               ),
             ),
@@ -174,9 +191,9 @@ class _AdminEditUserState extends State<AdminEditUser> {
                 backgroundColor:
                     status == 'Blocked' ? AdminTheme.primary : AdminTheme.error,
               ),
-              child: const Text(
-                'Confirm',
-                style: TextStyle(color: Colors.white),
+              child: Text(
+                AppLocalizations.of(context)!.adminEditUserConfirm,
+                style: const TextStyle(color: Colors.white),
               ),
             ),
           ],
@@ -194,8 +211,10 @@ class _AdminEditUserState extends State<AdminEditUser> {
 
     if (docId == null || docId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User ID not found')),
-      );
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.adminEditUserIdNotFound),
+        ),
+              );
       return;
     }
 
@@ -218,8 +237,8 @@ class _AdminEditUserState extends State<AdminEditUser> {
         SnackBar(
           content: Text(
             status == 'Blocked'
-                ? 'User has been blocked'
-                : 'User has been unblocked',
+                ? AppLocalizations.of(context)!.adminEditUserBlockedMsg
+                : AppLocalizations.of(context)!.adminEditUserUnblockedMsg,
           ),
         ),
       );
@@ -227,7 +246,11 @@ class _AdminEditUserState extends State<AdminEditUser> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update user status: $e')),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.adminEditUserFailedStatus(e.toString()),
+          ),
+        ),
       );
     } finally {
       if (mounted) setState(() => isBlocking = false);
@@ -324,13 +347,13 @@ class _AdminEditUserState extends State<AdminEditUser> {
                         strokeWidth: 2.5,
                       ),
                     )
-                  : const Text(
-                      'Save',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                  : Text(
+                        AppLocalizations.of(context)!.adminEditUserSave,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
             ),
           ),
           const SizedBox(width: 12),
@@ -355,7 +378,9 @@ class _AdminEditUserState extends State<AdminEditUser> {
                       ),
                     )
                   : Text(
-                      status == 'Blocked' ? 'Unblock' : 'Block',
+                      status == 'Blocked' 
+                      ? AppLocalizations.of(context)!.adminEditUserUnblock
+                      : AppLocalizations.of(context)!.adminEditUserBlock,
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -383,7 +408,7 @@ class _AdminEditUserState extends State<AdminEditUser> {
             child: Column(
               children: [
                 AppTopBar(
-                  title: 'Edit User',
+                  title: AppLocalizations.of(context)!.adminEditUserTitle,
                   icon: Icons.person,
                   showBackButton: true,
                   showNotifications: false,
@@ -396,7 +421,9 @@ class _AdminEditUserState extends State<AdminEditUser> {
                 _buildAvatar(),
                 const SizedBox(height: 16),
                 Text(
-                  fullName.isEmpty ? 'User Profile' : fullName,
+                  fullName.isEmpty 
+                  ? AppLocalizations.of(context)!.adminEditUserProfile
+                  : fullName,
                   style: TextStyle(
                     color: titleColor,
                     fontSize: 22,
@@ -406,19 +433,19 @@ class _AdminEditUserState extends State<AdminEditUser> {
                 const SizedBox(height: 20),
                 _buildField(
                   controller: firstNameController,
-                  hintText: 'First name',
+                  hintText: AppLocalizations.of(context)!.adminEditUserFirstName,
                 ),
                 _buildField(
                   controller: lastNameController,
-                  hintText: 'Second name',
+                  hintText: AppLocalizations.of(context)!.adminEditUserSecondName,
                 ),
                 _buildField(
                   controller: usernameController,
-                  hintText: 'Username',
+                  hintText: AppLocalizations.of(context)!.adminEditUserUsername,
                 ),
                 _buildField(
                   controller: emailController,
-                  hintText: 'Email',
+                  hintText: AppLocalizations.of(context)!.adminEditUserEmail,
                 ),
                 const SizedBox(height: 20),
                 _buttonsRow(),

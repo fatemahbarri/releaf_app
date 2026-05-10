@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
+import 'package:releaf_app/l10n/app_localizations.dart';
 
 import '../../widgets/AdminBar.dart';
 import '../../widgets/admin_background.dart';
@@ -105,7 +106,8 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
       if (!mounted) return;
 
       setState(() {
-        errorMessage = 'Failed to fetch users: $e';
+        errorMessage =  
+        AppLocalizations.of(context)!.adminUsersFailedFetch(e.toString());
         isLoading = false;
       });
     }
@@ -127,7 +129,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
           query.isEmpty || name.contains(query) || email.contains(query);
 
       final matchesFilter = selectedFilter == 'All Users' ||
-          status == selectedFilter.toLowerCase();
+        status == selectedFilter.toLowerCase();
 
       return matchesSearch && matchesFilter;
     }).toList();
@@ -145,7 +147,20 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
       applyFilters();
     });
   }
+  String _translateFilter(String filter) {
+    final l10n = AppLocalizations.of(context)!;
 
+    switch (filter) {
+      case 'All Users':
+        return l10n.adminUsersAllFilter;
+      case 'Active':
+        return l10n.adminUsersActiveFilter;
+      case 'Blocked':
+        return l10n.adminUsersBlockedFilter;
+      default:
+        return filter;
+    }
+  }
   void showFilterMenu(BuildContext context) async {
     final RenderBox button = context.findRenderObject() as RenderBox;
     final RenderBox overlay =
@@ -182,7 +197,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
     return PopupMenuItem(
       value: value,
       child: Text(
-        value,
+         _translateFilter(value),
         style: TextStyle(
           color: isSelected ? AdminTheme.primary : titleColor,
           fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
@@ -203,7 +218,6 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
   Color _statusColor(String status) {
     if (status == 'Active') return AdminTheme.success;
     if (status == 'Blocked') return AdminTheme.error;
-    if (status == 'Inactive') return const Color(0xFFE47D0F);
     return const Color(0xFF9E9E9E);
   }
 
@@ -248,7 +262,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                             fontWeight: FontWeight.w600,
                           ),
                           decoration: InputDecoration(
-                            hintText: 'Search User',
+                            hintText: AppLocalizations.of(context)!.adminUsersSearchHint,
                             hintStyle: TextStyle(
                               color: hintColor,
                               fontSize: 16,
@@ -285,7 +299,9 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'Filter: $selectedFilter',
+              AppLocalizations.of(context)!.adminUsersFilterLabel(
+                _translateFilter(selectedFilter),
+              ),
               style: TextStyle(
                 color: subTextColor,
                 fontSize: 14,
@@ -359,7 +375,9 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    _buildStatusButton(user['status'] ?? 'Active'),
+                    _buildStatusButton(
+                      user['status'] ?? AppLocalizations.of(context)!.adminUsersActiveFilter,
+                      ),
                   ],
                 ),
               ),
@@ -410,7 +428,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
         ],
       ),
       child: Text(
-        status,
+        _translateFilter(status),
         textAlign: TextAlign.center,
         style: const TextStyle(
           color: Colors.white,
@@ -431,7 +449,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
           child: Column(
             children: [
               AppTopBar(
-                title: 'Users Management',
+                title: AppLocalizations.of(context)!.adminUsersManagementTitle,
                 icon: Icons.group_rounded,
                 showNotifications: false,
                 gradientColors: [
@@ -470,7 +488,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                                             const SizedBox(height: 180),
                                             Center(
                                               child: Text(
-                                                'No users found',
+                                                AppLocalizations.of(context)!.adminUsersNoUsersFound,
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w600,
