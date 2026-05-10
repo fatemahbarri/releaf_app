@@ -102,6 +102,43 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
     }
   }
 
+  String _translateIssueTitle(String title) {
+    final loc = AppLocalizations.of(context)!;
+
+    switch (title.trim()) {
+      case 'Incorrect classification result':
+        return loc.issue1;
+
+      case 'Wrong chatbot response':
+        return loc.issue2;
+
+      case 'App crash or feature not working':
+        return loc.issue3;
+
+      case 'Incorrect or missing recycling location':
+        return loc.issue4;
+
+      case 'Login or account issue':
+        return loc.issue5;
+
+      case 'Other':
+        return loc.issue6;
+
+      default:
+        return title;
+    }
+  }
+
+  String _translateDetails(String details) {
+    final loc = AppLocalizations.of(context)!;
+
+    if (details.trim() == 'No additional details provided.') {
+      return loc.noDetails;
+    }
+
+    return details;
+  }
+
   List<QueryDocumentSnapshot<Map<String, dynamic>>> _filterIssues(
     List<QueryDocumentSnapshot<Map<String, dynamic>>> issues,
   ) {
@@ -135,10 +172,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
     });
 
     if (status == 'unread') {
-      await FirebaseFirestore.instance
-          .collection('issues')
-          .doc(issueId)
-          .update({
+      await FirebaseFirestore.instance.collection('issues').doc(issueId).update({
         'status': 'read',
         'readAt': FieldValue.serverTimestamp(),
         'isRead': 'true',
@@ -274,6 +308,19 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
     final status = _getStatus(issue);
     final isExpanded = _expandedIssueId == issueId;
 
+    final rawTitle =
+        issue['title']?.toString() ?? issue['type']?.toString() ?? '';
+
+    final rawDetails = issue['details']?.toString() ??
+        issue['description']?.toString() ??
+        '';
+
+    final translatedTitle = rawTitle.isEmpty
+        ? loc.complaint
+        : _translateIssueTitle(rawTitle);
+
+    final translatedDetails = _translateDetails(rawDetails);
+
     _commentControllers.putIfAbsent(
       issueId,
       () => TextEditingController(
@@ -328,7 +375,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        issue['type']?.toString() ?? '',
+                        translatedTitle,
                         style: TextStyle(
                           color: titleColor,
                           fontSize: 16,
@@ -337,9 +384,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        issue['details']?.toString() ??
-                            issue['description']?.toString() ??
-                            '',
+                        translatedDetails,
                         style: TextStyle(
                           color: subTextColor,
                           fontSize: 13.5,
