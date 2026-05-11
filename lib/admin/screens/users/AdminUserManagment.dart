@@ -47,7 +47,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
   @override
   void initState() {
     super.initState();
-    selectedFilter = widget.initialFilter;
+    selectedFilter = _normalizeFilter(widget.initialFilter);
     fetchUsers();
   }
 
@@ -143,24 +143,49 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
 
   void updateFilter(String filter) {
     setState(() {
-      selectedFilter = filter;
+      selectedFilter = _normalizeFilter(filter);
       applyFilters();
     });
   }
-  String _translateFilter(String filter) {
-    final l10n = AppLocalizations.of(context)!;
+  
 
-    switch (filter) {
-      case 'All Users':
-        return l10n.adminUsersAllFilter;
-      case 'Active':
-        return l10n.adminUsersActiveFilter;
-      case 'Blocked':
-        return l10n.adminUsersBlockedFilter;
-      default:
-        return filter;
-    }
+  String _normalizeFilter(String filter) {
+  if (filter == 'All Users' ||
+      filter == 'كل المستخدمين' ||
+      filter == 'المستخدمون') {
+    return 'All Users';
   }
+
+  if (filter == 'Active' ||
+      filter == 'نشط' ||
+      filter == 'المستخدمون النشطون') {
+    return 'Active';
+  }
+
+  if (filter == 'Blocked' ||
+      filter == 'محظور' ||
+      filter == 'المستخدمون المحظورون') {
+    return 'Blocked';
+  }
+
+  return 'All Users';
+}
+
+String _translateFilter(String filter) {
+  final l10n = AppLocalizations.of(context)!;
+
+  switch (filter) {
+    case 'All Users':
+      return l10n.adminUsersAllFilter;
+    case 'Active':
+      return l10n.adminUsersActiveFilter;
+    case 'Blocked':
+      return l10n.adminUsersBlockedFilter;
+    default:
+      return filter;
+  }
+}
+
   void showFilterMenu(BuildContext context) async {
     final RenderBox button = context.findRenderObject() as RenderBox;
     final RenderBox overlay =
@@ -375,9 +400,7 @@ class _AdminUserManagmentState extends State<AdminUserManagment> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    _buildStatusButton(
-                      user['status'] ?? AppLocalizations.of(context)!.adminUsersActiveFilter,
-                      ),
+                    _buildStatusButton(user['status'] ?? 'Active'),
                   ],
                 ),
               ),
