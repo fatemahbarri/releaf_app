@@ -131,7 +131,68 @@ Three approaches were tested:
 
 ## 📱 App Screenshots
 
-*(Add your screenshots here by uploading images and dragging them into this section)*
+### 🏠 Welcome & Authentication
+
+<p align="center">
+  <img src="assets/images/Welcome.png" width="250">
+  <img src="assets/images/sign up, login,password.png" width="250">
+</p>
+
+<p align="center">
+  <img src="assets/images/sign up, login,password2.png" width="250">
+  <img src="assets/images/Home.png" width="250">
+</p>
+
+> Users can create accounts, securely log in, and access a clean and user-friendly home interface.
+
+---
+
+### ♻️ Waste Classification & AI Assistant
+
+<p align="center">
+  <img src="assets/images/Classification.png" width="250">
+  <img src="assets/images/LLM.png" width="250">
+</p>
+
+> ReLeaf uses AI-powered image classification and an intelligent assistant to help users identify waste types and learn proper recycling practices.
+
+---
+
+### 📍 Recycling Bin Navigation
+
+<p align="center">
+  <img src="assets/images/Bins1.png" width="250">
+  <img src="assets/images/list of bins.png" width="250">
+</p>
+
+<p align="center">
+  <img src="assets/images/Location.png" width="250">
+  <img src="assets/images/Report issue.png" width="250">
+</p>
+
+> Users can explore nearby recycling bins, view locations through map interfaces, and report issues or incorrect information directly through the app.
+
+---
+
+### 🌍 Accessibility & User Experience
+
+<p align="center">
+  <img src="assets/images/Arabic.png" width="250">
+  <img src="assets/images/Drak mode.png" width="250">
+</p>
+
+> The application supports both Arabic and English languages, along with dark mode for a more comfortable and accessible user experience.
+
+---
+
+### 👤 Profile & About
+
+<p align="center">
+  <img src="assets/images/Profile.png" width="250">
+  <img src="assets/images/User-About releaf.png" width="250">
+</p>
+
+> Users can manage their profile information and learn more about ReLeaf’s mission and recycling awareness goals.
 
 ---
 
