@@ -510,6 +510,20 @@
       "type": "String"
     }
   }
-}
+},
+
+"incorrectClassificationResult": "نتيجة تصنيف غير صحيحة",
+"appCrashOrFeatureNotWorking": "تعطل التطبيق أو ميزة لا تعمل",
+"wrongChatbotResponse": "رد غير صحيح من المساعد الذكي",
+"read": "مقروء",
+"unread": "غير مقروء",
+"resolved": "تم الحل",
+"adminNotificationNoDetails": "لا توجد تفاصيل إضافية",
+
+"adminNavHome": "الرئيسية",
+"adminNavUsers": "المستخدمون",
+"adminNavBins": "الحاويات",
+"adminNavIssues": "الشكاوى",
+"adminNavProfile": "الملف الشخصي"
 
 }

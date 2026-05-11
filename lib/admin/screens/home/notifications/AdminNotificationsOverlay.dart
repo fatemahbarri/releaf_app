@@ -12,8 +12,54 @@ class AdminNotificationsOverlay extends StatelessWidget {
     required this.newNotifications,
   });
 
+  String _translateIssueType(AppLocalizations l10n, String type) {
+    final value = type.trim().toLowerCase();
+
+    switch (value) {
+      case 'incorrect classification result':
+        return l10n.incorrectClassificationResult;
+      case 'app crash or feature not working':
+        return l10n.appCrashOrFeatureNotWorking;
+      case 'wrong chatbot response':
+        return l10n.wrongChatbotResponse;
+      default:
+        return type.isEmpty ? l10n.adminNotificationDefaultReport : type;
+    }
+  }
+
+  String _translateStatus(AppLocalizations l10n, String status) {
+    final value = status.trim().toLowerCase();
+
+    switch (value) {
+      case 'pending':
+        return l10n.adminNotificationPendingStatus;
+      case 'read':
+        return l10n.read;
+      case 'unread':
+        return l10n.unread;
+      case 'resolved':
+      case 'fixed':
+        return l10n.resolved;
+      default:
+        return status.isEmpty ? l10n.adminNotificationPendingStatus : status;
+    }
+  }
+
+  String _translateDescription(AppLocalizations l10n, String description) {
+    final value = description.trim().toLowerCase();
+
+    if (value.isEmpty ||
+        value.contains('no additional details') ||
+        value.contains('no details')) {
+      return l10n.adminNotificationNoDetails;
+    }
+
+    return description;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final Color cardBg = isDark ? const Color(0xFF1F2D28) : Colors.white;
@@ -55,8 +101,7 @@ class AdminNotificationsOverlay extends StatelessWidget {
                         Icon(Icons.notifications_rounded, color: titleColor),
                         const SizedBox(width: 8),
                         Text(
-                          AppLocalizations.of(context)!
-                                .adminNotificationOverlayTitle,
+                          l10n.adminNotificationOverlayTitle,
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -89,11 +134,10 @@ class AdminNotificationsOverlay extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     newNotifications == 0
-                        ? AppLocalizations.of(context)!
-                                .adminNotificationNoReports
-                        : AppLocalizations.of(context)!
-                            .adminNotificationNewReportsCount(
-                                newNotifications),
+                        ? l10n.adminNotificationNoReports
+                        : l10n.adminNotificationNewReportsCount(
+                            newNotifications,
+                          ),
                     style: TextStyle(
                       fontSize: 14,
                       color: subText,
@@ -123,8 +167,7 @@ class AdminNotificationsOverlay extends StatelessWidget {
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         child: Text(
-                          AppLocalizations.of(context)!
-                              .adminNotificationEmpty,
+                          l10n.adminNotificationEmpty,
                           style: TextStyle(
                             color: subText,
                             fontSize: 14,
@@ -135,9 +178,7 @@ class AdminNotificationsOverlay extends StatelessWidget {
                     }
 
                     return ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxHeight: 420,
-                      ),
+                      constraints: const BoxConstraints(maxHeight: 420),
                       child: ListView.builder(
                         shrinkWrap: true,
                         itemCount: issues.length,
@@ -146,21 +187,21 @@ class AdminNotificationsOverlay extends StatelessWidget {
                           final issue = doc.data();
 
                           final String issueId = doc.id;
-                          final String type =
-                              (issue['type'] ?? 
-                                      AppLocalizations.of(context)!
-                                         .adminNotificationDefaultReport)
-                                  .toString();
-                          final String status =
-                              (issue['status'] ??
-                                  AppLocalizations.of(context)!
-                                      .adminNotificationPendingStatus)
-                                  .toString();
-                          final description =
-                              (issue['details'] ??
-                                      AppLocalizations.of(context)!
-                                          .adminNotificationNoDetails)
-                                  .toString();
+
+                          final String type = _translateIssueType(
+                            l10n,
+                            (issue['type'] ?? '').toString(),
+                          );
+
+                          final String status = _translateStatus(
+                            l10n,
+                            (issue['status'] ?? '').toString(),
+                          );
+
+                          final String description = _translateDescription(
+                            l10n,
+                            (issue['details'] ?? '').toString(),
+                          );
 
                           final String userName =
                               (issue['userName'] ?? 'User').toString();
@@ -170,9 +211,7 @@ class AdminNotificationsOverlay extends StatelessWidget {
                               await FirebaseFirestore.instance
                                   .collection('issues')
                                   .doc(issueId)
-                                  .update({
-                                'isRead': true,
-                              });
+                                  .update({'isRead': true});
 
                               Navigator.pop(context);
 
@@ -238,8 +277,9 @@ class AdminNotificationsOverlay extends StatelessWidget {
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
-                                          AppLocalizations.of(context)!
-                                              .adminNotificationFromUser(userName),
+                                          l10n.adminNotificationFromUser(
+                                            userName,
+                                          ),
                                           style: TextStyle(
                                             color: subText,
                                             fontSize: 12,

@@ -1961,7 +1961,7 @@ abstract class AppLocalizations {
   /// No description provided for @adminNotificationNoDetails.
   ///
   /// In en, this message translates to:
-  /// **'No details provided'**
+  /// **'No additional details provided'**
   String get adminNotificationNoDetails;
 
   /// No description provided for @adminUsersManagementTitle.
@@ -2143,6 +2143,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to update user status: {error}'**
   String adminEditUserFailedStatus(String error);
+
+  /// No description provided for @incorrectClassificationResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Incorrect classification result'**
+  String get incorrectClassificationResult;
+
+  /// No description provided for @appCrashOrFeatureNotWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'App crash or feature not working'**
+  String get appCrashOrFeatureNotWorking;
+
+  /// No description provided for @wrongChatbotResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong chatbot response'**
+  String get wrongChatbotResponse;
+
+  /// No description provided for @read.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get read;
+
+  /// No description provided for @unread.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get unread;
+
+  /// No description provided for @resolved.
+  ///
+  /// In en, this message translates to:
+  /// **'Resolved'**
+  String get resolved;
+
+  /// No description provided for @adminNavHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get adminNavHome;
+
+  /// No description provided for @adminNavUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get adminNavUsers;
+
+  /// No description provided for @adminNavBins.
+  ///
+  /// In en, this message translates to:
+  /// **'Bins'**
+  String get adminNavBins;
+
+  /// No description provided for @adminNavIssues.
+  ///
+  /// In en, this message translates to:
+  /// **'Issues'**
+  String get adminNavIssues;
+
+  /// No description provided for @adminNavProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get adminNavProfile;
 }
 
 class _AppLocalizationsDelegate
