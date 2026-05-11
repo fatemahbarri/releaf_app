@@ -50,39 +50,21 @@ class AboutReLeafPage extends StatelessWidget {
         ? const [Color(0xFF1B3A31), Color(0xFF2F5D50)]
         : [primary, secondary];
 
-    // ─── Texts ─────────────────────────────────────────────
-
-    final String t_aboutReleaf = isAdmin ? 'About ReLeaf' : l.aboutReleaf;
-
-    final String t_subtitle = isAdmin
-        ? 'Smart waste sorting and recycling assistant'
-        : l.aboutSubtitle;
-
-    final String t_version = isAdmin ? 'Version 1.0.0' : l.version;
-
-    final String t_whatTitle = isAdmin ? 'What is ReLeaf?' : l.whatTitle;
-
-    final String t_whatText = isAdmin
-        ? 'ReLeaf is a smart recycling application that helps users classify waste, find recycling bins, and get guidance for proper waste sorting.'
-        : l.whatText;
-
-    final String t_featuresTitle = isAdmin ? 'Main Features' : l.featuresTitle;
-
-    final String t_featuresText = isAdmin
-        ? 'The app includes waste image classification, recycling bin locations, chatbot assistance, issue reporting, and user progress tracking.'
-        : l.featuresText;
-
-    final String t_roleTitle = isAdmin ? 'Admin Role' : l.userRoleTitle;
-
-    final String t_roleText = isAdmin
-        ? 'Admins can manage users, recycling bins, reported issues, and review app activity to keep the system organized and reliable.'
-        : l.userRoleText;
-
-    final String t_goalTitle = isAdmin ? 'Project Goal' : l.goalTitle;
-
-    final String t_goalText = isAdmin
-        ? 'The goal of ReLeaf is to support sustainable recycling behavior by making waste sorting easier, faster, and more accessible.'
-        : l.goalText;
+    // ─── Admin texts ────────────────────────────────────────
+    final String t_aboutReleaf = isAdmin ? l.adminAboutReLeaf : l.aboutReleaf;
+    final String t_subtitle = isAdmin ? l.adminAboutSubtitle : l.aboutSubtitle;
+    final String t_version = isAdmin ? l.adminVersion : l.version;
+    final String t_whatTitle = isAdmin ? l.adminWhatTitle : l.whatTitle;
+    final String t_whatText = isAdmin ? l.adminWhatText : l.whatText;
+    final String t_featuresTitle =
+        isAdmin ? l.adminFeaturesTitle : l.featuresTitle;
+    final String t_featuresText =
+        isAdmin ? l.adminFeaturesText : l.featuresText;
+    final String t_roleTitle = isAdmin ? l.adminRoleTitle : l.userRoleTitle;
+    final String t_roleText = isAdmin ? l.adminRoleText : l.userRoleText;
+    final String t_goalTitle = isAdmin ? l.adminGoalTitle : l.goalTitle;
+    final String t_goalText = isAdmin ? l.adminGoalText : l.goalText;
+    // ────────────────────────────────────────────────────────
 
     final Widget page = Scaffold(
       backgroundColor: Colors.transparent,
@@ -99,12 +81,7 @@ class AboutReLeafPage extends StatelessWidget {
             ),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(
-                  16,
-                  20,
-                  16,
-                  100,
-                ),
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 100),
                 child: Column(
                   children: [
                     Container(
@@ -250,9 +227,7 @@ class AboutReLeafPage extends StatelessWidget {
         border: Border.all(color: borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(
-              isDark ? 0.22 : 0.07,
-            ),
+            color: Colors.black.withOpacity(isDark ? 0.22 : 0.07),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

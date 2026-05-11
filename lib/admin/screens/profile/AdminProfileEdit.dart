@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:releaf_app/l10n/app_localizations.dart';
 
 import '../../widgets/admin_background.dart';
 
@@ -48,11 +49,12 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
   }
 
   Future<void> _saveChanges() async {
+    final l10n = AppLocalizations.of(context)!;
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
 
     if (name.isEmpty || email.isEmpty) {
-      _showMessage('Please fill the required fields');
+      _showMessage(l10n.adminPleaseFillAllFields);
       return;
     }
 
@@ -81,7 +83,7 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
         'email': email,
       });
     } catch (_) {
-      _showMessage('Failed to update profile');
+      _showMessage(l10n.failedUpdate);
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -101,6 +103,8 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
   }
 
   Widget _topBar() {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 18),
       decoration: BoxDecoration(
@@ -144,10 +148,10 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
             ),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Text(
-              'Edit Profile',
-              style: TextStyle(
+              l10n.adminEditProfile,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -202,6 +206,8 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
   }
 
   Widget _saveButton() {
+    final l10n = AppLocalizations.of(context)!;
+
     return GestureDetector(
       onTap: _isLoading ? null : _saveChanges,
       child: Opacity(
@@ -218,9 +224,9 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
           ),
           child: _isLoading
               ? const CircularProgressIndicator(color: Colors.white)
-              : const Text(
-                  'Save Changes',
-                  style: TextStyle(
+              : Text(
+                  l10n.adminSaveChanges,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -240,6 +246,8 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return AdminBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -283,12 +291,12 @@ class _AdminProfileEditState extends State<AdminProfileEdit> {
                       const SizedBox(height: 28),
                       _buildInputField(
                         controller: _nameController,
-                        hint: 'Name',
+                        hint: l10n.firstName,
                         icon: Icons.person_outline,
                       ),
                       _buildInputField(
                         controller: _emailController,
-                        hint: 'Email',
+                        hint: l10n.email,
                         icon: Icons.email_outlined,
                       ),
                       const SizedBox(height: 16),

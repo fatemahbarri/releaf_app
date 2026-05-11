@@ -69,31 +69,29 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         ]
       : [primary, secondary];
 
-  String _t(String key, BuildContext context) {
-    final l = AppLocalizations.of(context)!;
+  // ─── Admin texts ────────────────────────────────────────────────────────────
+  String _adminText(String key, AppLocalizations l) {
+    final adminTexts = {
+      'changePassword': l.adminChangePassword,
+      'savePassword': l.savePassword,
+      'currentPassword': l.currentPassword,
+      'newPassword': l.newPassword,
+      'confirmPassword': l.confirmPassword,
+      'noUser': l.noUser,
+      'fillAll': l.fillAll,
+      'weakPassword': l.weakPassword,
+      'noMatch': l.noMatch,
+      'passwordSuccess': l.passwordSuccess,
+      'wrongPassword': l.wrongPassword,
+      'tooWeak': l.tooWeak,
+      'reloginPassword': l.reloginPassword,
+      'failedPassword': l.failedPassword,
+    };
+    return adminTexts[key]!;
+  }
 
-    if (widget.isAdmin) {
-      final adminTexts = {
-        'changePassword': 'Change Password',
-        'savePassword': 'Save Password',
-        'currentPassword': 'Current Password',
-        'newPassword': 'New Password',
-        'confirmPassword': 'Confirm New Password',
-        'noUser': 'No admin is logged in.',
-        'fillAll': 'Please fill all fields.',
-        'weakPassword':
-            'Password must be at least 8 characters and include uppercase, lowercase, and a number.',
-        'noMatch': 'Passwords do not match.',
-        'passwordSuccess': 'Password changed successfully.',
-        'wrongPassword': 'Current password is incorrect.',
-        'tooWeak': 'The new password is too weak.',
-        'reloginPassword': 'Please log in again, then try changing password.',
-        'failedPassword': 'Failed to change password.',
-      };
-
-      return adminTexts[key]!;
-    }
-
+  // ─── User texts ─────────────────────────────────────────────────────────────
+  String _userText(String key, AppLocalizations l) {
     final userTexts = {
       'changePassword': l.changePassword,
       'savePassword': l.savePassword,
@@ -110,9 +108,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       'reloginPassword': l.reloginPassword,
       'failedPassword': l.failedPassword,
     };
-
     return userTexts[key]!;
   }
+
+  String _t(String key, BuildContext context) {
+    final l = AppLocalizations.of(context)!;
+    return widget.isAdmin ? _adminText(key, l) : _userText(key, l);
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
 
   @override
   void dispose() {
@@ -135,9 +139,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     final user = FirebaseAuth.instance.currentUser;
 
     final currentPassword = currentPasswordController.text.trim();
-
     final newPassword = newPasswordController.text.trim();
-
     final confirmPassword = confirmPasswordController.text.trim();
 
     if (user == null || user.email == null) {
@@ -152,9 +154,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       return;
     }
 
-    final passwordRegex = RegExp(
-      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$',
-    );
+    final passwordRegex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$');
 
     if (!passwordRegex.hasMatch(newPassword)) {
       _showMessage(_t('weakPassword', context));
@@ -174,16 +174,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         password: currentPassword,
       );
 
-      await user.reauthenticateWithCredential(
-        credential,
-      );
-
+      await user.reauthenticateWithCredential(credential);
       await user.updatePassword(newPassword);
 
       if (!mounted) return;
 
       _showMessage(_t('passwordSuccess', context));
-
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
@@ -195,20 +191,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       } else if (e.code == 'requires-recent-login') {
         _showMessage(_t('reloginPassword', context));
       } else {
-        _showMessage(
-          e.message ?? _t('failedPassword', context),
-        );
+        _showMessage(e.message ?? _t('failedPassword', context));
       }
     } catch (_) {
       if (!mounted) return;
-
-      _showMessage(
-        _t('failedPassword', context),
-      );
+      _showMessage(_t('failedPassword', context));
     } finally {
-      if (mounted) {
-        setState(() => isSaving = false);
-      }
+      if (mounted) setState(() => isSaving = false);
     }
   }
 
@@ -220,19 +209,14 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 4,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
       decoration: BoxDecoration(
         color: cardBg,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: fieldBorder),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(
-              isDark ? 0.22 : 0.06,
-            ),
+            color: Colors.black.withOpacity(isDark ? 0.22 : 0.06),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -247,14 +231,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           fontWeight: FontWeight.w600,
         ),
         decoration: InputDecoration(
-          icon: Icon(
-            Icons.lock_outline_rounded,
-            color: iconColor,
-          ),
+          icon: Icon(Icons.lock_outline_rounded, color: iconColor),
           hintText: hint,
-          hintStyle: TextStyle(
-            color: hintColor,
-          ),
+          hintStyle: TextStyle(color: hintColor),
           border: InputBorder.none,
           suffixIcon: IconButton(
             onPressed: onToggle,
@@ -278,10 +257,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         shape: BoxShape.circle,
         gradient: LinearGradient(
           colors: isDark
-              ? const [
-                  Color(0xFF1F2D28),
-                  Color(0xFF31443B),
-                ]
+              ? const [Color(0xFF1F2D28), Color(0xFF31443B)]
               : [secondary, textDark],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -317,9 +293,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             borderRadius: BorderRadius.circular(28),
           ),
           child: isSaving
-              ? const CircularProgressIndicator(
-                  color: Colors.white,
-                )
+              ? const CircularProgressIndicator(color: Colors.white)
               : Text(
                   _t('savePassword', context),
                   style: const TextStyle(
@@ -338,19 +312,11 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       backgroundColor: Colors.transparent,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            16,
-            8,
-            16,
-            24,
-          ),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           child: Column(
             children: [
               AppTopBar(
-                title: _t(
-                  'changePassword',
-                  context,
-                ),
+                title: _t('changePassword', context),
                 icon: Icons.lock_reset_rounded,
                 showBackButton: true,
                 showNotifications: false,
@@ -361,42 +327,21 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               const SizedBox(height: 24),
               _passwordField(
                 controller: currentPasswordController,
-                hint: _t(
-                  'currentPassword',
-                  context,
-                ),
+                hint: _t('currentPassword', context),
                 obscure: hideCurrent,
-                onToggle: () {
-                  setState(() {
-                    hideCurrent = !hideCurrent;
-                  });
-                },
+                onToggle: () => setState(() => hideCurrent = !hideCurrent),
               ),
               _passwordField(
                 controller: newPasswordController,
-                hint: _t(
-                  'newPassword',
-                  context,
-                ),
+                hint: _t('newPassword', context),
                 obscure: hideNew,
-                onToggle: () {
-                  setState(() {
-                    hideNew = !hideNew;
-                  });
-                },
+                onToggle: () => setState(() => hideNew = !hideNew),
               ),
               _passwordField(
                 controller: confirmPasswordController,
-                hint: _t(
-                  'confirmPassword',
-                  context,
-                ),
+                hint: _t('confirmPassword', context),
                 obscure: hideConfirm,
-                onToggle: () {
-                  setState(() {
-                    hideConfirm = !hideConfirm;
-                  });
-                },
+                onToggle: () => setState(() => hideConfirm = !hideConfirm),
               ),
               const SizedBox(height: 18),
               _saveButton(),
@@ -410,13 +355,8 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   @override
   Widget build(BuildContext context) {
     if (widget.isAdmin) {
-      return AdminBackground(
-        child: _pageContent(),
-      );
+      return AdminBackground(child: _pageContent());
     }
-
-    return AppBackground(
-      child: _pageContent(),
-    );
+    return AppBackground(child: _pageContent());
   }
 }

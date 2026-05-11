@@ -181,10 +181,10 @@ class _AdminHomePageState extends State<AdminHomePage> {
           child: Column(
             children: [
               AppTopBar(
-                title:
-                    isLoading ? AppLocalizations.of(context)!
-                                    .adminHomeWelcomeLoading : AppLocalizations.of(context)!
-                                                                     .adminHomeWelcomeAdmin(displayedAdminName),
+                title: isLoading
+                    ? AppLocalizations.of(context)!.adminHomeWelcomeLoading
+                    : AppLocalizations.of(context)!
+                        .adminHomeWelcomeAdmin(displayedAdminName),
                 icon: Icons.dashboard_rounded,
                 showNotifications: true,
                 notifications: newNotifications,
@@ -236,7 +236,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                   AppLocalizations.of(context)!
+                                    AppLocalizations.of(context)!
                                         .adminHomeDashboardTitle,
                                     style: TextStyle(
                                       fontSize: 24,
@@ -256,14 +256,13 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                     children: [
                                       Expanded(
                                         child: GestureDetector(
-                                          onTap: () =>
-                                              _goToUserManagement(  
-                                                AppLocalizations.of(context)!
-                                                    .adminHomeAllUsersFilter,
-                                              ),
+                                          onTap: () => _goToUserManagement(
+                                            AppLocalizations.of(context)!
+                                                .adminHomeAllUsersFilter,
+                                          ),
                                           child: DashboardCard(
                                             title: AppLocalizations.of(context)!
-                                                        .adminHomeTotalUsersCard,
+                                                .adminHomeTotalUsersCard,
                                             value: totalUsers.toString(),
                                             icon: Icons.people_alt_rounded,
                                             startColor: const Color(0xFF5E9C76),
@@ -274,14 +273,13 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                       const SizedBox(width: 16),
                                       Expanded(
                                         child: GestureDetector(
-                                          onTap: () =>
-                                              _goToUserManagement(
-                                                  AppLocalizations.of(context)!
-                                                      .adminHomeActiveFilter,
-                                              ),
+                                          onTap: () => _goToUserManagement(
+                                            AppLocalizations.of(context)!
+                                                .adminHomeActiveFilter,
+                                          ),
                                           child: DashboardCard(
                                             title: AppLocalizations.of(context)!
-                                                        .adminHomeActiveUsersLabel,
+                                                .adminHomeActiveUsersLabel,
                                             value: activeUsers.toString(),
                                             icon:
                                                 Icons.person_add_alt_1_rounded,
@@ -300,7 +298,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                           onTap: _goToBinManagement,
                                           child: DashboardCard(
                                             title: AppLocalizations.of(context)!
-                                                        .adminHomeTotalBinsCard,
+                                                .adminHomeTotalBinsCard,
                                             value: totalBins.toString(),
                                             icon: Icons.delete_outline_rounded,
                                             startColor: const Color(0xFF3E6F5C),
@@ -322,7 +320,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                                           },
                                           child: DashboardCard(
                                             title: AppLocalizations.of(context)!
-                                                        .adminHomeReportedIssuesCard,
+                                                .adminHomeReportedIssuesCard,
                                             value: reportedIssues.toString(),
                                             icon: Icons.report_problem_outlined,
                                             startColor: const Color(0xFFB85C38),
