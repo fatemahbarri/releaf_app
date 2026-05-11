@@ -28,7 +28,7 @@ To develop an intelligent, user-friendly system that enhances recycling awarenes
 * 📝 Report issues feature for user feedback
 * 🌍 Arabic & English language support for accessibility
 * 🌙 Dark mode support for a more comfortable user experience
-* 🎮 Gamification system with rewards and progress tracking to encourage recycling habits
+* 🎮 Gamification system that shows user progress to encourage recycling habits
 * 🔔 Simple and user-friendly interface for all users
 
 ---
@@ -134,10 +134,7 @@ Three approaches were tested:
 ### 🏠 Welcome & Authentication
 
 <p align="center">
-  <img src="assets/sign up, login,password.png" width="400">
-</p>
-
-<p align="center">
+  <img src="assets/sign up, login,password.png" width=620">
   <img src="assets/Home.png" width="250">
 </p>
 
