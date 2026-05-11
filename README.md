@@ -134,12 +134,10 @@ Three approaches were tested:
 ### 🏠 Welcome & Authentication
 
 <p align="center">
-  <img src="assets/Welcome.png" width="250">
-  <img src="assets/sign up, login,password.png" width="250">
+  <img src="assets/sign up, login,password.png" width="400">
 </p>
 
 <p align="center">
-  <img src="assets/sign up, login,password2.png" width="250">
   <img src="assets/Home.png" width="250">
 </p>
 
@@ -158,7 +156,7 @@ Three approaches were tested:
 
 ---
 
-### 📍 Recycling Bin Navigation
+### 📍 Recycling Bin Navigation & Report an Issue
 
 <p align="center">
   <img src="assets/Bins1.png" width="250">
@@ -167,7 +165,7 @@ Three approaches were tested:
 
 <p align="center">
   <img src="assets/Location.png" width="250">
-  <img src="assets/Report issue.png" width="250">
+  <img src="assets/Report issiue.png" width="250">
 </p>
 
 > Users can explore nearby recycling bins, view locations through map interfaces, and report issues or incorrect information directly through the app.
