@@ -9,6 +9,7 @@ import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/user/UserWidgets/UserBottomNav.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
 import 'package:releaf_app/widgets/releaf_ui.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class BinDetailsPage extends StatefulWidget {
   final String locationName;
@@ -32,6 +33,19 @@ class BinDetailsPage extends StatefulWidget {
 
 class _BinDetailsPageState extends State<BinDetailsPage> {
   final MapController _mapController = MapController();
+
+  Future<void> _openGoogleMapsRoute() async {
+    final Uri url = Uri.parse(
+      'https://www.google.com/maps/dir/?api=1'
+      '&destination=${widget.latitude},${widget.longitude}'
+      '&travelmode=driving',
+    );
+
+    await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    );
+  }
 
   LatLng? _userLocation;
   double? _distanceKm;
@@ -296,6 +310,14 @@ class _BinDetailsPageState extends State<BinDetailsPage> {
                       ),
                     ),
                   ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: ReLeafButton(
+                  text: 'Open in Google Maps',
+                  icon: Icons.map_rounded,
+                  onPressed: _openGoogleMapsRoute,
                 ),
               ),
             ],

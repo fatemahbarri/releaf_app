@@ -10,6 +10,7 @@ import 'package:releaf_app/l10n/app_localizations.dart';
 import 'package:releaf_app/user/UserWidgets/UserBottomNav.dart';
 import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/widgets/app_top_bar.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../widgets/releaf_ui.dart';
 
 import 'BinsListPage.dart';
@@ -28,6 +29,18 @@ class _LocationPageState extends State<LocationPage> {
   final MapController _mapController = MapController();
 
   LatLng _currentCenter = const LatLng(26.385046, 50.189002);
+
+  Future<void> _openGoogleMaps(double latitude, double longitude) async {
+    final Uri url = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude',
+    );
+
+    await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    );
+  }
+
   bool _isLoadingLocation = true;
   List<Marker> _markers = [];
 
@@ -227,57 +240,70 @@ class _LocationPageState extends State<LocationPage> {
   }
 
   void _showBinInfo(Map<String, dynamic> bin) {
-    final l = AppLocalizations.of(context)!;
-    final distanceKm = (_toDouble(bin['distance']) / 1000).toStringAsFixed(1);
+  final l = AppLocalizations.of(context)!;
+  final distanceKm = (_toDouble(bin['distance']) / 1000).toStringAsFixed(1);
 
-    showModalBottomSheet(
-      context: context,
-      backgroundColor:
-          isDarkMode ? const Color(0xFF1F2F2A) : ReLeafColors.background,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(22),
-        ),
+  final lat = _toDouble(bin['latitude']);
+  final lng = _toDouble(bin['longitude']);
+
+  showModalBottomSheet(
+    context: context,
+    backgroundColor:
+        isDarkMode ? const Color(0xFF1F2F2A) : ReLeafColors.background,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(22),
       ),
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(18, 18, 18, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                bin['binName'] ?? l.locationDefaultBinName,
-                textAlign: TextAlign.center,
-                style: ReLeafTextStyles.title.copyWith(
-                  fontSize: 20,
-                  color: mainTextColor,
-                ),
+    ),
+    builder: (context) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(18, 18, 18, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              bin['binName'] ?? l.locationDefaultBinName,
+              textAlign: TextAlign.center,
+              style: ReLeafTextStyles.title.copyWith(
+                fontSize: 20,
+                color: mainTextColor,
               ),
-              const SizedBox(height: 8),
-              Text(
-                '${bin['city'] ?? ''} ${bin['Region'] ?? ''}',
-                textAlign: TextAlign.center,
-                style: ReLeafTextStyles.body.copyWith(
-                  color: subTextColor,
-                ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${bin['city'] ?? ''} ${bin['Region'] ?? ''}',
+              textAlign: TextAlign.center,
+              style: ReLeafTextStyles.body.copyWith(
+                color: subTextColor,
               ),
-              const SizedBox(height: 8),
-              Text(
-                l.locationBinDistance(
-                  bin['binType'] ?? 'Bin',
-                  distanceKm,
-                ),
-                style: ReLeafTextStyles.subtitle.copyWith(
-                  color: isDarkMode ? Colors.white70 : ReLeafColors.primary,
-                  fontWeight: FontWeight.w600,
-                ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l.locationBinDistance(
+                bin['binType'] ?? 'Bin',
+                distanceKm,
               ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+              style: ReLeafTextStyles.subtitle.copyWith(
+                color: isDarkMode ? Colors.white70 : ReLeafColors.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 18),
+
+            ReLeafButton(
+              text: 'Open in Google Maps',
+              icon: Icons.map_rounded,
+              onPressed: () {
+                Navigator.pop(context);
+                _openGoogleMaps(lat, lng);
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
 
   void _openCategoryPage(String category) {
     Navigator.push(
