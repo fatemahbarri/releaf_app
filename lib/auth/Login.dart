@@ -30,7 +30,6 @@ class BottomWaveClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
     final path = Path();
-
     path.lineTo(0, size.height - 60);
     path.quadraticBezierTo(
       size.width / 2,
@@ -40,7 +39,6 @@ class BottomWaveClipper extends CustomClipper<Path> {
     );
     path.lineTo(size.width, 0);
     path.close();
-
     return path;
   }
 
@@ -60,25 +58,18 @@ class _LoginPageState extends State<LoginPage> {
   String? adminName;
 
   bool get isDark => Theme.of(context).brightness == Brightness.dark;
-
   Color get titleColor =>
       isDark ? const Color(0xFF8BC99B) : const Color(0xFF498056);
-
   Color get textColor =>
       isDark ? const Color(0xFFE9EFEA) : const Color(0xFF2A2A2A);
-
   Color get subTextColor =>
       isDark ? const Color(0xFFB9C3BC) : const Color(0xFF675F5A);
-
   Color get fieldFillColor =>
       isDark ? const Color(0xFF2A332D) : const Color(0xFFFAFAFA);
-
   Color get fieldBorderColor =>
       isDark ? const Color(0xFF4A5A4F) : const Color(0xFFE0E0E0);
-
   Color get primaryGreen =>
       isDark ? const Color(0xFF7FC58E) : const Color(0xFF499A64);
-
   Color get linkColor =>
       isDark ? const Color(0xFF9CBFE6) : const Color(0xFF4676AE);
 
@@ -91,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
       'rememberMe': 'Remember me',
       'login': 'Login',
       'forgotPassword': 'Forgot Password?',
-      'signup': 'Don’t have an account? Sign up',
+      'signup': 'Don\'t have an account? Sign up',
       'fillFields': 'Please fill in all fields',
       'validEmail': 'Please enter a valid email address',
       'adminOnly': 'This page is for admin email only',
@@ -105,6 +96,9 @@ class _LoginPageState extends State<LoginPage> {
       'whatsapp': 'WhatsApp',
       'notAdmin': 'This account is not registered as admin',
       'adminUseLogin': 'This account is admin, please use Admin Login',
+      'invalidCredentials': 'Invalid email or password. Please try again.',
+      'tooManyRequests': 'Too many attempts. Please try again later.',
+      'genericError': 'An error occurred. Please try again.',
     };
 
     final ar = {
@@ -129,6 +123,9 @@ class _LoginPageState extends State<LoginPage> {
       'whatsapp': 'واتساب',
       'notAdmin': 'هذا الحساب غير مسجل كمسؤول',
       'adminUseLogin': 'هذا الحساب مسؤول، يرجى استخدام تسجيل دخول المسؤول',
+      'invalidCredentials': 'البريد الإلكتروني أو كلمة المرور غير صحيحة.',
+      'tooManyRequests': 'محاولات كثيرة جداً، يرجى المحاولة لاحقاً.',
+      'genericError': 'حدث خطأ، يرجى المحاولة مرة أخرى.',
     };
 
     return isArabic ? ar[key]! : en[key]!;
@@ -151,11 +148,7 @@ class _LoginPageState extends State<LoginPage> {
     final Uri url = Uri.parse(
       'https://wa.me/966555229836?text=Hello%20ReLeaf%20Support,%20my%20account%20is%20blocked.',
     );
-
-    await launchUrl(
-      url,
-      mode: LaunchMode.externalApplication,
-    );
+    await launchUrl(url, mode: LaunchMode.externalApplication);
   }
 
   Future<void> _loadRememberedEmail() async {
@@ -163,13 +156,11 @@ class _LoginPageState extends State<LoginPage> {
     final key =
         widget.isAdminMode ? 'remembered_admin_email' : 'remembered_user_email';
     final savedEmail = prefs.getString(key);
-
     if (savedEmail != null && savedEmail.isNotEmpty) {
       setState(() {
         emailController.text = savedEmail;
         rememberMe = true;
       });
-
       await _checkAdminName(savedEmail);
     }
   }
@@ -178,7 +169,6 @@ class _LoginPageState extends State<LoginPage> {
     final prefs = await SharedPreferences.getInstance();
     final key =
         widget.isAdminMode ? 'remembered_admin_email' : 'remembered_user_email';
-
     if (rememberMe) {
       await prefs.setString(key, email);
     } else {
@@ -188,12 +178,10 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _checkAdminName(String email) async {
     final trimmedEmail = email.trim().toLowerCase();
-
     if (!widget.isAdminMode || !trimmedEmail.endsWith('@releaf.com')) {
       setState(() => adminName = null);
       return;
     }
-
     try {
       final userData = await _firebaseService.getUserByEmail(trimmedEmail);
       if (!mounted) return;
@@ -238,12 +226,6 @@ class _LoginPageState extends State<LoginPage> {
         password: password,
       );
 
-      if (userData == null) {
-        await FirebaseAuth.instance.signOut();
-        _showMessage(_t('userNotFound', isArabic));
-        return;
-      }
-
       final user = FirebaseAuth.instance.currentUser;
 
       if (!widget.isAdminMode && user != null && !user.emailVerified) {
@@ -260,7 +242,6 @@ class _LoginPageState extends State<LoginPage> {
       if (status == 'blocked') {
         await FirebaseAuth.instance.signOut();
         if (!mounted) return;
-
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
@@ -278,7 +259,6 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         );
-
         return;
       }
 
@@ -300,21 +280,27 @@ class _LoginPageState extends State<LoginPage> {
       if (widget.isAdminMode) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (_) => AdminHomePage(adminName: name),
-          ),
+          MaterialPageRoute(builder: (_) => AdminHomePage(adminName: name)),
         );
       } else {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
-            builder: (_) => const HomePageUser(),
-          ),
+          MaterialPageRoute(builder: (_) => const HomePageUser()),
         );
       }
     } catch (e) {
       if (!mounted) return;
-      _showMessage(e.toString().replaceFirst('Exception: ', ''));
+      final errorMsg = e.toString().replaceFirst('Exception: ', '');
+
+      if (errorMsg.contains('wrong-password') ||
+          errorMsg.contains('invalid-credential') ||
+          errorMsg.contains('user-not-found')) {
+        _showMessage(_t('invalidCredentials', isArabic));
+      } else if (errorMsg.contains('too-many-requests')) {
+        _showMessage(_t('tooManyRequests', isArabic));
+      } else {
+        _showMessage(_t('genericError', isArabic));
+      }
     } finally {
       if (mounted) {
         setState(() => isLoading = false);
@@ -354,31 +340,20 @@ class _LoginPageState extends State<LoginPage> {
           filled: true,
           fillColor: fieldFillColor,
           prefixIcon: prefixIcon,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 16,
-          ),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           suffixIcon: suffixIcon,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(
-              color: fieldBorderColor,
-              width: 1,
-            ),
+            borderSide: BorderSide(color: fieldBorderColor, width: 1),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(
-              color: fieldBorderColor,
-              width: 1,
-            ),
+            borderSide: BorderSide(color: fieldBorderColor, width: 1),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: BorderSide(
-              color: primaryGreen,
-              width: 1.5,
-            ),
+            borderSide: BorderSide(color: primaryGreen, width: 1.5),
           ),
         ),
       ),
@@ -389,11 +364,7 @@ class _LoginPageState extends State<LoginPage> {
     return Align(
       alignment: isArabic ? Alignment.centerRight : Alignment.centerLeft,
       child: InkWell(
-        onTap: () {
-          setState(() {
-            rememberMe = !rememberMe;
-          });
-        },
+        onTap: () => setState(() => rememberMe = !rememberMe),
         borderRadius: BorderRadius.circular(8),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
@@ -417,11 +388,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 child: rememberMe
-                    ? const Icon(
-                        Icons.check,
-                        size: 14,
-                        color: Colors.white,
-                      )
+                    ? const Icon(Icons.check, size: 14, color: Colors.white)
                     : null,
               ),
               const SizedBox(width: 10),
@@ -454,10 +421,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _buildBackground({required Widget child}) {
-    if (widget.isAdminMode) {
-      return AdminBackground(child: child);
-    }
-
+    if (widget.isAdminMode) return AdminBackground(child: child);
     return AppBackground(child: child);
   }
 
@@ -466,10 +430,7 @@ class _LoginPageState extends State<LoginPage> {
       child: Directionality(
         textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 16,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           child: Column(
             children: [
               Align(
@@ -479,9 +440,7 @@ class _LoginPageState extends State<LoginPage> {
                   onPressed: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const WelcomeScreen(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const WelcomeScreen()),
                     );
                   },
                   icon: Icon(
@@ -515,20 +474,15 @@ class _LoginPageState extends State<LoginPage> {
                       controller: emailController,
                       hintText: _t('email', isArabic),
                       keyboardType: TextInputType.emailAddress,
-                      prefixIcon: Icon(
-                        Icons.email_outlined,
-                        color: primaryGreen,
-                      ),
+                      prefixIcon:
+                          Icon(Icons.email_outlined, color: primaryGreen),
                       onChanged: (value) => _checkAdminName(value),
                     ),
                     _buildTextField(
                       controller: passwordController,
                       hintText: _t('password', isArabic),
                       obscureText: obscurePassword,
-                      prefixIcon: Icon(
-                        Icons.lock_outline,
-                        color: primaryGreen,
-                      ),
+                      prefixIcon: Icon(Icons.lock_outline, color: primaryGreen),
                       suffixIcon: IconButton(
                         icon: Icon(
                           obscurePassword
@@ -536,11 +490,8 @@ class _LoginPageState extends State<LoginPage> {
                               : Icons.visibility_outlined,
                           color: subTextColor,
                         ),
-                        onPressed: () {
-                          setState(() {
-                            obscurePassword = !obscurePassword;
-                          });
-                        },
+                        onPressed: () =>
+                            setState(() => obscurePassword = !obscurePassword),
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -559,8 +510,7 @@ class _LoginPageState extends State<LoginPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (_) => const ForgotPasswordPage(),
-                              ),
+                                  builder: (_) => const ForgotPasswordPage()),
                             );
                           },
                           child: Text(
@@ -579,9 +529,7 @@ class _LoginPageState extends State<LoginPage> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => const SignUp(),
-                            ),
+                            MaterialPageRoute(builder: (_) => const SignUp()),
                           );
                         },
                         child: Text(
@@ -609,7 +557,6 @@ class _LoginPageState extends State<LoginPage> {
       valueListenable: localeNotifier,
       builder: (context, locale, _) {
         final isArabic = locale.languageCode == 'ar';
-
         return Directionality(
           textDirection: isArabic ? TextDirection.rtl : TextDirection.ltr,
           child: Theme(
@@ -637,9 +584,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-                  _buildBackground(
-                    child: _buildLoginContent(isArabic),
-                  ),
+                  _buildBackground(child: _buildLoginContent(isArabic)),
                 ],
               ),
             ),

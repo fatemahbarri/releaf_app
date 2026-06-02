@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:releaf_app/widgets/releaf_ui.dart';
 import 'package:releaf_app/widgets/app_background.dart';
@@ -26,14 +27,9 @@ class ImageClassifierScreen extends StatefulWidget {
 
 class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
   File? _image;
-
-  // raw label from model (always English, used for logic)
   String _result = '';
-
   String _confidence = '';
-
   double _confidenceValue = 0.0;
-
   bool _isLoading = false;
   bool _isModelLoaded = false;
 
@@ -64,14 +60,8 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
       : Colors.black.withOpacity(0.06);
 
   List<Color> get topBarGradient => isDarkMode
-      ? const [
-          Color(0xFF1B3A31),
-          Color(0xFF2F5D50),
-        ]
-      : const [
-          Color(0xFF7FB77E),
-          Color(0xFF5E9C76),
-        ];
+      ? const [Color(0xFF1B3A31), Color(0xFF2F5D50)]
+      : const [Color(0xFF7FB77E), Color(0xFF5E9C76)];
 
   bool get _isLowConfidence {
     return _confidence.isNotEmpty && _confidenceValue < 0.55;
@@ -104,9 +94,7 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
 
   Future<void> _loadModel() async {
     await TFLiteHelper.init();
-
     if (!mounted) return;
-
     setState(() {
       _isModelLoaded = true;
     });
@@ -126,10 +114,8 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
 
     if (!mounted) return;
 
-    final double confidenceValue = double.tryParse(
-          result['confidence'].toString(),
-        ) ??
-        0.0;
+    final double confidenceValue =
+        double.tryParse(result['confidence'].toString()) ?? 0.0;
 
     setState(() {
       _result = result['label'].toString();
@@ -140,45 +126,92 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
   }
 
   Future<void> _pickCamera() async {
-    final picked = await _picker.pickImage(
-      source: ImageSource.camera,
-      imageQuality: 70,
-      maxWidth: 900,
-      maxHeight: 900,
-    );
+    final status = await Permission.camera.request();
 
-    if (picked != null) {
-      final file = File(picked.path);
-      setState(() => _image = file);
-      await _runClassification(file);
+    if (status.isGranted) {
+      final picked = await _picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 70,
+        maxWidth: 900,
+        maxHeight: 900,
+      );
+      if (picked != null) {
+        final file = File(picked.path);
+        setState(() => _image = file);
+        await _runClassification(file);
+      }
+    } else if (status.isPermanentlyDenied) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Camera permission is permanently denied. Please enable it from settings.',
+            ),
+            action: SnackBarAction(
+              label: 'Settings',
+              onPressed: openAppSettings,
+            ),
+          ),
+        );
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Camera permission is required to take a photo.'),
+          ),
+        );
+      }
     }
   }
 
   Future<void> _pickGallery() async {
-    final picked = await _picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 70,
-      maxWidth: 900,
-      maxHeight: 900,
-    );
+    final status = await Permission.photos.request();
 
-    if (picked != null) {
-      final file = File(picked.path);
-      setState(() => _image = file);
-      await _runClassification(file);
+    if (status.isGranted || status.isLimited) {
+      final picked = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 70,
+        maxWidth: 900,
+        maxHeight: 900,
+      );
+      if (picked != null) {
+        final file = File(picked.path);
+        setState(() => _image = file);
+        await _runClassification(file);
+      }
+    } else if (status.isPermanentlyDenied) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Photo permission is permanently denied. Please enable it from settings.',
+            ),
+            action: SnackBarAction(
+              label: 'Settings',
+              onPressed: openAppSettings,
+            ),
+          ),
+        );
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Photo permission is required to upload an image.'),
+          ),
+        );
+      }
     }
   }
 
-  // _result is empty string when no result yet
   bool get _hasResult => !_isLoading && _result.isNotEmpty;
 
   void _learnMore() {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => LearnMorePage(
-          wasteType: _result, // pass raw English label for tips lookup
-        ),
+        builder: (_) => LearnMorePage(wasteType: _result),
       ),
     );
   }
@@ -209,7 +242,6 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
 
   Widget _infoBox() {
     final l = AppLocalizations.of(context)!;
-
     return _customCard(
       padding: const EdgeInsets.all(14),
       child: Row(
@@ -239,16 +271,12 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
     if (index == 0) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => const HomePageUser(),
-        ),
+        MaterialPageRoute(builder: (_) => const HomePageUser()),
       );
     } else if (index == 2) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => const LocationPage(),
-        ),
+        MaterialPageRoute(builder: (_) => const LocationPage()),
       );
     } else if (index == 3) {
       Navigator.pushReplacement(
@@ -297,10 +325,7 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
                             height: 250,
                             color: innerCardColor,
                             child: _image != null
-                                ? Image.file(
-                                    _image!,
-                                    fit: BoxFit.contain,
-                                  )
+                                ? Image.file(_image!, fit: BoxFit.contain)
                                 : Center(
                                     child: Padding(
                                       padding: const EdgeInsets.symmetric(
@@ -450,9 +475,7 @@ class _ImageClassifierScreenState extends State<ImageClassifierScreen> {
             ],
           ),
         ),
-        bottomNavigationBar: const UserBottomNav(
-          currentIndex: 1,
-        ),
+        bottomNavigationBar: const UserBottomNav(currentIndex: 1),
       ),
     );
   }

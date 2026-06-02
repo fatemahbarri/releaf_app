@@ -64,7 +64,6 @@ class FirebaseService {
         await _firestore.collection('admins').doc(user.uid).update({
           'lastLogin': FieldValue.serverTimestamp(),
         });
-
         return {
           ...adminDoc.data()!,
           'type': 'admin',
@@ -85,8 +84,11 @@ class FirebaseService {
         ...userDoc.data()!,
         'type': 'user',
       };
+    } on FirebaseAuthException catch (e) {
+      // ← هنا التعديل، نحفظ الـ error code الأصلي
+      throw Exception(e.code);
     } catch (e) {
-      throw Exception('Login failed');
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }
   }
 
