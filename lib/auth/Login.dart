@@ -224,6 +224,7 @@ class _LoginPageState extends State<LoginPage> {
       final userData = await _firebaseService.loginUser(
         email: email,
         password: password,
+        isAdminMode: widget.isAdminMode,
       );
 
       final user = FirebaseAuth.instance.currentUser;

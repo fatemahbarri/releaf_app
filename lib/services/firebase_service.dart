@@ -13,8 +13,10 @@ class FirebaseService {
     required String password,
   }) async {
     try {
+      final cleanEmail = email.trim().toLowerCase();
+
       final userCredential = await _auth.createUserWithEmailAndPassword(
-        email: email,
+        email: cleanEmail,
         password: password,
       );
 
@@ -26,7 +28,7 @@ class FirebaseService {
 
       await _firestore.collection('users').doc(user.uid).set({
         'name': name,
-        'email': email,
+        'email': cleanEmail,
         'role': 'user',
         'accountStatus': 'active',
         'createdAt': FieldValue.serverTimestamp(),
@@ -40,14 +42,16 @@ class FirebaseService {
   }
 
   // ================= LOGIN =================
-
   Future<Map<String, dynamic>> loginUser({
     required String email,
     required String password,
+    required bool isAdminMode,
   }) async {
     try {
+      final cleanEmail = email.trim().toLowerCase();
+
       final userCredential = await _auth.signInWithEmailAndPassword(
-        email: email,
+        email: cleanEmail,
         password: password,
       );
 
@@ -57,13 +61,18 @@ class FirebaseService {
         throw Exception('Login failed');
       }
 
-      final adminDoc =
-          await _firestore.collection('admins').doc(user.uid).get();
+      if (isAdminMode) {
+        final adminDoc =
+            await _firestore.collection('admins').doc(user.uid).get();
 
-      if (adminDoc.exists) {
+        if (!adminDoc.exists) {
+          throw Exception('not-admin');
+        }
+
         await _firestore.collection('admins').doc(user.uid).update({
           'lastLogin': FieldValue.serverTimestamp(),
         });
+
         return {
           ...adminDoc.data()!,
           'type': 'admin',
@@ -85,7 +94,6 @@ class FirebaseService {
         'type': 'user',
       };
     } on FirebaseAuthException catch (e) {
-      // ← هنا التعديل، نحفظ الـ error code الأصلي
       throw Exception(e.code);
     } catch (e) {
       throw Exception(e.toString().replaceFirst('Exception: ', ''));
@@ -95,9 +103,11 @@ class FirebaseService {
   // ================= USERS QUERY =================
 
   Future<Map<String, dynamic>?> getUserByEmail(String email) async {
+    final cleanEmail = email.trim().toLowerCase();
+
     final querySnapshot = await _firestore
         .collection('users')
-        .where('email', isEqualTo: email)
+        .where('email', isEqualTo: cleanEmail)
         .limit(1)
         .get();
 

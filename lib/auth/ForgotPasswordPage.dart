@@ -4,6 +4,7 @@ import 'package:releaf_app/widgets/app_background.dart';
 import 'package:releaf_app/widgets/auth_card.dart';
 import 'package:releaf_app/widgets/custom_button.dart';
 import 'package:releaf_app/main.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -71,10 +72,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     setState(() => isLoading = true);
 
     try {
-      final methods =
-          await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+      final userQuery = await FirebaseFirestore.instance
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
 
-      if (methods.isEmpty) {
+      if (userQuery.docs.isEmpty) {
         _showMessage(_t('notRegistered', isArabic));
         return;
       }
@@ -84,7 +88,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       if (!mounted) return;
 
       _showMessage(_t('success', isArabic));
-
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
