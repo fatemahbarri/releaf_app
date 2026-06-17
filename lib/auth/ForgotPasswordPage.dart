@@ -72,23 +72,22 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     setState(() => isLoading = true);
 
     try {
-      final userQuery = await FirebaseFirestore.instance
-          .collection('users')
-          .where('email', isEqualTo: email)
-          .limit(1)
-          .get();
-
-      if (userQuery.docs.isEmpty) {
-        _showMessage(_t('notRegistered', isArabic));
-        return;
-      }
-
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
 
       if (!mounted) return;
 
       _showMessage(_t('success', isArabic));
       Navigator.pop(context);
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      if (e.code == 'user-not-found') {
+        _showMessage(_t('notRegistered', isArabic));
+      } else if (e.code == 'invalid-email') {
+        _showMessage(_t('invalidEmail', isArabic));
+      } else {
+        _showMessage('${_t('error', isArabic)}: ${e.code}');
+      }
     } catch (e) {
       if (!mounted) return;
       _showMessage(_t('error', isArabic));
