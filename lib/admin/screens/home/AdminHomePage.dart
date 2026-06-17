@@ -66,23 +66,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
     try {
       final currentUser = _auth.currentUser;
 
-      final futures = <Future>[
-        _firestore.collection('users').get(),
-        _firestore
-            .collection('users')
-            .where('accountStatus', isEqualTo: 'active')
-            .get(),
-        _firestore
-            .collection('users')
-            .where('accountStatus', isEqualTo: 'blocked')
-            .get(),
-        _firestore.collection('bins').get(),
-        _firestore.collection('issues').get(),
-        _firestore
-            .collection('issues')
-            .where('status', isEqualTo: 'unread')
-            .get(),
-      ];
+      final usersSnapshot = await _firestore.collection('users').get();
+      final binsSnapshot = await _firestore.collection('bins').get();
+      final issuesSnapshot = await _firestore.collection('issues').get();
 
       DocumentSnapshot? currentAdminDoc;
 
@@ -90,17 +76,6 @@ class _AdminHomePageState extends State<AdminHomePage> {
         currentAdminDoc =
             await _firestore.collection('users').doc(currentUser.uid).get();
       }
-
-      final results = await Future.wait(futures);
-
-      if (!mounted) return;
-
-      final totalUsersSnapshot = results[0] as QuerySnapshot;
-      final activeUsersSnapshot = results[1] as QuerySnapshot;
-      final blockedUsersSnapshot = results[2] as QuerySnapshot;
-      final totalBinsSnapshot = results[3] as QuerySnapshot;
-      final reportedIssuesSnapshot = results[4] as QuerySnapshot;
-      final newNotificationsSnapshot = results[5] as QuerySnapshot;
 
       String resolvedAdminName = widget.adminName;
 
@@ -119,23 +94,43 @@ class _AdminHomePageState extends State<AdminHomePage> {
         return !email.endsWith('@releaf.com');
       }
 
-      final filteredTotalUsers =
-          totalUsersSnapshot.docs.where(isNormalUser).toList();
+      final normalUsers = usersSnapshot.docs.where(isNormalUser).toList();
 
-      final filteredActiveUsers =
-          activeUsersSnapshot.docs.where(isNormalUser).toList();
+      final normalUserIds = normalUsers.map((doc) => doc.id).toSet();
 
-      final filteredBlockedUsers =
-          blockedUsersSnapshot.docs.where(isNormalUser).toList();
+      final active = normalUsers.where((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return (data['accountStatus'] ?? '').toString().toLowerCase() ==
+            'active';
+      }).length;
+
+      final blocked = normalUsers.where((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return (data['accountStatus'] ?? '').toString().toLowerCase() ==
+            'blocked';
+      }).length;
+
+      final validIssues = issuesSnapshot.docs.where((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        final userId = (data['userId'] ?? '').toString();
+        return normalUserIds.contains(userId);
+      }).toList();
+
+      final unreadIssues = validIssues.where((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return (data['status'] ?? '').toString().toLowerCase() == 'unread';
+      }).length;
+
+      if (!mounted) return;
 
       setState(() {
         displayedAdminName = resolvedAdminName;
-        totalUsers = filteredTotalUsers.length;
-        activeUsers = filteredActiveUsers.length;
-        blockedUsers = filteredBlockedUsers.length;
-        totalBins = totalBinsSnapshot.docs.length;
-        reportedIssues = reportedIssuesSnapshot.docs.length;
-        newNotifications = newNotificationsSnapshot.docs.length;
+        totalUsers = normalUsers.length;
+        activeUsers = active;
+        blockedUsers = blocked;
+        totalBins = binsSnapshot.docs.length;
+        reportedIssues = validIssues.length;
+        newNotifications = unreadIssues;
         isLoading = false;
       });
     } catch (e) {

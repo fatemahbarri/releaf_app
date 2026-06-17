@@ -19,7 +19,8 @@ class AdminReportIssue extends StatefulWidget {
 
 class _AdminReportIssueState extends State<AdminReportIssue> {
   String _selectedFilter = 'All';
-  late String? _expandedIssueId;
+  String? _expandedIssueId;
+  bool _openedFromNotification = false;
 
   final Map<String, TextEditingController> _commentControllers = {};
   final Map<String, bool> _fixedValues = {};
@@ -34,7 +35,11 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
   @override
   void initState() {
     super.initState();
-    _expandedIssueId = widget.selectedIssueId;
+
+    if (widget.selectedIssueId != null) {
+      _selectedFilter = 'All';
+      _expandedIssueId = widget.selectedIssueId;
+    }
   }
 
   bool get isDark => Theme.of(context).brightness == Brightness.dark;
@@ -96,6 +101,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
       case 'read':
         return loc.adminRead;
       case 'fixed':
+      case 'resolved':
         return loc.adminFixed;
       default:
         return status;
@@ -108,22 +114,16 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
     switch (title.trim()) {
       case 'Incorrect classification result':
         return loc.issue1;
-
       case 'Wrong chatbot response':
         return loc.issue2;
-
       case 'App crash or feature not working':
         return loc.issue3;
-
       case 'Incorrect or missing recycling location':
         return loc.issue4;
-
       case 'Login or account issue':
         return loc.issue5;
-
       case 'Other':
         return loc.issue6;
-
       default:
         return title;
     }
@@ -158,8 +158,10 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
   ) async {
     final status = _getStatus(issue);
 
+    if (!mounted) return;
+
     setState(() {
-      _expandedIssueId = _expandedIssueId == issueId ? null : issueId;
+      _expandedIssueId = issueId;
 
       _commentControllers.putIfAbsent(
         issueId,
@@ -168,14 +170,20 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
         ),
       );
 
-      _fixedValues[issueId] = status == 'fixed';
+      _fixedValues[issueId] = status == 'fixed' || status == 'resolved';
     });
 
-    if (status == 'unread') {
-      await FirebaseFirestore.instance.collection('issues').doc(issueId).update({
+    if (status == 'unread' ||
+        issue['isRead'] == false ||
+        issue['isRead'] == null ||
+        issue['isRead'].toString().toLowerCase() == 'false') {
+      await FirebaseFirestore.instance
+          .collection('issues')
+          .doc(issueId)
+          .update({
         'status': 'read',
         'readAt': FieldValue.serverTimestamp(),
-        'isRead': 'true',
+        'isRead': true,
       });
     }
   }
@@ -190,7 +198,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
       'adminComment': comment,
       'isFixed': isFixed,
       'status': isFixed ? 'fixed' : 'read',
-      'isRead': 'true',
+      'isRead': true,
       'updatedAt': FieldValue.serverTimestamp(),
       if (isFixed) 'fixedAt': FieldValue.serverTimestamp(),
     });
@@ -280,13 +288,6 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
           border: Border.all(
             color: selected ? primary : borderColor,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.18 : 0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
         ),
         child: Text(
           _filterLabel(text),
@@ -311,13 +312,11 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
     final rawTitle =
         issue['title']?.toString() ?? issue['type']?.toString() ?? '';
 
-    final rawDetails = issue['details']?.toString() ??
-        issue['description']?.toString() ??
-        '';
+    final rawDetails =
+        issue['details']?.toString() ?? issue['description']?.toString() ?? '';
 
-    final translatedTitle = rawTitle.isEmpty
-        ? loc.complaint
-        : _translateIssueTitle(rawTitle);
+    final translatedTitle =
+        rawTitle.isEmpty ? loc.complaint : _translateIssueTitle(rawTitle);
 
     final translatedDetails = _translateDetails(rawDetails);
 
@@ -328,7 +327,10 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
       ),
     );
 
-    _fixedValues.putIfAbsent(issueId, () => status == 'fixed');
+    _fixedValues.putIfAbsent(
+      issueId,
+      () => status == 'fixed' || status == 'resolved',
+    );
 
     return GestureDetector(
       onTap: () => _openIssue(issueId, issue),
@@ -343,13 +345,6 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
             color: isExpanded ? primary : borderColor,
             width: isExpanded ? 1.4 : 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.22 : 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
         ),
         child: Column(
           children: [
@@ -518,7 +513,7 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
   }
 
   Widget _buildStatusBadge(String status) {
-    final isFixed = status == 'fixed';
+    final isFixed = status == 'fixed' || status == 'resolved';
     final isUnread = status == 'unread';
 
     return Container(
@@ -530,9 +525,6 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                 ? (isDark ? Colors.white10 : lightGreen)
                 : primary.withOpacity(0.18),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark ? Colors.white10 : Colors.transparent,
-        ),
       ),
       child: Text(
         _statusLabel(status),
@@ -608,8 +600,36 @@ class _AdminReportIssueState extends State<AdminReportIssue> {
                               );
                             }
 
-                            final issues =
-                                _filterIssues(snapshot.data?.docs ?? []);
+                            final allIssues = snapshot.data?.docs ?? [];
+
+                            if (!_openedFromNotification &&
+                                widget.selectedIssueId != null) {
+                              final matches = allIssues.where(
+                                (doc) => doc.id == widget.selectedIssueId,
+                              );
+
+                              if (matches.isNotEmpty) {
+                                _openedFromNotification = true;
+
+                                WidgetsBinding.instance.addPostFrameCallback(
+                                  (_) {
+                                    if (!mounted) return;
+
+                                    setState(() {
+                                      _selectedFilter = 'All';
+                                      _expandedIssueId = matches.first.id;
+                                    });
+
+                                    _openIssue(
+                                      matches.first.id,
+                                      matches.first.data(),
+                                    );
+                                  },
+                                );
+                              }
+                            }
+
+                            final issues = _filterIssues(allIssues);
 
                             if (issues.isEmpty) {
                               return Center(

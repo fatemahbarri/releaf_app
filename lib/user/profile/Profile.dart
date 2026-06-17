@@ -223,8 +223,10 @@ class _ProfileState extends State<Profile> {
 
   Future<void> _deleteAccount() async {
     final l = AppLocalizations.of(context)!;
+
     try {
       setState(() => isDeleting = true);
+
       final user = FirebaseAuth.instance.currentUser;
 
       if (user == null) {
@@ -233,13 +235,26 @@ class _ProfileState extends State<Profile> {
         return;
       }
 
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .delete();
+      final uid = user.uid;
+
+      // Delete user's issues
+      final issuesSnapshot = await FirebaseFirestore.instance
+          .collection('issues')
+          .where('userId', isEqualTo: uid)
+          .get();
+
+      for (final doc in issuesSnapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      // Delete user document from Firestore
+      await FirebaseFirestore.instance.collection('users').doc(uid).delete();
+
+      // Delete user account from Firebase Authentication
       await user.delete();
 
       if (!mounted) return;
+
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (_) => const LoginPage(isAdminMode: false)),
@@ -248,12 +263,13 @@ class _ProfileState extends State<Profile> {
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       setState(() => isDeleting = false);
+
       if (e.code == 'requires-recent-login') {
         _showMessage(l.reloginError);
       } else {
         _showMessage(e.message ?? l.failedUpdate);
       }
-    } catch (_) {
+    } catch (e) {
       if (!mounted) return;
       setState(() => isDeleting = false);
       _showMessage(l.failedUpdate);

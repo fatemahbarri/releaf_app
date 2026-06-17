@@ -130,28 +130,25 @@ class AdminNotificationsOverlay extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    newNotifications == 0
-                        ? l10n.adminNotificationNoReports
-                        : l10n.adminNotificationNewReportsCount(
-                            newNotifications,
-                          ),
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: subText,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
                 StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                   stream: FirebaseFirestore.instance
                       .collection('issues')
-                      .where('isRead', isEqualTo: false)
                       .orderBy('createdAt', descending: true)
                       .snapshots(),
                   builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: Text(
+                          'Error: ${snapshot.error}',
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 13,
+                          ),
+                        ),
+                      );
+                    }
+
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Padding(
                         padding: EdgeInsets.symmetric(vertical: 20),
@@ -161,178 +158,216 @@ class AdminNotificationsOverlay extends StatelessWidget {
                       );
                     }
 
-                    final issues = snapshot.data?.docs ?? [];
+                    final allIssues = snapshot.data?.docs ?? [];
 
-                    if (issues.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: Text(
-                          l10n.adminNotificationEmpty,
-                          style: TextStyle(
-                            color: subText,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                    final unreadIssues = allIssues.where((doc) {
+                      final data = doc.data();
+
+                      final isRead = data['isRead'];
+
+                      if (isRead == false) return true;
+
+                      if (isRead == null) return true;
+
+                      if (isRead is String &&
+                          isRead.toLowerCase().trim() == 'false') {
+                        return true;
+                      }
+
+                      return false;
+                    }).toList();
+
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            unreadIssues.isEmpty
+                                ? l10n.adminNotificationNoReports
+                                : l10n.adminNotificationNewReportsCount(
+                                    unreadIssues.length,
+                                  ),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: subText,
+                            ),
                           ),
                         ),
-                      );
-                    }
-
-                    return ConstrainedBox(
-                      constraints: const BoxConstraints(maxHeight: 420),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: issues.length,
-                        itemBuilder: (context, index) {
-                          final doc = issues[index];
-                          final issue = doc.data();
-
-                          final String issueId = doc.id;
-
-                          final String type = _translateIssueType(
-                            l10n,
-                            (issue['type'] ?? '').toString(),
-                          );
-
-                          final String status = _translateStatus(
-                            l10n,
-                            (issue['status'] ?? '').toString(),
-                          );
-
-                          final String description = _translateDescription(
-                            l10n,
-                            (issue['details'] ?? '').toString(),
-                          );
-
-                          final String userName =
-                              (issue['userName'] ?? 'User').toString();
-
-                          return GestureDetector(
-                            onTap: () async {
-                              await FirebaseFirestore.instance
-                                  .collection('issues')
-                                  .doc(issueId)
-                                  .update({'isRead': true});
-
-                              Navigator.pop(context);
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => AdminReportIssue(
-                                    selectedIssueId: issueId,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              padding: const EdgeInsets.all(14),
-                              decoration: BoxDecoration(
-                                color: cardBg,
-                                borderRadius: BorderRadius.circular(18),
-                                border: Border.all(
-                                  color: isDark
-                                      ? Colors.white10
-                                      : AdminTheme.primary.withOpacity(0.15),
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(
-                                      isDark ? 0.25 : 0.08,
-                                    ),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
+                        const SizedBox(height: 16),
+                        if (unreadIssues.isEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Text(
+                              l10n.adminNotificationEmpty,
+                              style: TextStyle(
+                                color: subText,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
                               ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    width: 46,
-                                    height: 46,
+                            ),
+                          )
+                        else
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxHeight: 420),
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: unreadIssues.length,
+                              itemBuilder: (context, index) {
+                                final doc = unreadIssues[index];
+                                final issue = doc.data();
+
+                                final String issueId = doc.id;
+
+                                final String type = _translateIssueType(
+                                  l10n,
+                                  (issue['type'] ?? '').toString(),
+                                );
+
+                                final String status = _translateStatus(
+                                  l10n,
+                                  (issue['status'] ?? '').toString(),
+                                );
+
+                                final String description =
+                                    _translateDescription(
+                                  l10n,
+                                  (issue['details'] ?? '').toString(),
+                                );
+
+                                final String userName =
+                                    (issue['userName'] ?? 'User').toString();
+
+                                return GestureDetector(
+                                  onTap: () async {
+                                    if (!context.mounted) return;
+
+                                    Navigator.pop(context);
+
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => AdminReportIssue(
+                                          selectedIssueId: issueId,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    padding: const EdgeInsets.all(14),
                                     decoration: BoxDecoration(
-                                      color:
-                                          AdminTheme.primary.withOpacity(0.15),
-                                      borderRadius: BorderRadius.circular(14),
+                                      color: cardBg,
+                                      borderRadius: BorderRadius.circular(18),
+                                      border: Border.all(
+                                        color: isDark
+                                            ? Colors.white10
+                                            : AdminTheme.primary
+                                                .withOpacity(0.15),
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(
+                                            isDark ? 0.25 : 0.08,
+                                          ),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
                                     ),
-                                    child: const Icon(
-                                      Icons.report_problem_rounded,
-                                      color: AdminTheme.primary,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
+                                    child: Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          type,
-                                          style: TextStyle(
-                                            color: titleColor,
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
-                                          l10n.adminNotificationFromUser(
-                                            userName,
-                                          ),
-                                          style: TextStyle(
-                                            color: subText,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 6),
-                                        Text(
-                                          description,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            color: subText,
-                                            fontSize: 13,
-                                            height: 1.35,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
                                         Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                            vertical: 4,
-                                          ),
+                                          width: 46,
+                                          height: 46,
                                           decoration: BoxDecoration(
                                             color: AdminTheme.primary
-                                                .withOpacity(0.12),
+                                                .withOpacity(0.15),
                                             borderRadius:
-                                                BorderRadius.circular(20),
+                                                BorderRadius.circular(14),
                                           ),
-                                          child: Text(
-                                            status,
-                                            style: const TextStyle(
-                                              color: AdminTheme.primary,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                          child: const Icon(
+                                            Icons.report_problem_rounded,
+                                            color: AdminTheme.primary,
                                           ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                type,
+                                                style: TextStyle(
+                                                  color: titleColor,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                l10n.adminNotificationFromUser(
+                                                  userName,
+                                                ),
+                                                style: TextStyle(
+                                                  color: subText,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 6),
+                                              Text(
+                                                description,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  color: subText,
+                                                  fontSize: 13,
+                                                  height: 1.35,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  vertical: 4,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: AdminTheme.primary
+                                                      .withOpacity(0.12),
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                ),
+                                                child: Text(
+                                                  status,
+                                                  style: const TextStyle(
+                                                    color: AdminTheme.primary,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Icon(
+                                          Icons.arrow_forward_ios_rounded,
+                                          size: 16,
+                                          color: subText,
                                         ),
                                       ],
                                     ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    size: 16,
-                                    color: subText,
-                                  ),
-                                ],
-                              ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                      ],
                     );
                   },
                 ),

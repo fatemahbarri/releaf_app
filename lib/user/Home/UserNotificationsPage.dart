@@ -168,7 +168,9 @@ class UserNotificationsPage extends StatelessWidget {
                                   : Icons.notifications_active_outlined;
 
                               return GestureDetector(
-                                onTap: () => _markAsRead(item['docId']),
+                                onTap: () async {
+                                  await _markAsRead(item['docId']);
+                                },
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 200),
                                   padding: const EdgeInsets.all(16),

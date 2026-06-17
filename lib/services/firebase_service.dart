@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 class FirebaseService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -151,7 +152,7 @@ class FirebaseService {
     required String city,
     required double latitude,
     required double longitude,
-    required bool isActive, // ✅ صار bool
+    required bool isActive,
   }) async {
     await _firestore.collection('bins').doc(id).update({
       'binName': binName,
@@ -313,5 +314,35 @@ class FirebaseService {
       'updatedAt': FieldValue.serverTimestamp(),
       'isReadByUser': false,
     });
+  }
+
+  Future<void> _markAsRead(String docId) async {
+    try {
+      await FirebaseFirestore.instance.collection('issues').doc(docId).update({
+        'isReadByUser': true,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      debugPrint('Failed to mark issue as read: $e');
+    }
+  }
+
+  Future<void> deleteUserAndAllData(String uid) async {
+    final batch = _firestore.batch();
+
+    // Delete user's issues
+    final issuesSnapshot = await _firestore
+        .collection('issues')
+        .where('userId', isEqualTo: uid)
+        .get();
+
+    for (final doc in issuesSnapshot.docs) {
+      batch.delete(doc.reference);
+    }
+
+    // Delete user's document
+    batch.delete(_firestore.collection('users').doc(uid));
+
+    await batch.commit();
   }
 }
